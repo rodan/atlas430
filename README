@@ -1,0 +1,39 @@
+
+reference libraries used in MSP430F5xxx projects.
+
+ homepage:        https://github.com/rodan/reference_libs
+ author:          Petre Rodan <petre.rodan@simplex.ro>
+ license:         GNU GPLv3
+
+
+ contains drivers for the following:
+
+ * msp430 internals
+  - adc10 (internal)
+  - power management (internal)
+  - RTC + daylight saving
+  - timerA0 & timerA1
+  - UART0 & UART1
+
+ * sensors
+  - Honeywell High Accuracy Ceramic (HSC) and Standard Accuracy Ceramic (SSC) piezoresistive silicon pressure sensors
+  - Micronix Plus pocket pyrometer
+  - Sensirion SHT 1x humidity and temperature sensors
+
+ * misc
+  - spi based sdcard + fat32
+  - i2c master bitbang
+  - messagebus
+  - intertechno radio switches
+  - infrared signal decoding
+  - LCD (present on the OLIMEX MSP430F5510-STK)
+  - 128x64 OLED from seeedstudio
+
+ parts of the code were originally forked from the openchronos-ng project [1]. 
+
+ software requirements:
+
+   msp430 toolchain
+   python-2.7
+
+[1] http://openchronos-ng.sourceforge.net
