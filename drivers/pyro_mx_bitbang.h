@@ -6,7 +6,7 @@
 #define pyro_mx_act_high    PYRO_MX_DIR &= ~PYRO_MX_ACT
 #define pyro_mx_act_low     PYRO_MX_DIR |= PYRO_MX_ACT
 
-#define I2C_PYRO_OK                  0x0
+#define SSI_PYRO_OK                  0x0
 
 volatile uint8_t pyro_mx_rx[5];
 volatile uint16_t pyro_mx_p;

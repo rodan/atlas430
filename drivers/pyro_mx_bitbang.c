@@ -1,6 +1,6 @@
 
 //  software bitbang of serial protocols
-//  library that decodes Micronix Plus pocket pyrometer's debug i2c-like output
+//  library that decodes Micronix Plus pocket pyrometer's synchronous serial debug output
 //
 //  see the enclosed micronix_pyrometer.decode file for details
 //
@@ -43,26 +43,25 @@ static void parse_pyro_mx(enum sys_message msg)
     }
 }
 
-// returns one of I2C_OK, I2C_MISSING_SCL_PULLUP and/or I2C_MISSING_SDA_PULLUP
-uint8_t i2c_pyro_mx_init(void)
+uint8_t ssi_pyro_mx_init(void)
 {
     pyro_mx_p = 0;
     // set both SCL and SDA pins as inputs
-    I2C_PYRO_DIR &= ~(I2C_PYRO_SCL | I2C_PYRO_SDA);
-    I2C_PYRO_OUT &= ~(I2C_PYRO_SCL | I2C_PYRO_SDA);
+    SSI_PYRO_DIR &= ~(SSI_PYRO_SCL | SSI_PYRO_SDA);
+    SSI_PYRO_OUT &= ~(SSI_PYRO_SCL | SSI_PYRO_SDA);
     // trigger on a Hi/Lo edge
-    I2C_PYRO_IES |= I2C_PYRO_SCL;
+    SSI_PYRO_IES |= SSI_PYRO_SCL;
     // clear IFG
-    I2C_PYRO_IFG &= ~I2C_PYRO_SCL;
+    SSI_PYRO_IFG &= ~SSI_PYRO_SCL;
     // enable interrupt
-    I2C_PYRO_IE |= I2C_PYRO_SCL;
+    SSI_PYRO_IE |= SSI_PYRO_SCL;
 
     PYRO_MX_DIR &= ~PYRO_MX_ACT;
     PYRO_MX_OUT &= ~PYRO_MX_ACT;
 
     sys_messagebus_register(&parse_pyro_mx, SYS_MSG_PYRO_RX);
 
-    return I2C_PYRO_OK;
+    return SSI_PYRO_OK;
 }
 
 __attribute__ ((interrupt(PORT1_VECTOR)))
@@ -71,9 +70,9 @@ void PORT1_ISR(void)
     uint16_t iv = P1IV;
 
     switch (iv) {
-    case I2C_PYRO_SCL_IV:
+    case SSI_PYRO_SCL_IV:
         // clear IFG
-        P1IFG &= ~I2C_PYRO_SCL;
+        P1IFG &= ~SSI_PYRO_SCL;
         if (timer_a0_last_event & TIMER_A0_EVENT_CCR2) {
             // if no CLK signal is received for 1ms, consider the connection lost
             timer_a0_last_event &= ~TIMER_A0_EVENT_CCR2;
@@ -93,7 +92,7 @@ void PORT1_ISR(void)
             pyro_mx_rx[3] = 0;
             pyro_mx_rx[4] = 0;
         }
-        if (I2C_PYRO_IN & I2C_PYRO_SDA) {
+        if (SSI_PYRO_IN & SSI_PYRO_SDA) {
             pyro_mx_rx[pyro_mx_p / 8] |= 1 << (7 - (pyro_mx_p % 8));
         }
         pyro_mx_p++;
