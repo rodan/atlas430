@@ -17,9 +17,25 @@ uint8_t i2cm_rxfrom(const uint8_t slave_address, uint8_t * data,
     if (rv != I2C_OK) {
         return rv;
     }
-    rv = i2cm_tx(slave_address, 1);
+    rv = i2cm_tx(slave_address, I2C_READ);
     if (rv == I2C_ACK) {
         i2cm_rx(data, length, 0);
+    }
+    i2cm_stop();
+    return rv;
+}
+
+// returns one of I2C_ACK, I2C_NAK, I2C_MISSING_SCL_PULLUP or I2C_MISSING_SDA_PULLUP
+uint8_t i2cm_txbyte(const uint8_t slave_address, const uint8_t data)
+{
+    uint8_t rv;
+    rv = i2cm_start();
+    if (rv != I2C_OK) {
+        return rv;
+    }
+    rv = i2cm_tx(slave_address, I2C_WRITE);
+    if (rv == I2C_ACK) {
+        rv = i2cm_tx(data, I2C_NO_ADDR_SHIFT);
     }
     i2cm_stop();
     return rv;

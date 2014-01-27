@@ -14,6 +14,7 @@ reference libraries used in MSP430F5xxx projects.
   - RTC + daylight saving
   - timerA0 & timerA1
   - UART0 & UART1
+  - read/write to information memory segments (flash)
 
  * sensors
   - Honeywell High Accuracy Ceramic (HSC) and Standard Accuracy Ceramic (SSC) piezoresistive silicon pressure sensors
@@ -28,6 +29,7 @@ reference libraries used in MSP430F5xxx projects.
   - infrared signal decoding
   - LCD (present on the OLIMEX MSP430F5510-STK)
   - 128x64 OLED from seeedstudio
+  - ADS1110 16bit i2c ADC
 
  parts of the code were originally forked from the openchronos-ng project [1]. 
 

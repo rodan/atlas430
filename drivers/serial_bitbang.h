@@ -3,6 +3,16 @@
 
 #include "proj.h"
 
+/*
+// define the SDA/SCL ports
+// these should be defined in proj.h
+#define I2C_MASTER_DIR P1DIR
+#define I2C_MASTER_OUT P1OUT
+#define I2C_MASTER_IN  P1IN
+#define I2C_MASTER_SCL BIT2
+#define I2C_MASTER_SDA BIT3
+*/
+
 #define sda_high    I2C_MASTER_DIR &= ~I2C_MASTER_SDA
 #define sda_low     I2C_MASTER_DIR |= I2C_MASTER_SDA
 #define scl_high    I2C_MASTER_DIR &= ~I2C_MASTER_SCL
@@ -30,17 +40,9 @@
 #define delay_s     { _NOP(); }
 #define delay_c     { _NOP(); _NOP(); _NOP(); }
 
-/*
-// define the SDA/SCL ports
-#define I2C_MASTER_DIR P1DIR
-#define I2C_MASTER_OUT P1OUT
-#define I2C_MASTER_IN  P1IN
-#define IC2_MASTER_SCL BIT2
-#define I2C_MASTER_SDA BIT3
-*/
-
 // send one byte
 uint8_t i2cm_tx(const uint8_t slave_address, const uint8_t options);
+uint8_t i2cm_txbyte(const uint8_t slave_address, const uint8_t data);
 
 // read 'length' number of bytes and place them into buf
 uint8_t i2cm_rx(uint8_t * buf, const uint16_t length, const uint8_t options);
