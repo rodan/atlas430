@@ -9,7 +9,12 @@
 
 #include "proj.h"
 #include "hsc_ssc_i2c.h"
+
+#ifdef HARDWARE_I2C
+#include "i2c.h"
+#else
 #include "serial_bitbang.h"
+#endif
 
 /* you must define the slave address. you can find it based on the part number:
 
@@ -34,12 +39,28 @@
 uint8_t ps_get_raw(const uint8_t slave_addr, struct cs_raw *raw)
 {
     uint8_t val[4] = { 0, 0, 0, 0 };
-    uint8_t rv;
+    uint8_t rv = 0;
 
+#ifdef HARDWARE_I2C
+    i2c_package_t pkg;
+
+    pkg.slave_addr = slave_addr;
+    pkg.addr[0] = 0;
+    pkg.addr_len = 0;
+    pkg.data = val;
+    pkg.data_len = 4;
+    pkg.read = 1;
+
+    i2c_transfer_start(&pkg, NULL);
+
+#else
     rv = i2cm_rxfrom(slave_addr, val, 4);
+
     if (rv != I2C_ACK) {
         return rv;
     }
+#endif
+
     raw->status = (val[0] & 0xc0) >> 6; // first 2 bits from first byte
     raw->bridge_data = ((val[0] & 0x3f) << 8) + val[1];
     raw->temperature_data = ((val[2] << 8) + (val[3] & 0xe0)) >> 5;
