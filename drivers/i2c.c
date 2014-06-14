@@ -82,6 +82,7 @@ void USCI_BX_ISR(void)
         if (transfer.callback) {
             transfer.callback(I2C_FAILED);
         }
+        __bic_SR_register_on_exit(LPM0_bits);
         return;
     }
 
