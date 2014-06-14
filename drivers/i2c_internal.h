@@ -37,9 +37,6 @@
 #ifndef _I2C_INTERNAL_H_
 #define _I2C_INTERNAL_H_
 
-//#include <i2c_config.h>
-//==================================================================================================
-
 #if I2C_CLK_SRC > 2
 #error "Invalid I2C_CLK_SRC in i2c_config.h"
 #elif I2C_CLK_SRC < 1
@@ -64,6 +61,7 @@
 #define I2C_IE            UCB0IE
 #define I2C_IFG            UCB0IFG
 #define I2C_IV            UCB0IV
+#define I2C_OA          UCB0I2COA
 
 #define I2C_ISR_VECTOR    USCI_B0_VECTOR
 #else
@@ -83,6 +81,7 @@
 #define I2C_IE            UCB1IE
 #define I2C_IFG            UCB1IFG
 #define I2C_IV            UCB1IV
+#define I2C_OA          UCB1I2COA
 
 #define I2C_ISR_VECTOR    USCI_B1_VECTOR
 #else
@@ -102,6 +101,7 @@
 #define I2C_IE            UCB2IE
 #define I2C_IFG            UCB2IFG
 #define I2C_IV            UCB2IV
+#define I2C_OA          UCB2I2COA
 
 #define I2C_ISR_VECTOR    USCI_B2_VECTOR
 #else
@@ -121,6 +121,8 @@
 #define I2C_IE            UCB3IE
 #define I2C_IFG            UCB3IFG
 #define I2C_IV            UCB3IV
+#define I2C_OA          UCB3I2COA
+
 
 #define I2C_ISR_VECTOR    USCI_B3_VECTOR
 #else
