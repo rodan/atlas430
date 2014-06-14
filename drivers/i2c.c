@@ -70,9 +70,11 @@ static struct {
 
 //--------------------------------------------------------------------------------------------------
 __attribute__ ((interrupt(I2C_ISR_VECTOR)))
-void USCI_BX_ISR (void)
+void USCI_BX_ISR(void)
 {
-    if (I2C_IV == USCI_I2C_UCNACKIFG) {
+    uint16_t iv = I2C_IV;
+
+    if (iv == USCI_I2C_UCNACKIFG) {
         I2C_IFG = 0;
         I2C_IE = 0;
         transfer.status = I2C_FAILED;
@@ -80,7 +82,6 @@ void USCI_BX_ISR (void)
         if (transfer.callback) {
             transfer.callback(I2C_FAILED);
         }
-
         return;
     }
 
@@ -154,14 +155,15 @@ void USCI_BX_ISR (void)
         if (transfer.callback) {
             transfer.callback(I2C_IDLE);
         }
+        __bic_SR_register_on_exit(LPM0_bits);
         break;
     }
+
 }
 
 //--------------------------------------------------------------------------------------------------
 void i2c_init(void)
 {
-
     I2C_CTL0 |= UCSWRST;
     //Initialize all USCI registers with UCSWRST = 1 (including UCxCTL1).
     I2C_CTL0 = UCMST | UCMODE_3 | UCSYNC;
@@ -198,19 +200,33 @@ void i2c_transfer_start(const i2c_package_t * pkg,
     } else if (pkg->data_len != 0) {
         if (pkg->read) {
             transfer.next_state = SM_SEND_RESTART;
+            I2C_IFG = 0;
+            I2C_IE = UCNACKIE | UCRXIE;
+            I2C_SA = pkg->slave_addr;
+            I2C_CTL1 &= ~UCTR;  // set to receiver mode
+            while (I2C_CTL1 & UCTXSTP) ;        // Ensure stop condition got sent
+            I2C_CTL1 |= UCTXSTT;        // start condition
+            if (transfer.pkg->data_len == 1) {
+                // wait for STT bit to drop
+                while (I2C_CTL1 & UCTXSTT) ; {
+                    I2C_CTL1 |= UCTXSTP;        // schedule stop condition
+                }
+            }
+            // update next state
+            transfer.next_state = SM_READ_DATA;
+            __bis_SR_register(LPM0_bits + GIE);
         } else {
             transfer.next_state = SM_WRITE_DATA;
+            I2C_IFG = 0;
+            I2C_IE = UCNACKIE | UCTXIE | UCRXIE;
+            I2C_SA = pkg->slave_addr;
+            I2C_CTL1 |= UCTR;   // Set to transmitter mode
+            I2C_CTL1 |= UCTXSTT;        // start condition (sends slave address)
+            __bis_SR_register(LPM0_bits + GIE);
         }
     } else {
         transfer.next_state = SM_DONE;
     }
-
-    I2C_IFG = 0;
-    I2C_IE = UCNACKIE | UCTXIE | UCRXIE;
-    I2C_SA = pkg->slave_addr;
-    I2C_CTL1 |= UCTR;           // Set to transmitter mode
-    I2C_CTL1 |= UCTXSTT;        // start condition (sends slave address)
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -219,7 +235,7 @@ i2c_status_t i2c_transfer_status(void)
     i2c_status_t status;
 
     //ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-        status = transfer.status;
+    status = transfer.status;
     //}
 
     return (status);
