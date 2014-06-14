@@ -36,6 +36,5 @@ reference libraries used in MSP430F5xxx projects.
  software requirements:
 
    msp430 toolchain
-   python-2.7
 
 [1] http://openchronos-ng.sourceforge.net

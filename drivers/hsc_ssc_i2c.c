@@ -47,7 +47,7 @@ uint8_t ps_get_raw(const uint8_t slave_addr, struct cs_raw *raw)
 }
 
 uint8_t ps_convert(const struct cs_raw raw, uint32_t * pressure,
-                   uint16_t * temperature, const uint16_t output_min,
+                   int16_t * temperature, const uint16_t output_min,
                    const uint16_t output_max, const float pressure_min,
                    const float pressure_max)
 {

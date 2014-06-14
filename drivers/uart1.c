@@ -39,6 +39,9 @@ void uart1_init(void)
     UCA1MCTL = UCBRS_3 + UCBRF_0;       // modulation UCBRSx=3, UCBRFx=0
     UCA1CTL1 &= ~UCSWRST;       // initialize USCI state machine
     UCA1IE |= UCRXIE;           // enable USCI_A0 RX interrupt
+    uart1_p = 0;
+    uart1_rx_enable = 1;
+    uart1_rx_err = 0;
 }
 
 uint16_t uart1_tx_str(char *str, uint16_t size)
@@ -56,15 +59,35 @@ __attribute__ ((interrupt(USCI_A1_VECTOR)))
 void USCI_A1_ISR(void)
 {
     uint16_t iv = UCA1IV;
+    register char rx;
 
     enum uart1_tevent ev = 0;
 
     // iv is 2 for RXIFG, 4 for TXIFG
     switch (iv) {
     case 2:
-        ev = UART1_EV_RX;
-        uart1_rx_buf = UCA1RXBUF;
-        _BIC_SR_IRQ(LPM3_bits);
+        rx = UCA1RXBUF;
+        if (uart1_rx_enable && !uart1_rx_err && (uart1_p < UART1_RXBUF_SZ-2)) {
+            if (rx == 0x0a) {
+                return;
+            } else if (rx == 0x0d) {
+                ev = UART1_EV_RX;
+                uart1_rx_buf[uart1_p] = 0;
+                uart1_rx_enable = 0;
+                uart1_rx_err = 0;
+                _BIC_SR_IRQ(LPM3_bits);
+            } else {
+                uart1_rx_buf[uart1_p] = rx;
+                uart1_p++;
+            }
+        } else {
+            uart1_rx_err++;
+            if (rx == 0x0d) {
+                uart1_rx_err = 0;
+                uart1_p = 0;
+            }
+        }
+
         break;
     case 4:
         ev = UART1_EV_TX;
