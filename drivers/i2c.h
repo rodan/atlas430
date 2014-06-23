@@ -57,6 +57,9 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 
+#define I2C_TX_BUFF_LEN     8
+uint8_t i2c_tx_buff[I2C_TX_BUFF_LEN];
+
 typedef struct {
     uint8_t slave_addr;     ///< Chip address of slave device
     uint8_t addr[3];        ///< register/command payload

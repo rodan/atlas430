@@ -24,13 +24,13 @@
 */
 
 /**
-* \addtogroup MOD_SPI
+* \addtogroup MOD_I2C
 * \{
 **/
 
 /**
 * \file
-* \brief Internal include for \ref MOD_SPI "SPI Bus". Abstracts register names between MSP430 devices
+* \brief Internal include for \ref MOD_I2C. Abstracts register names between MSP430 devices
 * \author Alex Mykyta
 **/
 
