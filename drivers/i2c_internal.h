@@ -37,6 +37,8 @@
 #ifndef _I2C_INTERNAL_H_
 #define _I2C_INTERNAL_H_
 
+#include "i2c_config.h"
+
 #if I2C_CLK_SRC > 2
 #error "Invalid I2C_CLK_SRC in i2c_config.h"
 #elif I2C_CLK_SRC < 1

@@ -1,20 +1,9 @@
 
-// hardware UART implementation that uses P4.4 as RXI and P4.5 for TXO
-
 #include "uart0.h"
 
+// you'll have to initialize/map uart ports in main()
 void uart0_init(void)
 {
-
-    // get write-access to port mapping registers
-    //PMAPPWD = 0x02D52;
-    PMAPPWD = PMAPKEY;
-    PMAPCTL = PMAPRECFG;
-    P4MAP2 = PM_UCA0TXD;
-    P4MAP3 = PM_UCA0RXD;
-    PMAPPWD = 0;
-    // hardware UART
-    P4SEL |= BIT2 + BIT3;       // P4.4,5 = USCI_A0 TXD/RXD
     UCA0CTL1 |= UCSWRST;        // put state machine in reset
     UCA0CTL1 |= UCSSEL_1;       // use ACLK
     UCA0BR0 = 0x03;             // 32kHz/9600=3.41
@@ -24,10 +13,9 @@ void uart0_init(void)
     UCA0IE |= UCRXIE;           // enable USCI_A0 RX interrupt
     uart0_p = 0;
     uart0_rx_enable = 1;
-    uart0_rx_err = 0;
 }
 
-uint16_t uart0_tx_str(char *str, uint16_t size)
+uint16_t uart0_tx_str(char *str, const uint16_t size)
 {
     uint16_t p = 0;
     while (p < size) {
@@ -42,30 +30,29 @@ __attribute__ ((interrupt(USCI_A0_VECTOR)))
 void USCI_A0_ISR(void)
 {
     uint16_t iv = UCA0IV;
-    enum uart0_tevent ev = 0;
     register char rx;
+    enum uart0_tevent ev = 0;
 
     // iv is 2 for RXIFG, 4 for TXIFG
     switch (iv) {
     case 2:
         rx = UCA0RXBUF;
-        if (uart0_rx_enable && !uart0_rx_err) {
+        if (uart0_rx_enable && (uart0_p < UART0_RXBUF_SZ-2)) {
             if (rx == 0x0a) {
                 return;
             } else if (rx == 0x0d) {
+                LED_ON;
                 ev = UART0_EV_RX;
                 uart0_rx_buf[uart0_p] = 0;
-                uart0_rx_enable = 0;
-                uart0_rx_err = 0;
+                uart0_rx_enable = false;
                 _BIC_SR_IRQ(LPM3_bits);
             } else {
                 uart0_rx_buf[uart0_p] = rx;
                 uart0_p++;
             }
         } else {
-            uart0_rx_err++;
-            if (rx == 0x0d) {
-                uart0_rx_err = 0;
+            if ((rx == 0x0d) || (rx == 0x0a)) {
+                uart0_p = 0;
             }
         }
         break;

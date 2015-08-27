@@ -43,7 +43,7 @@ rm -f ${temp_diff}
 echo "${others}" | while read file; do
     fpath="$(basename `dirname ${file}`)/`basename ${file}`"
     echo "${reference}" | grep -q "${fpath}" && {
-        diff -up "${file}" "../${myhome}/${fpath}" >> "${temp_diff}"
+        diff -up --ignore-all-space "${file}" "../${myhome}/${fpath}" >> "${temp_diff}"
     }
 done
 

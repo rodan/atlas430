@@ -9,7 +9,7 @@
 #include "serial_bitbang.h"
 
 // returns one of I2C_ACK, I2C_NAK, I2C_MISSING_SCL_PULLUP or I2C_MISSING_SDA_PULLUP
-uint8_t i2cm_rxfrom(const uint8_t slave_address, uint8_t * data,
+uint8_t i2cm_rx_buff(const uint8_t slave_address, uint8_t * data,
                     uint16_t length)
 {
     uint8_t rv;
@@ -21,6 +21,30 @@ uint8_t i2cm_rxfrom(const uint8_t slave_address, uint8_t * data,
     if (rv == I2C_ACK) {
         i2cm_rx(data, length, 0);
     }
+    i2cm_stop();
+    return rv;
+}
+
+// returns one of I2C_ACK, I2C_NAK, I2C_MISSING_SCL_PULLUP or I2C_MISSING_SDA_PULLUP
+uint8_t i2cm_tx_buff(const uint8_t slave_address, const uint8_t * data,
+                    uint16_t length)
+{
+    uint8_t rv;
+    uint16_t i;
+
+    rv = i2cm_start();
+    if (rv != I2C_OK) {
+        return rv;
+    }
+    rv = i2cm_tx(slave_address, I2C_WRITE);
+
+    for (i=0;i<length;i++) {
+        rv = i2cm_tx(data[i], I2C_NO_ADDR_SHIFT);
+        if (rv != I2C_ACK) {
+            break;
+        }
+    }
+
     i2cm_stop();
     return rv;
 }
@@ -66,11 +90,20 @@ uint8_t i2cm_tx(const uint8_t data, const uint8_t options)
         scl_high;
         delay_c;
         delay_c;
+        while (!(I2C_MASTER_IN & I2C_MASTER_SCL)) {
+            delay_c;         // wait if slave holds the clk low
+        }
         scl_low;
     }
     sda_high;
+    delay_c;
+    delay_c;
     scl_high;
     delay_c;
+    delay_c;
+    while (!(I2C_MASTER_IN & I2C_MASTER_SCL)) {
+        delay_c;         // wait if slave holds the clk low
+    }
 
     if (I2C_MASTER_IN & I2C_MASTER_SDA) {
         rv = I2C_NAK;
@@ -91,7 +124,7 @@ uint8_t i2cm_rx(uint8_t * buf, const uint16_t length, const uint8_t options)
         // wait until the data line is pulled low
         // this method is used by sensirion sensors
         while (I2C_MASTER_IN & I2C_MASTER_SDA) {
-            _NOP();
+            delay_c;
         }
     }
 
@@ -101,22 +134,35 @@ uint8_t i2cm_rx(uint8_t * buf, const uint16_t length, const uint8_t options)
         i = 0;
         for (; i < 8; ++i) {
             scl_high;
-            if (!(I2C_MASTER_IN & I2C_MASTER_SCL)) {
-                _NOP();         // wait if slave holds the clk low
+            while (!(I2C_MASTER_IN & I2C_MASTER_SCL)) {
+                delay_c;         // wait if slave holds the clk low
             }
             data <<= 1;
-            if (I2C_MASTER_IN & I2C_MASTER_SDA)
+            if (I2C_MASTER_IN & I2C_MASTER_SDA) {
                 data |= 0x01;
+            }
             scl_low;
         }
         *buf++ = data;
+        // send ack
+
         if (j != length - 1) {
             sda_low;
         }
-        // send ack
-        scl_high;
-        delay_c;
-        scl_low;
+
+        if ((j == length - 1) && (options & I2C_LAST_NAK)) {
+            // send nack
+            sda_high;
+            delay_c;
+            scl_high;
+            delay_c;
+            scl_low;
+        } else {
+            // send ack
+            scl_high;
+            delay_c;
+            scl_low;
+        }
     }
     return 0;
 }
