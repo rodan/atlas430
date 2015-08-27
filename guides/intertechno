@@ -1,0 +1,6 @@
+#define OOK_SEL             P1SEL
+#define OOK_DIR             P1DIR
+#define OOK_OUT             P1OUT
+#define OOK_PIN             BIT1
+
+
