@@ -15,19 +15,7 @@
 uint8_t sht_get_status(uint8_t * data);
 uint8_t sht_get_meas(uint16_t * temp, uint16_t * rh);
 
-// pseudo i2c protocol used by sensirion sensors
-
-// read 'length' bytes into 'data' from 'address'
-uint8_t i2csens_rxfrom(const uint8_t slave_address, uint8_t * data,
-                       uint16_t length);
-
-// send a 'start' sequence
-uint8_t i2csens_start(void);
-
-// send a 'stop' sequence
-void i2csens_stop(void);
-
-// reset serial connection
+// reset connection on the pseudo i2c protocol
 void i2csens_reset(void);
 
 #endif
