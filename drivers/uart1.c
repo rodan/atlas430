@@ -20,7 +20,7 @@ void uart1_init(uint16_t speed)
     UCA1CTL1 &= ~UCSWRST;       // initialize USCI state machine
     UCA1IE |= UCRXIE;           // enable USCI_A0 RX interrupt
     uart1_p = 0;
-    uart1_rx_enable = true;
+    uart1_rx_enable = 1;
 }
 
 uint16_t uart1_tx_str(char *str, const uint16_t size)

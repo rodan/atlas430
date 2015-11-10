@@ -148,7 +148,7 @@ void USCI_BX_ISR(void)
         // fall through
     case SM_DONE:
         I2C_IE = 0;
-        if (transfer.pkg->read == false) {
+        if (transfer.pkg->read == 0) {
             // If finished a write, schedule a stop condition
             I2C_CTL1 |= UCTXSTP;
         }
