@@ -16,7 +16,7 @@
  *
  * JVC and Panasonic protocol added by Kristian Lauszus (Thanks to zenwheel and other people at the original blog post)
  *
- * port to msp430 by Petre Rodan <petre.rodan@simplex.ro>
+ * port to msp430 by Petre Rodan <2b4eda@subdimension.ro>
  *
  */
 

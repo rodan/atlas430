@@ -2,7 +2,7 @@
 //   code that generates command sequences that once sent to an OOK rf stage are able
 //   to control intertechno radio switches.
 //
-//   author:          Petre Rodan <petre.rodan@simplex.ro>
+//   author:          Petre Rodan <2b4eda@subdimension.ro>
 //   available from:  https://github.com/rodan/
 //   license:         GNU GPLv3
 

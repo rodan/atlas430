@@ -1,6 +1,6 @@
 
 //  code for sensirion sht 1x humidity and temperature sensors
-//  author:          Petre Rodan <petre.rodan@simplex.ro>
+//  author:          Petre Rodan <2b4eda@subdimension.ro>
 //  available from:  https://github.com/rodan/
 //  license:         GNU GPLv3
 

@@ -8,7 +8,7 @@
    control/status registers, aging register
    - read of the temperature register, and of any address from the chip.
 
-  Author:          Petre Rodan <petre.rodan@simplex.ro>
+  Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/ds3231
  
   The DS3231 is a low-cost, extremely accurate I2C real-time clock 
