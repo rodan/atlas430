@@ -241,6 +241,6 @@ void ir_init(void)
     IR_DIR &= ~IR_PIN;
     timer_a1_init();
     __enable_interrupt();
-    sys_messagebus_register(&ir_isr, SYS_MSG_TIMER1_CRR0);
+    sys_messagebus_register(&ir_isr, SYS_MSG_TIMER1_CCR0);
     ir_resume();
 }
