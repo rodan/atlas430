@@ -25,12 +25,13 @@ void spi_init(void)
     //Initialize USCI_B1 for SPI Master operation
     UCB1CTL1 |= UCSWRST;        //Put state machine in reset
     //UCB1CTL0 = UCCKPH | UCCKPL | UCMSB | UCMST | UCMODE_0 | UCSYNC;      //3-pin, 8-bit SPI master
-    UCB1CTL0 = UCCKPL | UCMSB | UCMST | UCMODE_0 | UCSYNC;      //3-pin, 8-bit SPI master
+    UCB1CTL0 = UCMSB | UCMST | UCMODE_0 | UCSYNC;      //3-pin, 8-bit SPI master
     //Clock polarity select - The inactive state is high
     //MSB first
     UCB1CTL1 = UCSWRST | UCSSEL_2;      //Use SMCLK, keep RESET
-    UCB1BR0 = 63;               //Initial SPI clock must be <400kHz
-    UCB1BR1 = 0;                //f_UCxCLK = 25MHz/63 = 397kHz
+    UCB1BR0 = 16;             //Initial SPI clock
+    //UCB1BR0 = 8;                //Initial SPI clock
+    UCB1BR1 = 0;                //f_UCxCLK = SMCLK/63
     UCB1CTL1 &= ~UCSWRST;       //Release USCI state machine
     UCB1IFG &= ~UCRXIFG;
 }
@@ -59,7 +60,7 @@ void spi_fast_mode(void)
 
 void spi_read_frame(uint8_t * pBuffer, uint16_t size)
 {
-    uint16_t gie = __read_status_register() & GIE;   //Store current GIE state
+    uint16_t gie = _get_SR_register() & GIE;   //Store current GIE state
 
     __disable_interrupt();      //Make this operation atomic
 
@@ -73,12 +74,12 @@ void spi_read_frame(uint8_t * pBuffer, uint16_t size)
         *pBuffer++ = UCB1RXBUF;
     }
 
-    __bis_status_register(gie);     //Restore original GIE state
+    _bis_SR_register(gie);          //Restore original GIE state
 }
 
 void spi_send_frame(uint8_t * pBuffer, uint16_t size)
 {
-    uint16_t gie = __read_status_register() & GIE;   //Store current GIE state
+    uint16_t gie = _get_SR_register() & GIE;   //Store current GIE state
 
     __disable_interrupt();      //Make this operation atomic
 
@@ -95,6 +96,6 @@ void spi_send_frame(uint8_t * pBuffer, uint16_t size)
     UCB1RXBUF;                  //Dummy read to empty RX buffer
     //and clear any overrun conditions
 
-    __bis_status_register(gie);     //Restore original GIE state
+    _bis_SR_register(gie);          //Restore original GIE state
 }
 
