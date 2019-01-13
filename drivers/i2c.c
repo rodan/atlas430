@@ -100,7 +100,7 @@ void USCI_BX_ISR(void)
             // update next state
             if (transfer.pkg->data_len != 0) {
                 transfer.idx = 0;
-                if (transfer.pkg->read) {
+                if (transfer.pkg->options & I2C_READ) {
                     transfer.next_state = SM_SEND_RESTART;
                 } else {
                     transfer.next_state = SM_WRITE_DATA;
@@ -148,7 +148,8 @@ void USCI_BX_ISR(void)
         // fall through
     case SM_DONE:
         I2C_IE = 0;
-        if (transfer.pkg->read == 0) {
+        //if (transfer.pkg->read == false) {
+        if (transfer.pkg->options & I2C_WRITE) {
             // If finished a write, schedule a stop condition
             I2C_CTL1 |= UCTXSTP;
         }
@@ -199,7 +200,8 @@ void i2c_transfer_start(const i2c_package_t * pkg,
     if (pkg->addr_len != 0) {
         transfer.next_state = SM_SEND_ADDR;
     } else if (pkg->data_len != 0) {
-        if (pkg->read) {
+        if (pkg->options & I2C_READ) {
+        //if (pkg->read) {
             transfer.next_state = SM_SEND_RESTART;
             I2C_IFG = 0;
             I2C_IE = UCNACKIE | UCRXIE;
@@ -209,9 +211,8 @@ void i2c_transfer_start(const i2c_package_t * pkg,
             I2C_CTL1 |= UCTXSTT;        // start condition
             if (transfer.pkg->data_len == 1) {
                 // wait for STT bit to drop
-                while (I2C_CTL1 & UCTXSTT) ; {
-                    I2C_CTL1 |= UCTXSTP;        // schedule stop condition
-                }
+                while (I2C_CTL1 & UCTXSTT);
+                I2C_CTL1 |= UCTXSTP;        // schedule stop condition
             }
             // update next state
             transfer.next_state = SM_READ_DATA;

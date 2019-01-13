@@ -57,16 +57,25 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 
-#define I2C_TX_BUFF_LEN     8
-uint8_t i2c_tx_buff[I2C_TX_BUFF_LEN];
+// option flags
+#define I2C_READ                0x1
+#define I2C_WRITE               0x2
+// sometimes the master has to wait for the slave to release SDA
+// some sensors pull SDA low to signal that data is ready
+#define I2C_SDA_WAIT            0x4
+// some devices want the last read byte to not be ACKed
+#define I2C_LAST_NAK            0x8
+#define I2C_NO_ADDR_SHIFT       0x10
+#define I2C_REPEAT_SA_ON_READ   0x20
+#define I2C_SHT_INIT            0x40
 
 typedef struct {
     uint8_t slave_addr;     ///< Chip address of slave device
-    uint8_t addr[3];        ///< register/command payload
-    uint8_t addr_len;       ///< Number of addr bytes to use (1-3)
+    uint8_t *addr;          ///< register/command payload
+    uint16_t addr_len;      ///< Number of addr bytes to use (1-3)
     uint8_t *data;          ///< Pointer to data transfer buffer
     uint16_t data_len;      ///< Number of bytes to transfer
-    bool read;              ///< Indicates if the transfer is a read operation or not.
+    uint8_t options;        ///< see above the possible option flags
 } i2c_package_t;
 
 i2c_package_t pkg;

@@ -24,14 +24,23 @@
 #define SC      0x10
 #define ST      0x80
 
+// if the chip only does a single conversion, the state machine can reach these
+#define STATE_STANDBY 0x0
+#define STATE_CONVERT 0x1
+
 struct ads1110 {
     int16_t conv_raw;   // adc raw output
     int16_t conv;       // int voltage value *10^4
     uint8_t config;     // adc configuration register
+    uint8_t state;      // state machine parameter
 };
+
+struct ads1110 eadc;
 
 uint8_t ads1110_read(const uint8_t slave_addr, struct ads1110 *adc);
 void ads1110_convert(struct ads1110 *adc);
 uint8_t ads1110_config(const uint8_t slave_addr, const uint8_t val);
+uint8_t ads1110_init(const uint8_t slave_address, const uint8_t config_reg);
+
 
 #endif
