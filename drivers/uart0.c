@@ -41,7 +41,6 @@ void USCI_A0_ISR(void)
             if (rx == 0x0a) {
                 return;
             } else if (rx == 0x0d) {
-                LED_ON;
                 ev = UART0_EV_RX;
                 uart0_rx_buf[uart0_p] = 0;
                 uart0_rx_enable = 0;
