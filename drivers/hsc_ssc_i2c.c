@@ -41,7 +41,6 @@ uint8_t ps_get_raw(const uint8_t slave_addr, struct cs_raw *raw)
     uint8_t val[4] = { 0, 0, 0, 0 };
     uint8_t rv = 0;
 
-#ifdef HARDWARE_I2C
     i2c_package_t pkg;
 
     pkg.slave_addr = slave_addr;
@@ -49,12 +48,14 @@ uint8_t ps_get_raw(const uint8_t slave_addr, struct cs_raw *raw)
     pkg.addr_len = 0;
     pkg.data = val;
     pkg.data_len = 4;
-    pkg.read = 1;
+    pkg.options = I2C_READ | I2C_LAST_NAK;
 
+#ifdef HARDWARE_I2C
     i2c_transfer_start(&pkg, NULL);
 
 #else
-    rv = i2cm_rxfrom(slave_addr, val, 4);
+    //rv = i2cm_rx_buff(slave_addr, NULL, 0, val, 4, 0);
+    rv = i2cm_transfer(&pkg);
 
     if (rv != I2C_ACK) {
         return rv;
