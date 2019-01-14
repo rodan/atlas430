@@ -5,11 +5,11 @@
 //  license:         GNU GPLv3
 
 #include "proj.h"
-#include "ads1110.h"
-#include "sys_messagebus.h"
-#include "timer_a0.h"
+#include "drivers/ads1110.h"
+#include "drivers/sys_messagebus.h"
+#include "drivers/timer_a0.h"
 
-#include "serial_bitbang.h"
+#include "drivers/serial_bitbang.h"
 
 #ifdef HARDWARE_I2C
     #include "drivers/i2c.h"
