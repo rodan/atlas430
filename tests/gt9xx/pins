@@ -1,0 +1,15 @@
+
+
+P1.0 sig0
+P1.1 sig1
+P1.3 sig2
+P1.4 sig3
+P1.5 sig4
+
+P3.0 vcc enable
+
+P5.2 gt9xx rst
+P6.3 gt9xx irq
+P7.1 scl
+P7.0 sda
+

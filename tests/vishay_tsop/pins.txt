@@ -1,0 +1,8 @@
+
+P1.0    sig1 (led)      brown
+P1.2    tsop out        grey
+P1.3    sig2            orange
+P1.4    sig3            red
+
+
+

@@ -1,0 +1,7 @@
+ fexec test suite --- available commands:
+
+ ?             - show menu
+ r             - run fct
+* execute internal function from 0x5b46         [ok]
+* execute detected opcodes without mmap, also not obeying NX 0x2b80     [ok]
+

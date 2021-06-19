@@ -1,35 +1,38 @@
 
-reference libraries used in MSP430F5xxx projects.
+reference libraries used in MSP430FR5xxx projects.
 
- homepage:        https://github.com/rodan/reference_libs
+ homepage:        https://github.com/rodan/reference_libs_msp430fr5x
  author:          Petre Rodan <2b4eda@subdimension.ro>
- license:         GNU GPLv3
+ license:         BSD
 
 
  contains drivers for the following:
 
- * msp430 internals
-  - adc10 (internal)
-  - power management (internal)
-  - RTC + daylight saving
-  - timerA0 & timerA1
-  - UART0 & UART1
-  - read/write to information memory segments (flash)
+ * driverlib
+  - TI MSP430 DriverLib 2.91.08.00
 
- * sensors
+ * glue
+  - i2c with blocking implementation based on the TI DriverLib
+  - i2c controlled by interrupts (IRQ_I2C)
+  - bitbanged i2c
+  - uart with optional interrupt driven tx
+  - system messagebus
+  - ring buffer
+
+ * drivers
   - Honeywell High Accuracy Ceramic (HSC) and Standard Accuracy Ceramic (SSC) piezoresistive silicon pressure sensors
-  - Micronix Plus pocket pyrometer
   - Sensirion SHT 1x humidity and temperature sensors
+  - Maxim DS3231 rtc IC
+  - Maxim DS3234 rtc IC
+  - Analog Devices AD7789 adc IC
+  - Cypress FM24* i2c FRAM IC
+  - Texas Instruments TCA6408 IO expander 
 
- * misc
-  - spi based sdcard + fat32
-  - i2c master bitbang
-  - messagebus
-  - intertechno radio switches
-  - infrared signal decoding
-  - LCD (present on the OLIMEX MSP430F5510-STK)
-  - 128x64 OLED from seeedstudio
-  - ADS1110 16bit i2c ADC
+ * tests
+  - a Makefile driven collection of unit tests for different drivers
+
+ * tools
+  - generic script for flashing uCs
 
  parts of the code were originally forked from the openchronos-ng project [1]. 
 

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+mspdebug -d /dev/ttyACM5 tilib 'prog build/main.elf'
