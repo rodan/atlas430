@@ -1,7 +1,7 @@
 
-reference libraries used in MSP430FR5xxx projects.
+reference libraries for projects that use the MSP430 microcontroller.
 
- homepage:        https://github.com/rodan/reference_libs_msp430fr5x
+ homepage:        https://github.com/rodan/reference_libs_msp430
  author:          Petre Rodan <2b4eda@subdimension.ro>
  license:         BSD
 
@@ -9,7 +9,7 @@ reference libraries used in MSP430FR5xxx projects.
  contains drivers for the following:
 
  * driverlib
-  - TI MSP430 DriverLib 2.91.08.00
+  - TI MSP430 DriverLib (provided as git submodule)
 
  * glue
   - i2c with blocking implementation based on the TI DriverLib
@@ -34,10 +34,10 @@ reference libraries used in MSP430FR5xxx projects.
  * tools
   - generic script for flashing uCs
 
- parts of the code were originally forked from the openchronos-ng project [1]. 
-
  software requirements:
 
-   msp430 toolchain
+	msp430 toolchain
+	make
+	Linux OS (for makefile scripts). might work with WSL or cygwin, not tested.
 
-[1] http://openchronos-ng.sourceforge.net
+	tested on a stable Gentoo Linux system with Mitto Systems GCC 9.3.1.1-based toolchain

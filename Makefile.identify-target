@@ -3,6 +3,10 @@
 # decisions based on TARGET. It is also automatically included by the
 # top-level Makefile.include.
 
+ifneq ($(target),)
+	TARGET=$(target)
+endif
+
 ifeq ($(TARGET),)
   -include Makefile.target
   ifeq ($(TARGET),)

@@ -34,21 +34,19 @@ CFLAGS_REL	 += -Os -fdata-sections -ffunction-sections -fomit-frame-pointer
 LDFLAGS_REL	 += -Wl,-s
 CFLAGS_DBG	 += -O1 -ggdb
 LDFLAGS_DBG	 += 
-INCLUDES         := -I $(GCC_EXTRA_INC_DIR) -I $(GCC_INC_DIR) -I $(DRIVERLIB) -I $(GLUELIB) -I $(GCC_CSS_INC_GCC_DIR) -I ./ -I .
+INCLUDES         := -I $(GCC_EXTRA_INC_DIR) -I $(GCC_INC_DIR) -I $(DRIVERLIB) -I $(GLUELIB) -I $(GLUELIB_HAL) -I $(GCC_CSS_INC_GCC_DIR) -I ./ -I .
 ######################################
 DRIVERLIB_SRC    := $(wildcard $(DRIVERLIB)/*.c)
 GLUELIB_SRC      := $(wildcard $(GLUELIB)/*.c)
+GLUELIB_HAL_SRC  := $(wildcard $(GLUELIB_HAL)/*.c)
 LOCAL_SRC        := $(wildcard *.c)
 PROJ_SRC         := $(PROJ).c
-SRC              := $(PROJ_SRC) $(DRIVERLIB_SRC) $(GLUELIB_SRC) $(LOCAL_SRC)
+SRC              := $(PROJ_SRC) $(DRIVERLIB_SRC) $(GLUELIB_SRC) $(GLUELIB_HAL_SRC) $(LOCAL_SRC)
 
 DRIVERLIB_OBJECTS = $(DRIVERLIB_SRC:$(DRIVERLIB)/%.c=$(OBJ_DIR)/%.o)
-GLUELIB_OBJECTS   = $(GLUELIB_SRC:$(GLUELIB)/%.c=$(OBJ_DIR)/%.o)
+GLUELIB_OBJECTS   = $(GLUELIB_SRC:$(GLUELIB)/%.c=$(OBJ_DIR)/%.o) $(GLUELIB_HAL_SRC:$(GLUELIB_HAL)/%.c=$(OBJ_DIR)/%.o)
 LOCAL_OBJECTS     = $(LOCAL_SRC:%.c=$(OBJ_DIR)/%.o)
 
-#DRIVERLIB_OBJECTS:= $(patsubst %.c,%.o,$(DRIVERLIB_SRC))
-#GLUELIB_OBJECTS  := $(patsubst %.c,%.o,$(GLUELIB_SRC))
-#LOCAL_OBJECTS    := $(patsubst %.c,%.o,$(LOCAL_SRC))
 EXOBJECT         := $(OBJ_DIR)/$(PROJ).o
 EXOUTPUT         := $(OBJ_DIR)/$(PROJ).elf
 ######################################
@@ -105,6 +103,10 @@ $(OBJ_DIR)/%.o: $(GLUELIB)/%.c
 	@echo -e " * [glue] $(@F)"
 	@$(CC) $(INCLUDES) $(CFLAGS) $(MACROS) -c $< -o $@
 
+$(OBJ_DIR)/%.o: $(GLUELIB_HAL)/%.c
+	@echo -e " * [glue-hal] $(@F)"
+	@$(CC) $(INCLUDES) $(CFLAGS) $(MACROS) -c $< -o $@
+
 $(OBJ_DIR)/%.o: %.c
 	@echo -e " * $(@F)"
 	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
@@ -140,12 +142,12 @@ $(OBJ_DIR)/$(PROJ).dep: $(SRC)
 	@mkdir -p $(OBJ_DIR)
 	@touch $@
 	@makedepend $(INCLUDES) -p "$(OBJ_DIR)/" -Y -f $@ $^ &> /dev/null
-	@sed -i "s|$(OBJ_DIR)/$(GLUELIB)/|$(OBJ_DIR)/|;s|$(OBJ_DIR)/$(DRIVERLIB)/|$(OBJ_DIR)/|" $(OBJ_DIR)/main.dep
+	@sed -i "s|$(OBJ_DIR)/$(GLUELIB_HAL)/|$(OBJ_DIR)/|;s|$(OBJ_DIR)/$(GLUELIB)/|$(OBJ_DIR)/|;s|$(OBJ_DIR)/$(DRIVERLIB)/|$(OBJ_DIR)/|" $(OBJ_DIR)/main.dep
 	@grep -v ^\# $(OBJ_DIR)/$(PROJ).dep | cut -d" " -f2 | sort -u | xargs > $(OBJ_DIR)/$(PROJ).hdep
 	@echo "tags: `cat $(OBJ_DIR)/$(PROJ).hdep`" >> $(OBJ_DIR)/$(PROJ).dep
 	@rm -f $@.bak
 
-tags: $(PROJ_SRC) $(DRIVERLIB_SRC) $(GLUELIB_SRC) $(LOCAL_SRC) $(OBJ_DIR)/$(PROJ).dep
+tags: $(PROJ_SRC) $(DRIVERLIB_SRC) $(GLUELIB_SRC) $(GLUELIB_HAL_SRC) $(LOCAL_SRC) $(OBJ_DIR)/$(PROJ).dep
 	@echo "Generating tags .."
 	@echo $(deps)
 	@exuberant-ctags --recurse=yes ./ $(DRIVERLIB) $(GLUELIB) $(LDDIR).h $(shell cat $(OBJ_DIR)/$(PROJ).hdep)
@@ -163,7 +165,7 @@ scan-build: clean
 	@scan-build --use-cc=$(CC) --analyzer-target=msp430-elf --exclude ./driverlib/MSP430FR5xx_6xx make PARSER=scan-build
 
 cppcheck: clean
-	@cppcheck --quiet --force --enable=warning --enable=performance --enable=information --enable=missingInclude -I $(DRIVERLIB) -I $(GLUELIB) -I ./ ./
+	@cppcheck --quiet --force --enable=warning --enable=performance --enable=information --enable=missingInclude -I $(DRIVERLIB) -I $(GLUELIB) -I $(GLUELIB_HAL) -I ./ ./
 
 $(EXOBJECT): $(PROJ_SRC) $(OBJ_DIR)/$(PROJ).cflags
 	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
