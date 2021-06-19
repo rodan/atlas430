@@ -3,6 +3,8 @@
 # decisions based on TARGET. It is also automatically included by the
 # top-level Makefile.include.
 
+DEFAULT_TARGET=MSP430FR5994
+
 ifneq ($(target),)
 	TARGET=$(target)
 endif
@@ -10,13 +12,55 @@ endif
 ifeq ($(TARGET),)
   -include Makefile.target
   ifeq ($(TARGET),)
-    ${info TARGET not defined, using target 'MSP430FR5994'}
-    TARGET=MSP430FR5994
+    ${info TARGET not defined, using target '$(DEFAULT_TARGET)'}
+    TARGET=$(DEFAULT_TARGET)
   else
     ${info using saved target '$(TARGET)'}
   endif
 endif
 
+ifeq ($(TARGET),MSP430F5438)
+	DEVICE=MSP430F5438
+	FAMILY=MSP430F5xx_6xx
+	HWMULT=-mhwmult=auto
 
-include $(PROJ_ROOT)/Makefile.target.$(TARGET)
+else ifeq ($(TARGET),MSP430F5510)
+	DEVICE=MSP430F5510
+	FAMILY=MSP430F5xx_6xx
+	HWMULT=-mhwmult=auto
+
+else ifeq ($(TARGET),MSP430FR2355)
+	DEVICE=MSP430FR2355
+	FAMILY=MSP430FR2xx_4xx
+	HWMULT=-mhwmult=auto
+
+else ifeq ($(TARGET),MSP430FR2433)
+	DEVICE=MSP430FR2433
+	FAMILY=MSP430FR2xx_4xx
+	HWMULT=-mhwmult=auto
+
+else ifeq ($(TARGET),MSP430FR2476)
+	DEVICE=MSP430FR2476
+	FAMILY=MSP430FR2xx_4xx
+	HWMULT=-mhwmult=auto
+
+else ifeq ($(TARGET),MSP430FR4133)
+	DEVICE=MSP430FR4133
+	FAMILY=MSP430FR2xx_4xx
+	HWMULT=-mhwmult=auto
+
+else ifeq ($(TARGET),MSP430FR5994)
+	DEVICE=MSP430FR5994
+	FAMILY=MSP430FR5xx_6xx
+	HWMULT=-mhwmult=f5series
+
+else ifeq ($(TARGET),MSP430FR6989)
+	DEVICE=MSP430FR6989
+	FAMILY=MSP430FR5xx_6xx
+	HWMULT=-mhwmult=auto
+
+else
+    ${info known targets are MSP430F5438 MSP430F5510 MSP430FR2355 MSP430FR2433 MSP430FR2476 MSP430FR4133 MSP430FR5994 MSP430FR6989}
+    ${error unknown TARGET $(TARGET). you might need to update $(REFLIB_ROOT)/Makefile.identify-target}
+endif
 

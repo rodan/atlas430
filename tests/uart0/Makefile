@@ -6,9 +6,9 @@
 #==============================================================================
 
 PROJ:=main
-PROJ_ROOT:=../..
+REFLIB_ROOT:=../..
 
-include $(PROJ_ROOT)/Makefile.env
+include $(REFLIB_ROOT)/Makefile.env
 
 SUBDIRS:= 
 OBJ_DIR:=build/$(TARGET)
@@ -71,7 +71,7 @@ all: mkdir_od config.h driverlib $(EXOUTPUT)
 else
 # Append specific CFLAGS/LDFLAGS
 DEBUG := $(shell grep "^\#define CONFIG_DEBUG" config.h)
-MACROS := $(shell ../../tools/extract_macros.sh config.h)
+MACROS := -DDEVICE=$(DEVICE) -DFAMILY=$(FAMILY) $(shell ../../tools/extract_macros.sh config.h)
 ifeq ($(DEBUG),)
 TARGET	:= RELEASE
 CFLAGS	+= $(CFLAGS_REL)
