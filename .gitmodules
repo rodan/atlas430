@@ -1,0 +1,6 @@
+[submodule "driverlib"]
+	path = driverlib
+	url = git@github.com:rodan/mspdriverlib.git
+[submodule "glue"]
+	path = glue
+	url = git@github.com:rodan/mspglue.git

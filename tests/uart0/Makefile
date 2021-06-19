@@ -107,7 +107,7 @@ $(OBJ_DIR)/%.o: $(GLUELIB)/%.c
 
 $(OBJ_DIR)/%.o: %.c
 	@echo -e " * $(@F)"
-	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
+	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
 $(EXOUTPUT): $(DRIVERLIB_OBJECTS) $(GLUELIB_OBJECTS) $(LOCAL_OBJECTS) $(EXOBJECT)
 	@echo -e "\n>> Building $@ as target $(TARGET)"
