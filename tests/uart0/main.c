@@ -10,7 +10,6 @@
 #include <string.h>
 
 #include "proj.h"
-#include "config.h"
 #include "driverlib.h"
 #include "glue.h"
 #include "ui.h"
@@ -77,16 +76,27 @@ int main(void)
 {
     // stop watchdog
     WDTCTL = WDTPW | WDTHOLD;
+    //msp430_hal_init();
     main_init();
     sig0_on;
 
     clock_port_init();
     clock_init();
 
+#if defined (__MSP430FR5994__)
     // output SMCLK on P3.4
-    P3OUT &= ~BIT4;
+    //P3OUT &= ~BIT4;
     P3DIR |= BIT4;
     P3SEL1 |= BIT4;
+#elif defined (__MSP430F5438__)
+    // output SMCLK on P1.6
+    P1DIR |= BIT6;
+    P1SEL |= BIT6;
+#elif defined (__MSP430F5510__) || defined (__MSP430F5529__)
+    // output SMCLK on P2.2
+    P2DIR |= BIT2;
+    P2SEL |= BIT2;
+#endif
 
     uart0_port_init();
     uart0_init();
@@ -105,9 +115,11 @@ int main(void)
     timer_a0_init();
 #endif
 
+#if defined (__MSP430FR5994__) || defined (__MSP430F5529__)
     // Disable the GPIO power-on default high-impedance mode to activate
     // previously configured port settings
     PM5CTL0 &= ~LOCKLPM5;
+#endif
 
     sig0_off;
     sig1_off;
@@ -119,6 +131,7 @@ int main(void)
     sig4_off;
 #endif
 
+    eh_init();
     eh_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
 
 //#define TEST_UART0_TX_STR
@@ -173,9 +186,6 @@ int main(void)
     uart0_print("\r\n");
     uart0_print(_itoa(buf, -1));
     uart0_print("\r\n");
-//>> Building main.elf as target RELEASE
-//   text    data     bss     dec     hex filename
-//   2627     212     106    2945     b81 main.elf
 #endif
 
 #ifdef TEST_SNPRINTF
@@ -189,9 +199,6 @@ int main(void)
     uart0_print(buf);
     snprintf(buf, 12, "%d", -1);
     uart0_print(buf);
-//>> Building main.elf as target RELEASE
-//   text    data     bss     dec     hex filename
-//   5151     212     106    5469    155d main.elf
 #endif
 
 #ifdef TEST_UTOH

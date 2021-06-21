@@ -6,7 +6,7 @@
 #include "ui.h"
 
 static const char menu_str[]="\
-\r\n uart0 and helper module test suite --- available commands:\r\n\r\n\
+\r\n uart1 and helper module test suite --- available commands:\r\n\r\n\
 \e[33;1m?\e[0m  - show menu\r\n\
 \e[33;1md\e[0m  - convert input into decimal\r\n\
 \e[33;1mh\e[0m  - convert input into hex\r\n";
@@ -15,15 +15,15 @@ static const char received_str[]="received ";
 
 void display_menu(void)
 {
-    uart0_print(menu_str);
+    uart1_print(menu_str);
 }
 
 #define PARSER_CNT 16
 
 void parse_user_input(void)
 {
-#ifdef UART0_RX_USES_RINGBUF
-    struct ringbuf *rbr = uart0_get_rx_ringbuf();
+#ifdef uart1_RX_USES_RINGBUF
+    struct ringbuf *rbr = uart1_get_rx_ringbuf();
     uint8_t rx;
     uint8_t c = 0;
     char input[PARSER_CNT];
@@ -38,7 +38,7 @@ void parse_user_input(void)
         c++;
     }
 #else
-    char *input = uart0_get_rx_buf();
+    char *input = uart1_get_rx_buf();
 #endif
     char f = input[0];
     char itoa_buf[CONV_BASE_10_BUF_SZ];
@@ -49,21 +49,21 @@ void parse_user_input(void)
         display_menu();
     } else if (f == 'd') {
         if (str_to_int32(input, &si, 1, strlen(input) - 1, -2147483648, 2147483647) == EXIT_FAILURE) {
-            uart0_print(err_conv_str);
+            uart1_print(err_conv_str);
         }
-        uart0_print(received_str);
-        uart0_print(_itoa(itoa_buf, si));
-        uart0_print("\r\n");
+        uart1_print(received_str);
+        uart1_print(_itoa(itoa_buf, si));
+        uart1_print("\r\n");
     } else if (f == 'h') {
         if (str_to_uint32(input, &in, 1, strlen(input) - 1, 0, -1) == EXIT_FAILURE) {
-            uart0_print(err_conv_str);
+            uart1_print(err_conv_str);
         }
-        uart0_print(received_str);
-        uart0_print(_utoh(itoa_buf, in));
-        uart0_print("\r\n");
+        uart1_print(received_str);
+        uart1_print(_utoh(itoa_buf, in));
+        uart1_print("\r\n");
     } else if (f == 'a') {
-        uart0_print("123456789\r\n");
+        uart1_print("123456789\r\n");
     } else {
-        //uart0_tx_str("\r\n", 2);
+        //uart1_tx_str("\r\n", 2);
     }
 }
