@@ -71,7 +71,7 @@ all: mkdir_od config.h driverlib $(EXOUTPUT)
 else
 # Append specific CFLAGS/LDFLAGS
 DEBUG := $(shell grep "^\#define CONFIG_DEBUG" config.h)
-MACROS := -DDEVICE=$(DEVICE) -DFAMILY=$(FAMILY) $(shell ../../tools/extract_macros.sh config.h)
+MACROS := -DDEVICE=$(DEVICE) -DFAMILY=$(FAMILY) $(shell $(REFLIB_ROOT)/tools/extract_macros.sh config.h)
 CFLAGS += $(MACROS)
 ifeq ($(DEBUG),)
 TARGET	:= RELEASE
@@ -125,7 +125,7 @@ clean:
 	$(RM) tags
 
 install: $(OBJ_DIR)/$(PROJ).elf
-	@bash ../../tools/burn.sh $<
+	@bash $(REFLIB_ROOT)/tools/burn.sh $<
 
 # rebuild if CFLAGS changed, as suggested in:
 # http://stackoverflow.com/questions/3236145/force-gnu-make-to-rebuild-objects-affected-by-compiler-definition/3237349#3237349
@@ -136,7 +136,7 @@ $(OBJ_DIR)/$(PROJ).cflags: cflags_update
 ifneq ($(OS),Windows_NT)
 
 version.h: $(SRC)
-	@../../tools/setver.sh
+	@$(REFLIB_ROOT)/tools/setver.sh
 
 $(OBJ_DIR)/$(PROJ).dep: $(SRC)
 	@echo "Generating dependencies.."
@@ -154,7 +154,7 @@ tags: $(PROJ_SRC) $(DRIVERLIB_SRC) $(GLUELIB_SRC) $(GLUELIB_HAL_SRC) $(LOCAL_SRC
 	@exuberant-ctags --recurse=yes ./ $(DRIVERLIB) $(GLUELIB) $(LDDIR).h $(shell cat $(OBJ_DIR)/$(PROJ).hdep)
 
 new_timestamps:
-	@$(BASH) ../../tools/update_rtca_now.sh
+	@$(BASH) $(REFLIB_ROOT)/tools/update_rtca_now.sh
 
 size: $(OBJ_DIR)/$(PROJ).elf
 	@size $(OBJ_DIR)/$(PROJ).elf
