@@ -2,7 +2,7 @@
 REFLIB_ROOT = ../../
 IGNORE_TARGET = true
 include $(REFLIB_ROOT)Makefile.env
-FAMILY_HEADER = $(GCC_EXTRA_INC_DIR)/msp430fr5xx_6xxgeneric.h
+FAMILY_HEADER = $(GCC_EXTRA_INC_DIR)/msp430f5xx_6xxgeneric.h
 
 SRC_C = $(wildcard *.c)
 SRC_H = $(wildcard *.h) $(wildcard inc/*.h)

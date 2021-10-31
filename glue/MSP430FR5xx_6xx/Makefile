@@ -5,7 +5,7 @@ include $(REFLIB_ROOT)Makefile.env
 FAMILY_HEADER = $(GCC_EXTRA_INC_DIR)/msp430fr5xx_6xxgeneric.h
 
 SRC_C = $(wildcard *.c)
-SRC_H = $(wildcard *.h) $(wildcard inc/*.h)
+SRC_H = $(wildcard *.h)
 SRC	= $(SRC_C) $(SRC_H) $(FAMILY_HEADER)
 
 tags: $(SRC) 

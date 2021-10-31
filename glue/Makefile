@@ -1,39 +1,38 @@
 
-DEVICE:=MSP430FR5994
+REFLIB_ROOT = ../
+IGNORE_TARGET = true
+include $(REFLIB_ROOT)Makefile.env
 
-###################### Windows OS ######################
-ifeq ($(OS),Windows_NT)
-	################## GCC Root Variable ###################
-	GCC_DIR     ?= $(HOMEDRIVE)$(HOMEPATH)/ti/gcc
-	GCC_MSP_INC_DIR ?= $(GCC_DIR)/include
-	DRIVERLIB   := msp430_driverlib_2_91_08_00/driverlib/MSP430FR5xx_6xx
-	GLUELIB     := ../glue
-	LDDIR       := $(GCC_MSP_INC_DIR)/$(DEVICE)
-	RM          := rd /s /q
-################### Linux or Mac OS ####################
-else
-	################## GCC Root Variable ###################
-	GCC_DIR     ?= /opt/msp430
-	GCC_MSP_INC_DIR ?= $(GCC_DIR)/msp430-elf/lib
-	DRIVERLIB   := ../driverlib
-	GLUELIB     := ../glue
-	LDDIR       := $(GCC_MSP_INC_DIR)/$(shell echo $(DEVICE) | tr A-Z a-z)
-	RM          := rm -f
-endif
+SUBDIRS = MSP430F5xx_6xx MSP430FR2xx_4xx MSP430FR57xx MSP430FR5xx_6xx
 
-######################################
-GCC_INC_DIR      ?= /opt/msp430-gcc-support-files/include
+SRC_C = $(wildcard *.c)
+SRC_H = $(wildcard *.h)
+SRC	= $(SRC_C) $(SRC_H)
 
-all: tags doxygen
+all: tags $(SUBDIRS)
 
-tags: 
+tags: $(SRC) 
 	@echo "Generating tags .."
-	echo $(deps)
-	@exuberant-ctags --recurse=yes $(DRIVERLIB) $(GLUELIB) $(GCC_INC_DIR)/$(shell echo $(DEVICE) | tr A-Z a-z).h $(GCC_INC_DIR)/msp430.h $(GCC_INC_DIR)/msp430fr5xx_6xxgeneric.h
+	@exuberant-ctags --recurse=no ./*
 
-doxygen:
-	@echo "update documentation .."
-	doxygen doc/doxygen.conf
+MSP430F5xx_6xx: force_look
+	@$(MAKE) -C MSP430F5xx_6xx -j1 $(MFLAGS)
+
+MSP430FR2xx_4xx: force_look
+	@$(MAKE) -C MSP430FR2xx_4xx -j1 $(MFLAGS)
+
+MSP430FR57xx: force_look
+	@$(MAKE) -C MSP430FR57xx -j1 $(MFLAGS)
+
+MSP430FR5xx_6xx: force_look
+	@$(MAKE) -C MSP430FR5xx_6xx -j1 $(MFLAGS)
 
 clean:
-	@$(RM) *.o tags
+	@rm -f tags
+	@rm -f MSP430F5xx_6xx/tags
+	@rm -f MSP430FR2xx_4xx/tags
+	@rm -f MSP430FR57xx/tags
+	@rm -f MSP430FR5xx_6xx/tags
+
+force_look:
+	@true
