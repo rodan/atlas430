@@ -6,7 +6,6 @@
 #include <inttypes.h>
 #include "config.h"
 
-
 #define sig0_on              P1OUT |= BIT0
 #define sig0_off             P1OUT &= ~BIT0
 #define sig0_switch          P1OUT ^= BIT0

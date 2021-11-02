@@ -2,7 +2,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "config.h"
 #include "eusci_b_spi.h"
 //#include "helper.h"
 #include "glue.h"

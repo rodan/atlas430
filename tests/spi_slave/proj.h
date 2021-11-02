@@ -2,9 +2,6 @@
 #define __PROJ_H__
 
 #include <msp430.h>
-#include <stdlib.h>
-#include <inttypes.h>
-#include "config.h"
 
 #define CS_PIN      BIT3
 

@@ -2,7 +2,6 @@
 #define __PROJ_H__
 
 #include <msp430.h>
-#include "config.h"
 
 #define sig0_on              P1OUT |= BIT0
 #define sig0_off             P1OUT &= ~BIT0

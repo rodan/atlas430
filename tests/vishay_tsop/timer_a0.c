@@ -7,6 +7,7 @@
 //   available from:  https://github.com/rodan/
 //   license:         BSD
 
+#include <stdint.h>
 #include "timer_a0.h"
 #include "ir_acquire.h"
 #include "ir_send.h"

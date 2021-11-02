@@ -15,7 +15,6 @@
  *  2010 - 2012 Goodix Technology.
  */
 
-#include "config.h"
 #ifdef __I2C_CONFIG_H__
 
 #include <inttypes.h>

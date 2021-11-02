@@ -17,7 +17,7 @@
 
 #include <math.h>
 #include "eusci_b_spi.h"
-#include "helper.h"
+#include "config.h"
 #include "glue.h"
 #include "ad7789.h"
 

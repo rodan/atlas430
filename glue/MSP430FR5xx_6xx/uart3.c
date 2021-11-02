@@ -17,7 +17,6 @@ volatile uint8_t uart3_p;       // number of characters received, 0 if none
 volatile uint8_t uart3_rx_enable;
 volatile uint8_t uart3_rx_err;
 
-
 #if defined(UART3_RX_USES_RINGBUF) 
 struct ringbuf uart3_rbrx;
 #endif
@@ -369,7 +368,7 @@ void __attribute__ ((interrupt(EUSCI_A3_VECTOR))) USCI_A3_ISR(void)
             r = UCA3RXBUF;
         } else {
             r = UCA3RXBUF;
-            // UCA3TXBUF = r; // local echo
+            //UCA3TXBUF = r; // local echo
             if (uart3_rx_irq_handler != NULL) {
                 if (uart3_rx_irq_handler(r)) {
                     ev |= UART3_EV_RX;

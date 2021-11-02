@@ -11,6 +11,7 @@
 #include "uart0.h"
 #include "i2c.h"
 #include "ds3231.h"
+#include "i2c_config.h"
 
 void main_init(void)
 {

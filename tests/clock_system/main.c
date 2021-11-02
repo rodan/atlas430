@@ -1,10 +1,9 @@
 
 #include <msp430.h>
 #include "proj.h"
-#include "config.h"
 #include "driverlib.h"
 #include "glue.h"
-#include "timer_a0.h"
+//#include "timer_a0.h"
 
 void main_init(void);
 

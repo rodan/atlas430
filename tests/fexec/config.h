@@ -23,7 +23,7 @@
 //#define UART0_TXBUF_SZ 32
 //#define UART0_TX_USES_IRQ
 
-#define LED_SYSTEM_STATES
+//#define LED_SYSTEM_STATES
 
 //#define USE_ITOA_LUT
 //#define CONFIG_DEBUG

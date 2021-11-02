@@ -2,9 +2,6 @@
 #define __PROJ_H__
 
 #include <msp430.h>
-#include <stdlib.h>
-#include <inttypes.h>
-#include "config.h"
 
 // bitbang i2c
 #define I2C_MASTER_DIR      P7DIR

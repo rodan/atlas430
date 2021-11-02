@@ -29,7 +29,7 @@
 #define HW_CRC16
 #define HW_CRC32
 
-#define LED_SYSTEM_STATES
+//#define LED_SYSTEM_STATES
 
 //#define USE_ITOA_LUT
 //#define CONFIG_DEBUG

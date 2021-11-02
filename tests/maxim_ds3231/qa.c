@@ -1,6 +1,5 @@
 
 #include <inttypes.h>
-#include "config.h"
 #include "glue.h"
 #include "rtca_now.h"
 #include "version.h"

@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "config.h"
 #include "glue.h"
 #include "rtca_now.h"
 #include "ui.h"

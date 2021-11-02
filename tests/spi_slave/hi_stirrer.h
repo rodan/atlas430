@@ -1,9 +1,6 @@
 #ifndef __HI_STIRRER_H_
 #define __HI_STIRRER_H_
 
-#include <inttypes.h>
-#include "config.h"
-
 // registers
 #define       HIST_rSTATUS  0x00
 #define   HIST_rSTATUS_CHK  0x01

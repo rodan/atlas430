@@ -1,8 +1,6 @@
 
 /*
     program that tests the functionality of the EUSCI A0 UART 
-
-    tweak the baud rate in config.h
 */
 
 #include <msp430.h>
@@ -10,7 +8,6 @@
 #include <string.h>
 
 #include "proj.h"
-#include "config.h"
 #include "driverlib.h"
 #include "glue.h"
 #include "ui.h"

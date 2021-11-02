@@ -7,7 +7,7 @@
 //   available from:  https://github.com/rodan/
 //   license:         BSD
 
-#include "config.h"
+#include <stdint.h>
 #include "timer_a0.h"
 
 #define     TA0_SLEEP_MS_COMPENSATION  5       // number of ticks spent setting up the timer during timer_a0_sleep()

@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "config.h"
 #include "glue.h"
 #include "ui.h"
 #include "zcrc.h"
@@ -56,7 +55,7 @@ void parse_user_input(void)
     } else if (f == 't') {
 
         // crc16 test 1
-        crc16_res1 = crc16(crc_test, sizeof(crc_test), 0);
+        crc16_res1 = zcrc16(crc_test, sizeof(crc_test), 0);
 
         // crc16 test 2
         crc16bs_start(0x0);
@@ -66,7 +65,7 @@ void parse_user_input(void)
         crc16_res2 = crc16bs_end();
 
         // crc32 test 1
-        crc32_res1 = crc32(crc_test, sizeof(crc_test), 0);
+        crc32_res1 = zcrc32(crc_test, sizeof(crc_test), 0);
 
         // crc32 test 2
         crc32bs_start(0x0);

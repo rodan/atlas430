@@ -7,6 +7,7 @@
 #include "driverlib.h"
 #include "glue.h"
 #include "qa.h"
+#include "i2c_config.h"
 
 void main_init(void)
 {

@@ -1,7 +1,6 @@
 
 #include <string.h>
 #include <inttypes.h>
-#include "config.h"
 #include "proj.h"
 #include "glue.h"
 #include "version.h"

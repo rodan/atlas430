@@ -5,9 +5,6 @@
 #include "uart3.h"
 #include "timer_a0.h"
 
-// get the UART3_SPEED_ #define
-#include "config.h"
-
 volatile char uart3_rx_buf[UART3_RXBUF_SZ];     // receive buffer
 volatile uint8_t uart3_p;       // number of characters received, 0 if none
 volatile uint8_t uart3_rx_enable;

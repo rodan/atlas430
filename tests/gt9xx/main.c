@@ -15,7 +15,7 @@
 #include "ui.h"
 #include "timer_a0.h"
 #include "timer_a1.h"
-
+#include "i2c_config.h"
 #include "gt9xx.h"
 
 uint8_t coord_buff[100];
