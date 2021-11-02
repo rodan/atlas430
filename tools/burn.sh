@@ -1,7 +1,9 @@
 #!/bin/bash
 
-[ -e "$1" ] && hex="$1" || {
-    echo 'binary file not provided, exiting'
+hex="${1}"
+
+[ -e "${hex}" ] || {
+    echo 'binary file not found, exiting'
     exit 1
 }
 
@@ -25,14 +27,14 @@ lsusb | grep -qi '15ba:0100' && prog='olimex_iso_mk2'
     done
     echo "+ detected $prog"
     set -x
-    avrdude -C/usr/avr/etc/avrdude.conf -patmega328p -cstk500v2 -P${dev} -e -Ulfuse:w:0xff:m -Uhfuse:w:0xde:m -Uefuse:w:0x05:m -Ulock:w:0x3F:m -Uflash:w:${hex}:i
+    avrdude -C/usr/avr/etc/avrdude.conf -patmega328p -cstk500v2 -P${dev} -e -Ulfuse:w:0xff:m -Uhfuse:w:0xde:m -Uefuse:w:0x05:m -Ulock:w:0x3F:m -Uflash:w:"${hex}":i
     exit $?
 }
 
 [ "${prog}" = "dragon" ] && {
     echo "+ detected $prog"
     set -x
-    avrdude -C/usr/avr/etc/avrdude.conf -patmega328p -cdragon_isp -Pusb -b 115200 -e -Ulfuse:w:0xff:m -Uhfuse:w:0xde:m -Uefuse:w:0x05:m -Ulock:w:0x3F:m -Uflash:w:${hex}:i
+    avrdude -C/usr/avr/etc/avrdude.conf -patmega328p -cdragon_isp -Pusb -b 115200 -e -Ulfuse:w:0xff:m -Uhfuse:w:0xde:m -Uefuse:w:0x05:m -Ulock:w:0x3F:m -Uflash:w:"${hex}":i
     exit $?
 }
 
@@ -42,7 +44,7 @@ lsusb | grep -qi '15ba:0100' && prog='olimex_iso_mk2'
     done
     echo "+ detected $prog"
     set -x
-    avrdude -C/usr/avr/etc/avrdude.conf -patmega328p -carduino -P${dev} -b57600 -D -Uflash:w:${hex}:i
+    avrdude -C/usr/avr/etc/avrdude.conf -patmega328p -carduino -P${dev} -b57600 -D -Uflash:w:"${hex}":i
     exit $?
 }
 
