@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "config.h"
 #include "glue.h"
 #include "ui.h"
 
+extern spi_descriptor spid_ad7789;
 static const char menu_str[]= "\
 \r\n ad7789 module test suite --- available commands:\r\n\r\n\
 \e[33;1m?\e[0m  - show menu\r\n\
@@ -48,12 +48,12 @@ void parse_user_input(void)
     if (f == '?') {
         display_menu();
     } else if (f == 'r') {
-        ret = AD7789_rst(EUSCI_SPI_BASE_ADDR);
+        ret = AD7789_rst(&spid_ad7789);
         uart0_print("ad7789 rst ");
         uart0_print(_utoh(itoa_buf, ret));
         uart0_print("\r\n");
     } else if (f == 'c') {
-        ret = AD7789_get_conv(EUSCI_SPI_BASE_ADDR, &conv);
+        ret = AD7789_get_conv(&spid_ad7789, &conv);
         uart0_print("ad7789 ");
         if (ret == 0) {
             uart0_print("conv ");
@@ -64,7 +64,7 @@ void parse_user_input(void)
         }
         uart0_print("\r\n");
     } else if (f == 'i') {
-        ret = AD7789_get_status(EUSCI_SPI_BASE_ADDR, &xfer);
+        ret = AD7789_get_status(&spid_ad7789, &xfer);
         uart0_print("ad7789 ");
         if (ret == 0) {
             uart0_print("conv ");

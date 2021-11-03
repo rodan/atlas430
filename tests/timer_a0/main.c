@@ -12,7 +12,7 @@
 #include "proj.h"
 #include "driverlib.h"
 #include "glue.h"
-#include "qa.h"
+#include "ui.h"
 #include "timer_a0.h"
 #include "uart3.h"
 
@@ -76,8 +76,21 @@ int main(void)
     timer_a0_init();
     uart0_port_init();
     uart0_init();
+
+#ifdef UART0_RX_USES_RINGBUF
+    uart0_set_rx_irq_handler(uart0_rx_ringbuf_handler);
+#else
+    uart0_set_rx_irq_handler(uart0_rx_simple_handler);
+#endif
+
     uart3_port_init();
     uart3_init();
+
+#ifdef UART3_RX_USES_RINGBUF
+    uart3_set_rx_irq_handler(uart3_rx_ringbuf_handler);
+#else
+    uart3_set_rx_irq_handler(uart3_rx_simple_handler);
+#endif
 
     // Disable the GPIO power-on default high-impedance mode to activate
     // previously configured port settings

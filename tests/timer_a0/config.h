@@ -3,31 +3,52 @@
 
 #define USE_XT1
 
-//#define UART0_SPEED_9600_1M
-//#define UART0_SPEED_19200_1M
-//#define UART0_SPEED_38400_1M
-//#define UART0_SPEED_57600_1M
-//#define UART0_SPEED_115200_1M
-//#define UART0_SPEED_9600_8M
-//#define UART0_SPEED_19200_8M
-//#define UART0_SPEED_38400_8M
-#define UART0_SPEED_57600_8M
-//#define UART0_SPEED_115200_8M
-//#define UART0_SPEED_230400_8M
-//#define UART0_SPEED_460800_8M
+//#define SMCLK_FREQ_1M
+//#define SMCLK_FREQ_4M
+#define SMCLK_FREQ_8M
+//#define SMCLK_FREQ_16M
 
-//#define UART3_SPEED_19200_8M
-//#define UART3_SPEED_38400_8M
-#define UART3_SPEED_57600_8M
-//#define UART3_SPEED_115200_8M
+#define USE_UART0
 
-#ifdef UART3_SPEED_19200_8M
+#define UART0_BAUD 57600
+
+//#define UART0_BAUD_9600
+//#define UART0_BAUD_19200
+//#define UART0_BAUD_38400
+//#define UART0_BAUD_57600
+//#define UART0_BAUD_115200
+
+#define UART0_RXBUF_SZ 16
+//#define UART0_RX_USES_RINGBUF
+
+#define UART0_TXBUF_SZ 32
+//#define UART0_TX_USES_IRQ
+
+
+#define USE_UART3
+
+#define UART3_BAUD 57600
+
+//#define UART3_BAUD_9600
+//#define UART3_BAUD_19200
+//#define UART3_BAUD_38400
+//#define UART3_BAUD_57600
+//#define UART3_BAUD_115200
+
+#define UART3_RXBUF_SZ 16
+//#define UART3_RX_USES_RINGBUF
+
+#define UART3_TXBUF_SZ 32
+//#define UART3_TX_USES_IRQ
+
+
+#if UART3_BAUD == 19200
     #define INTRCHAR_TMOUT  500 // _2ms
-#elif defined(UART3_SPEED_38400_8M)
+#elif UART3_BAUD == 38400
     #define INTRCHAR_TMOUT  250
-#elif defined(UART3_SPEED_57600_8M)
+#elif UART3_BAUD == 57600
     #define INTRCHAR_TMOUT  166
-#elif defined(UART3_SPEED_115200_8M)
+#elif UART3_BAUD == 115200
     #define INTRCHAR_TMOUT  83
 #endif
 

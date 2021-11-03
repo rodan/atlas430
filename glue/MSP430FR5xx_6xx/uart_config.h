@@ -5,21 +5,11 @@
 extern "C" {
 #endif
 
-#if defined(BAUD_9600)
 #define        BAUDRATE_9600  0x1
-#endif
-#if defined(BAUD_19200)
 #define       BAUDRATE_19200  0x2
-#endif
-#if defined(BAUD_38400)
 #define       BAUDRATE_38400  0x3
-#endif
-#if defined(BAUD_57600)
 #define       BAUDRATE_57600  0x4
-#endif
-#if defined(BAUD_115200)
 #define      BAUDRATE_115200  0x5
-#endif
 
 #define        UART_RET_WAKE  1
 #define       UART_RET_SLEEP  0

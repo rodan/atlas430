@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "glue.h"
-#include "qa.h"
+#include "ui.h"
 #include "timer_a0.h"
 #include "uart3.h"
 
@@ -11,7 +11,7 @@
 
 void display_menu(void)
 {
-    uart0_print("\r\n uart0 and helper module test suite --- available commands:\r\n\r\n");
+    uart0_print("\r\n timer_a0 and helper module test suite --- available commands:\r\n\r\n");
     uart0_print(" \e[33;1m?\e[0m             - show menu\r\n");
     uart0_print(" \e[33;1m1\e[0m             - send first command\r\n" );
     uart0_print(" \e[33;1m2\e[0m             - send command 2\r\n" );
@@ -21,8 +21,26 @@ void display_menu(void)
 
 void parse_user_input(void)
 {
-    uint8_t i;
+#ifdef UART0_RX_USES_RINGBUF
+    struct ringbuf *rbr = uart0_get_rx_ringbuf();
+    uint8_t rx;
+    uint8_t c = 0;
+    char input[PARSER_CNT];
+
+    memset(input, 0, PARSER_CNT);
+
+    // read the entire ringbuffer
+    while (ringbuf_get(rbr, &rx)) {
+        if (c < PARSER_CNT-1) {
+            input[c] = rx;
+        }
+        c++;
+    }
+#else
     char *input = uart0_get_rx_buf();
+#endif
+
+    uint8_t i;
     char f = input[0];
     char sync[] = { 0x55 };
     char cmd1[] = { 0x0a, 0x0a, 0x0a, 0x1e, 0x1e, 0x30, 0x30, 0x31, 0x46, 0x30, 0x38, 0x3, 0x7e };

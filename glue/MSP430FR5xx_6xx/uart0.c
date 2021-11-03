@@ -41,23 +41,23 @@ void uart0_init(void)
 #if defined(UC_CTLW0)
     UCA0CTLW0 |= UC_CTLW0;
 
-    #if defined(BAUD_9600)
+    #if UART0_BAUD == 9600
     UCA0BRW = BRW_9600_BAUD;
     UCA0MCTLW = MCTLW_9600_BAUD;
 
-    #elif defined(BAUD_19200)
+    #elif UART0_BAUD == 19200
     UCA0BRW = BRW_19200_BAUD;
     UCA0MCTLW = MCTLW_19200_BAUD;
 
-    #elif defined(BAUD_38400)
+    #elif UART0_BAUD == 38400
     UCA0BRW = BRW_38400_BAUD;
     UCA0MCTLW = MCTLW_38400_BAUD;
 
-    #elif defined(BAUD_57600)
+    #elif UART0_BAUD == 57600
     UCA0BRW = BRW_57600_BAUD;
     UCA0MCTLW = MCTLW_57600_BAUD;
 
-    #elif defined(BAUD_115200)
+    #elif UART0_BAUD == 115200
     UCA0BRW = BRW_115200_BAUD;
     UCA0MCTLW = MCTLW_115200_BAUD;
 
@@ -103,35 +103,35 @@ void uart0_initb(const uint8_t baudrate)
     // for some reason any baud >= 115200 ends up with a non-working RX channel
 
     switch (baudrate) {
-#if defined(BAUD_9600)
+#if defined(UART0_BAUD_9600)
         case BAUDRATE_9600:
             UCA0CTLW0 |= UC_CTLW0;
             UCA0BRW = BRW_9600_BAUD;
             UCA0MCTLW = MCTLW_9600_BAUD;
             break;
 #endif
-#if defined(BAUD_19200)
+#if defined(UART0_BAUD_19200)
         case BAUDRATE_19200:
             UCA0CTLW0 |= UC_CTLW0;
             UCA0BRW = BRW_19200_BAUD;
             UCA0MCTLW = MCTLW_19200_BAUD;
             break;
 #endif
-#if defined(BAUD_38400)
+#if defined(UART0_BAUD_38400)
         case BAUDRATE_38400:
             UCA0CTLW0 |= UC_CTLW0;
             UCA0BRW = BRW_38400_BAUD;
             UCA0MCTLW = MCTLW_38400_BAUD;
             break;
 #endif
-#if defined(BAUD_19200)
+#if defined(UART0_BAUD_57600)
         case BAUDRATE_57600:
             UCA0CTLW0 |= UC_CTLW0;
             UCA0BRW = BRW_57600_BAUD;
             UCA0MCTLW = MCTLW_57600_BAUD;
             break;
 #endif
-#if defined(BAUD_115200)
+#if defined(UART0_BAUD_115200)
         case BAUDRATE_115200:
             UCA0CTLW0 |= UC_CTLW0;
             UCA0BRW = BRW_115200_BAUD;

@@ -8,7 +8,7 @@
 #include "glue.h"
 #include "timer_a0.h"
 #include "ui.h"
-#include "i2c_config.h"
+//#include "i2c_config.h"
 
 void main_init(void)
 {

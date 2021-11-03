@@ -2,7 +2,7 @@
 
 extract_defs()
 {
-    grep '^#define' "${1}" | sed 's|\s\+| |g;s|\(.*\)\s*//.*|\1|;s|\s*$||;s|#define |-D|g;s| |=|g' | grep -Ev '(_H_)|(=.*=)' | xargs
+    grep '^#define' "${1}" | tr -s '[:space:]' | sed 's|\(.*\)\s//.*|\1|;s|\s*$||;s|#define |-D|g;s| |=|g' | grep -Ev '(_H_)|(=.*=)' | xargs
 }
 
 while (( "$#" )); do

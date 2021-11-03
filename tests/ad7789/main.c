@@ -1,6 +1,6 @@
 
 /*
-    program that tests the functionality of the EUSCI A0 UART 
+    program that tests the functionality of the AD7789 IC
 
     tweak the baud rate in config.h
 */
@@ -13,6 +13,8 @@
 #include "driverlib.h"
 #include "glue.h"
 #include "ui.h"
+
+spi_descriptor spid_ad7789;
 
 void main_init(void)
 {
@@ -46,6 +48,49 @@ void main_init(void)
     PJDIR = 0xFFFF;
 }
 
+void ad7789_cs_low(void)
+{
+    P5OUT &= ~BIT3;
+}
+
+void ad7789_cs_high(void)
+{
+    P5OUT |= BIT3;
+}
+
+void ad7789_spi_init(void)
+{
+    //AD7789_CS_HIGH;
+    // UCB1MOSI, UCB1MISO, UCB1CLK
+    P5SEL0 |= (BIT0 | BIT1 | BIT2);
+    P5SEL1 &= ~(BIT0 | BIT1 | BIT2);
+}
+
+void ad7789_spi_deinit(void)
+{
+    //AD7789_CS_HIGH;
+    // UCB1MOSI, UCB1MISO, UCB1CLK
+    P5SEL0 &= ~(BIT0 | BIT1 | BIT2);
+    P5SEL1 &= ~(BIT0 | BIT1 | BIT2);
+
+    P5DIR |= BIT0 | BIT2;
+    P5OUT |= BIT0 | BIT2;
+    // transform MISO into input GPIO
+    P5DIR &= ~BIT1;
+    // enable pull-up
+    P5OUT |= BIT1;
+    P5REN |= BIT1;
+}
+
+uint8_t ad7789_dev_is_busy(void)
+{
+    if (P5IN & BIT1) {
+        return 1;
+    }
+
+    return 0;
+}
+
 static void uart0_rx_irq(uint32_t msg)
 {
     parse_user_input();
@@ -63,6 +108,31 @@ void check_events(void)
     }
 
     eh_exec(msg);
+}
+
+void AD7789_init(const spi_descriptor *spid)
+{
+    EUSCI_B_SPI_initMasterParam param = {0};
+/*
+    param.selectClockSource = EUSCI_B_SPI_CLOCKSOURCE_ACLK;
+    param.clockSourceFrequency = 32768;
+    //param.desiredSpiClock = 8192;
+    param.desiredSpiClock = 4096;
+*/    
+    param.selectClockSource = EUSCI_B_SPI_CLOCKSOURCE_SMCLK;
+    param.clockSourceFrequency = 8000000;
+    param.desiredSpiClock = 10000;
+
+    param.msbFirst= EUSCI_B_SPI_MSB_FIRST;
+    param.clockPhase = EUSCI_B_SPI_PHASE_DATA_CHANGED_ONFIRST_CAPTURED_ON_NEXT;
+    //param.clockPhase = EUSCI_B_SPI_PHASE_DATA_CAPTURED_ONFIRST_CHANGED_ON_NEXT;
+    param.clockPolarity = EUSCI_B_SPI_CLOCKPOLARITY_INACTIVITY_HIGH;
+    //param.clockPolarity = EUSCI_B_SPI_CLOCKPOLARITY_INACTIVITY_LOW;
+    param.spiMode = EUSCI_B_SPI_3PIN;
+    EUSCI_B_SPI_initMaster(spid->baseAddress, &param);
+    EUSCI_B_SPI_enable(spid->baseAddress);
+    AD7789_rst(spid);
+    spid->spi_deinit();
 }
 
 int main(void)
@@ -84,11 +154,18 @@ int main(void)
     uart0_set_rx_irq_handler(uart0_rx_simple_handler);
 #endif
 
+    spid_ad7789.baseAddress = EUSCI_SPI_BASE_ADDR;
+    spid_ad7789.cs_low = ad7789_cs_low;
+    spid_ad7789.cs_high = ad7789_cs_high;
+    spid_ad7789.spi_init = ad7789_spi_init;
+    spid_ad7789.spi_deinit = ad7789_spi_deinit;
+    spid_ad7789.dev_is_busy = ad7789_dev_is_busy;
+
+    AD7789_init(&spid_ad7789);
+
     // Disable the GPIO power-on default high-impedance mode to activate
     // previously configured port settings
     PM5CTL0 &= ~LOCKLPM5;
-
-    AD7789_init(EUSCI_SPI_BASE_ADDR);
 
     sig0_off;
     sig1_off;

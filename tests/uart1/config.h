@@ -11,10 +11,12 @@
 
 #define USE_UART1
 
+#define UART1_BAUD 57600
+
 //#define BAUD_9600
 //#define BAUD_19200
 //#define BAUD_38400
-#define BAUD_57600
+//#define BAUD_57600
 //#define BAUD_115200
 
 #define UART1_RXBUF_SZ 16

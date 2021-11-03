@@ -17,139 +17,73 @@
 
 #include <math.h>
 #include "eusci_b_spi.h"
-#include "config.h"
 #include "glue.h"
+#include "spi.h"
 #include "ad7789.h"
 
-#ifndef AD7789_CS_HIGH
-#error "Invalid AD7789_CS_HIGH in config.h"
-#endif
 
-#ifndef AD7789_CS_LOW
-#error "Invalid AD7789_CS_LOW in config.h"
-#endif
-
-void AD7789_init(const uint16_t baseAddress)
-{
-    EUSCI_B_SPI_initMasterParam param = {0};
-/*
-    param.selectClockSource = EUSCI_B_SPI_CLOCKSOURCE_ACLK;
-    param.clockSourceFrequency = 32768;
-    //param.desiredSpiClock = 8192;
-    param.desiredSpiClock = 4096;
-*/    
-    param.selectClockSource = EUSCI_B_SPI_CLOCKSOURCE_SMCLK;
-    param.clockSourceFrequency = 8000000;
-    param.desiredSpiClock = 10000;
-
-    param.msbFirst= EUSCI_B_SPI_MSB_FIRST;
-    param.clockPhase = EUSCI_B_SPI_PHASE_DATA_CHANGED_ONFIRST_CAPTURED_ON_NEXT;
-    //param.clockPhase = EUSCI_B_SPI_PHASE_DATA_CAPTURED_ONFIRST_CHANGED_ON_NEXT;
-    param.clockPolarity = EUSCI_B_SPI_CLOCKPOLARITY_INACTIVITY_HIGH;
-    //param.clockPolarity = EUSCI_B_SPI_CLOCKPOLARITY_INACTIVITY_LOW;
-    param.spiMode = EUSCI_B_SPI_3PIN;
-    EUSCI_B_SPI_initMaster(baseAddress, &param);
-    EUSCI_B_SPI_enable(baseAddress);
-    AD7789_rst(baseAddress);
-    AD7789_deinit_spi();
-}
-
-void AD7789_init_spi(void)
-{
-    //AD7789_CS_HIGH;
-    // UCB1MOSI, UCB1MISO, UCB1CLK
-    P5SEL0 |= (BIT0 | BIT1 | BIT2);
-    P5SEL1 &= ~(BIT0 | BIT1 | BIT2);
-}
-
-void AD7789_deinit_spi(void)
-{
-    //AD7789_CS_HIGH;
-    // UCB1MOSI, UCB1MISO, UCB1CLK
-    P5SEL0 &= ~(BIT0 | BIT1 | BIT2);
-    P5SEL1 &= ~(BIT0 | BIT1 | BIT2);
-
-    P5DIR |= BIT0 | BIT2;
-    P5OUT |= BIT0 | BIT2;
-    // transform MISO into input GPIO
-    P5DIR &= ~BIT1;
-    // enable pull-up
-    P5OUT |= BIT1;
-    P5REN |= BIT1;
-}
-
-uint8_t AD7789_get_status(const uint16_t baseAddress, uint8_t *status)
+uint8_t AD7789_get_status(const spi_descriptor *spid, uint8_t *status)
 {
     uint16_t tmout = 10;
     uint8_t txdata = (AD7789_STATUS << 4) | AD7789_READ;
     *status = txdata;
 
-    //AD7789_deinit_spi();
-    AD7789_CS_LOW;
+    spid->cs_low();
 
-    while ((P5IN & BIT1) && tmout) {
-    //while (tmout) {
-        //if (!(P5IN & BIT1)) {
-        //    break;
-        //}
+    while (spid->dev_is_busy() && tmout) {
         tmout--;
     }
 
     if (tmout==0) {
-        //AD7789_CS_HIGH;
+        spid->cs_high();
         return 0xee; // timeout
     } else {
-        AD7789_init_spi();
-        spi_send_frame(baseAddress, &txdata, 1);
-        //AD7789_CS_HIGH;
-        //AD7789_CS_LOW;
-        spi_read_frame(baseAddress, status, 1);
+        spid->spi_init();
+        spi_write_frame(spid->baseAddress, &txdata, 1);
+        spi_read_frame(spid->baseAddress, status, 1);
     }
 
-    //AD7789_CS_HIGH;
-    AD7789_CS_HIGH;
-    AD7789_deinit_spi();
+    spid->cs_high();
+    spid->spi_deinit();
 
     return EXIT_SUCCESS;
 }
 
-uint8_t AD7789_rst(const uint16_t baseAddress)
+uint8_t AD7789_rst(const spi_descriptor *spid)
 {
     uint8_t txdata[4] = {0xff, 0xff, 0xff, 0xff};
 
-    AD7789_init_spi();
-    AD7789_CS_LOW;
-    spi_send_frame(baseAddress, &txdata[0], 4);
-    AD7789_CS_HIGH;
-    AD7789_deinit_spi();
+    spid->spi_init();
+    spid->cs_low();
+    spi_write_frame(spid->baseAddress, &txdata[0], 4);
+    spid->cs_high();
+    spid->spi_deinit();
     return EXIT_SUCCESS;
 }
 
-uint8_t AD7789_get_conv(const uint16_t baseAddress, uint32_t *conv)
+uint8_t AD7789_get_conv(const spi_descriptor *spid, uint32_t *conv)
 {
     uint16_t tmout = 65535;
     uint8_t  txdata = (AD7789_DATA << 4) | AD7789_READ;
     uint8_t data[3];
-    //uint8_t txdata = 0x9c;
-    //*status = txdata;
 
-    AD7789_CS_LOW;
+    spid->cs_low();
 
-    while ((P5IN & BIT1) && tmout) {
+    while (spid->dev_is_busy() && tmout) {
         tmout--;
     }
 
     if (tmout==0) {
-        AD7789_CS_HIGH;
+        spid->cs_high();
         return 0xee; // timeout
     } else {
-        AD7789_init_spi();
-        spi_send_frame(baseAddress, &txdata, 1);
-        spi_read_frame(baseAddress, data, 3);
+        spid->spi_init();
+        spi_write_frame(spid->baseAddress, &txdata, 1);
+        spi_read_frame(spid->baseAddress, data, 3);
     }
 
-    AD7789_CS_HIGH;
-    AD7789_deinit_spi();
+    spid->cs_high();
+    spid->spi_deinit();
    
     *conv = (uint32_t) ((uint32_t) data[0] << 16) + ((uint32_t) data[1] << 8) + data[2];
     return EXIT_SUCCESS;

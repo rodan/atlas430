@@ -7,6 +7,7 @@
 //   available from:  https://github.com/rodan/
 //   license:         BSD
 
+#include <stdint.h>
 #include "timer_a0.h"
 
 volatile uint8_t timer_a0_last_event;
