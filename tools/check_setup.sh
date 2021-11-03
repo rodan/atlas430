@@ -4,17 +4,19 @@ bin=("xargs" "grep" "cat" "date" "mspdebug" "lsusb" "sed" "git" "unzip" "tar" "m
 
 package=("findutils-4.8.0" "grep-3.7" "coreutils-8.32" "coreutils-8.32" "mspdebug-0.25" "usbutils-014" "sed-4.8" "git-2.32.0" "unzip-6.0" "tar-1.34" "make-4.3" "makedepend-1.0.6" "ctags-20190331" "binutils-2.37")
 
+error=false
+
 for (( i=0; i<${#bin[@]}; i++ ));
 do
-    which "${bin[$i]}" &>/dev/null
-    if [ $? != "0" ]; then
+    if ! which "${bin[$i]}" &>/dev/null; then
         echo " ! '${bin[$i]}' binary not found in PATH. package ${package[$i]}+ is missing"
+        error=true
     else
         echo "   '${bin[$i]}' - found"
     fi
 done
 
-[ ! -e /opt/reference_libs_msp430 ] && {
+if [ ! -e /opt/reference_libs_msp430 ]; then
     echo ''
     echo ' ! "/opt/reference_libs_msp430" must point to a cloned copy'
     echo '      of the https://github.com/rodan/reference_libs_msp430 repository'
@@ -31,11 +33,14 @@ done
     echo '      # mkdir -p /opt'
     echo '      # ln -s /home/you/sources/reference_libs_msp430 /opt/reference_libs_msp430'
     echo ''
-    echo "     now re-run $(basename $0), and this warning should go away"
+    echo "     now re-run $(basename "${0}"), and this warning should go away"
     echo ''
-}
+    error=true
+else
+    echo '   reference_libs_msp430 - found'
+fi
 
-[ ! -e /opt/msp430/bin/msp430-elf-gcc ] && {
+if [ ! -e /opt/msp430/bin/msp430-elf-gcc ]; then
     echo ''
     echo ' ! "/opt/msp430" must be a symlink to the latest toolchain provided on'
     echo '      the TI website: https://www.ti.com/tool/MSP430-GCC-OPENSOURCE'
@@ -52,11 +57,14 @@ done
     echo '      # tar --directory=/opt -xjf msp430-gcc-9.3.1.11_linux64.tar.bz2'
     echo '      # ln -s /opt/msp430-gcc-9.3.1.11_linux64/ /opt/msp430'
     echo ''
-    echo "     now re-run $(basename $0), and this warning should go away"
+    echo "     now re-run $(basename "${0}"), and this warning should go away"
     echo ''
-}
+    error=true
+else
+    echo '   gcc toolchain - found'
+fi
 
-[ ! -e /opt/msp430-gcc-support-files/include/ ] && {
+if [ ! -e /opt/msp430-gcc-support-files/include/ ]; then
     echo ''
     echo ' ! "/opt/msp430-gcc-support-files" must contain the latest gcc support files'
     echo '      provided on the TI website: https://www.ti.com/tool/MSP430-GCC-OPENSOURCE'
@@ -72,7 +80,15 @@ done
     echo '      # mkdir -p /opt'
     echo '      # unzip -o -d /opt /tmp/msp430-gcc-support-files-1.212.zip'
     echo ''
-    echo "     now re-run $(basename $0), and this warning should go away"
+    echo "     now re-run $(basename "${0}"), and this warning should go away"
     echo ''
-}
+    error=true
+else
+    echo '   gcc support files - found'
+fi
+
+$(${error}) && exit 1
+
+echo ''
+echo ' no errors have been encountered'
 
