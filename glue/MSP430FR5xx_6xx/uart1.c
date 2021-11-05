@@ -103,41 +103,31 @@ void uart1_initb(const uint8_t baudrate)
     // for some reason any baud >= 115200 ends up with a non-working RX channel
 
     switch (baudrate) {
-#if defined(UART1_BAUD_9600)
         case BAUDRATE_9600:
             UCA1CTLW0 |= UC_CTLW0;
             UCA1BRW = BRW_9600_BAUD;
             UCA1MCTLW = MCTLW_9600_BAUD;
             break;
-#endif
-#if defined(UART1_BAUD_19200)
         case BAUDRATE_19200:
             UCA1CTLW0 |= UC_CTLW0;
             UCA1BRW = BRW_19200_BAUD;
             UCA1MCTLW = MCTLW_19200_BAUD;
             break;
-#endif
-#if defined(UART1_BAUD_38400)
         case BAUDRATE_38400:
             UCA1CTLW0 |= UC_CTLW0;
             UCA1BRW = BRW_38400_BAUD;
             UCA1MCTLW = MCTLW_38400_BAUD;
             break;
-#endif
-#if defined(UART1_BAUD_19200)
         case BAUDRATE_57600:
             UCA1CTLW0 |= UC_CTLW0;
             UCA1BRW = BRW_57600_BAUD;
             UCA1MCTLW = MCTLW_57600_BAUD;
             break;
-#endif
-#if defined(UART1_BAUD_115200)
         case BAUDRATE_115200:
             UCA1CTLW0 |= UC_CTLW0;
             UCA1BRW = BRW_115200_BAUD;
             UCA1MCTLW = MCTLW_115200_BAUD;
             break;
-#endif
     }
 
     UCA1CTLW0 &= ~UCSWRST;      // Initialize eUSCI

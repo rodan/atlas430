@@ -42,27 +42,27 @@ void uart1_init(void)
 #if defined(UC_CTL1)
     UCA1CTL1 |= UC_CTL1;
 
-    #if defined(BAUD_9600)
+    #if UART1_BAUD == 9600
     UCA1BR0 = BR_9600_BAUD & 0xff;
     UCA1BR1 = (BR_9600_BAUD >> 8) & 0xff;
     UCA1MCTL = MCTL_9600_BAUD;
 
-    #elif defined(BAUD_19200)
+    #elif UART1_BAUD == 19200
     UCA1BR0 = BR_19200_BAUD & 0xff;
     UCA1BR1 = (BR_19200_BAUD >> 8) & 0xff;
     UCA1MCTL = MCTL_19200_BAUD;
 
-    #elif defined(BAUD_38400)
+    #elif UART1_BAUD == 38400
     UCA1BR0 = BR_38400_BAUD & 0xff;
     UCA1BR1 = (BR_38400_BAUD >> 8) & 0xff;
     UCA1MCTL = MCTL_38400_BAUD;
 
-    #elif defined(BAUD_57600)
+    #elif UART1_BAUD == 57600
     UCA1BR0 = BR_57600_BAUD & 0xff;
     UCA1BR1 = (BR_57600_BAUD >> 8) & 0xff;
     UCA1MCTL = MCTL_57600_BAUD;
 
-    #elif defined(BAUD_115200)
+    #elif UART1_BAUD == 115200
     UCA1BR0 = BR_115200_BAUD & 0xff;
     UCA1BR1 = (BR_115200_BAUD >> 8) & 0xff;
     UCA1MCTL = MCTL_115200_BAUD;
@@ -109,46 +109,36 @@ void uart1_initb(const uint8_t baudrate)
     // for some reason any baud >= 115200 ends up with a non-working RX channel
 
     switch (baudrate) {
-#if defined(BAUD_9600)
         case BAUDRATE_9600:
             UCA1CTL1 |= UC_CTL1;
             UCA1BR0 = BR_9600_BAUD & 0xff;
             UCA1BR1 = (BR_9600_BAUD >> 8) & 0xff;
             UCA1MCTL = MCTL_9600_BAUD;
             break;
-#endif
-#if defined(BAUD_19200)
         case BAUDRATE_19200:
             UCA1CTL1 |= UC_CTL1;
             UCA1BR0 = BR_19200_BAUD & 0xff;
             UCA1BR1 = (BR_19200_BAUD >> 8) & 0xff;
             UCA1MCTL = MCTL_19200_BAUD;
             break;
-#endif
-#if defined(BAUD_38400)
         case BAUDRATE_38400:
             UCA1CTL1 |= UC_CTL1;
             UCA1BR0 = BR_38400_BAUD & 0xff;
             UCA1BR1 = (BR_38400_BAUD >> 8) & 0xff;
             UCA1MCTL = MCTL_38400_BAUD;
             break;
-#endif
-#if defined(BAUD_19200)
         case BAUDRATE_57600:
             UCA1CTL1 |= UC_CTL1;
             UCA1BR0 = BR_57600_BAUD & 0xff;
             UCA1BR1 = (BR_57600_BAUD >> 8) & 0xff;
             UCA1MCTL = MCTL_57600_BAUD;
             break;
-#endif
-#if defined(BAUD_115200)
         case BAUDRATE_115200:
             UCA1CTL1 |= UC_CTL1;
             UCA1BR0 = BR_115200_BAUD & 0xff;
             UCA1BR1 = (BR_115200_BAUD >> 8) & 0xff;
             UCA1MCTL = MCTL_115200_BAUD;
             break;
-#endif
     }
 
     UCA1CTL1 &= ~UCSWRST;      // Initialize eUSCI

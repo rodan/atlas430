@@ -1,8 +1,8 @@
 #!/bin/bash
 
-bin=("xargs" "grep" "cat" "date" "mspdebug" "lsusb" "sed" "git" "unzip" "tar" "make" "makedepend" "exuberant-ctags" "size")
+bin=("xargs" "grep" "cat" "date" "tr" "mspdebug" "lsusb" "sed" "git" "unzip" "tar" "make" "makedepend" "exuberant-ctags" "size")
 
-package=("findutils-4.8.0" "grep-3.7" "coreutils-8.32" "coreutils-8.32" "mspdebug-0.25" "usbutils-014" "sed-4.8" "git-2.32.0" "unzip-6.0" "tar-1.34" "make-4.3" "makedepend-1.0.6" "ctags-20190331" "binutils-2.37")
+package=("findutils-4.8.0" "grep-3.7" "coreutils-8.32" "coreutils-8.32" "coreutils-8.32" "mspdebug-0.25" "usbutils-014" "sed-4.8" "git-2.32.0" "unzip-6.0" "tar-1.34" "make-4.3" "makedepend-1.0.6" "ctags-20190331" "binutils-2.37")
 
 error=false
 

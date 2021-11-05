@@ -31,8 +31,7 @@ CFLAGS           += -Wall -Wno-switch -Wno-int-to-pointer-cast
 #CFLAGS           += -S -fverbose-asm
 #CFLAGS		 += -fno-force-addr -finline-limit=1 -fno-schedule-insns
 #CFLAGS		 += -fshort-enums -Wl,-Map=output.map
-#LDFLAGS          := -T $(LDDIR).ld -L $(LIB_DIR) -L $(GCC_EXTRA_INC_DIR) -mmcu=$(DEVICE) $(HWMULT) -g -Wl,--gc-sections
-LDFLAGS          := -T ./msp430fr5994.ld -L $(LIB_DIR) -L $(GCC_EXTRA_INC_DIR) -mmcu=$(DEVICE) $(HWMULT) -g -Wl,--gc-sections
+LDFLAGS          := -T $(LDDIR).ld -L $(LIB_DIR) -L $(GCC_EXTRA_INC_DIR) -mmcu=$(DEVICE) $(HWMULT) -g -Wl,--gc-sections
 CFLAGS_REL	 += -Os -fdata-sections -ffunction-sections -fomit-frame-pointer
 LDFLAGS_REL	 += -Wl,-s
 CFLAGS_DBG	 += -O1 -ggdb
