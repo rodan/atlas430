@@ -14,7 +14,7 @@
 #define UART0_RXBUF_SZ 16
 //#define UART0_RX_USES_RINGBUF
 #define UART0_TXBUF_SZ 32
-//#define UART0_TX_USES_IRQ
+#define UART0_TX_USES_IRQ
 
 //#define LED_SYSTEM_STATES
 

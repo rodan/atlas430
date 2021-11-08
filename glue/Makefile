@@ -3,9 +3,13 @@ REFLIB_ROOT = ../
 IGNORE_TARGET = true
 include $(REFLIB_ROOT)Makefile.env
 
+SRC_C = $(wildcard *.c)
+SRC_H = $(wildcard *.h)
+SRC   = $(SRC_C) $(SRC_H)
+
 SUBDIRS = generic MSP430F5xx_6xx MSP430FR2xx_4xx MSP430FR57xx MSP430FR5xx_6xx
 
-all: $(SUBDIRS)
+all: generic_tags $(SUBDIRS)
 
 MSP430F5xx_6xx: force_look
 	@$(MAKE) -C MSP430F5xx_6xx -j1 $(MFLAGS)
@@ -21,6 +25,9 @@ MSP430FR5xx_6xx: force_look
 
 generic: force_look
 	@$(MAKE) -C generic -j1 $(MFLAGS)
+
+generic_tags: $(SRC)
+	@exuberant-ctags --recurse=yes ./generic/
 
 force_look:
 	@true

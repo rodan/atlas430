@@ -270,7 +270,9 @@ void uart1_tx_activate()
 
 void uart1_tx(const uint8_t byte)
 {
-    if (ringbuf_put(&uart1_rbtx, byte)) {
+    while (ringbuf_put(&uart1_rbtx, byte) == 0) {
+        // wait for the ring buffer to clear
+        uart1_tx_activate();
     }
 
     uart1_tx_activate();

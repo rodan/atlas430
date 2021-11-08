@@ -1,6 +1,12 @@
 #ifndef __UART0_H__
 #define __UART0_H__
 
+#ifdef UART0_TX_USES_RINGBUF
+#ifndef UART0_TX_USES_IRQ
+#define UART0_TX_USES_IRQ
+#endif
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

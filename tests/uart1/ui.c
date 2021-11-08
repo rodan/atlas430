@@ -62,7 +62,7 @@ void parse_user_input(void)
         uart1_print(_utoh(itoa_buf, in));
         uart1_print("\r\n");
     } else if (f == 'a') {
-        uart1_print("123456789\r\n");
+        uart1_print("1234567890\r\n");
     } else {
         //uart1_tx_str("\r\n", 2);
     }

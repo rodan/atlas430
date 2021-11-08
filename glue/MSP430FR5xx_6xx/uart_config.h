@@ -128,7 +128,6 @@ extern "C" {
     #error SMCLK_FREQ is not defined or sourced from clock.h
 #endif
 
-
 #ifdef __cplusplus
 }
 #endif

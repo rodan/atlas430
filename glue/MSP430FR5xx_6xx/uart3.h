@@ -1,6 +1,12 @@
 #ifndef __UART3_H__
 #define __UART3_H__
 
+#ifdef UART3_TX_USES_RINGBUF
+#ifndef UART3_TX_USES_IRQ
+#define UART3_TX_USES_IRQ
+#endif
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

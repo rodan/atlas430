@@ -44,6 +44,8 @@ void parse_user_input(void)
     char itoa_buf[CONV_BASE_10_BUF_SZ];
     uint32_t in=0;
     int32_t si=0;
+    uint8_t i;
+    int8_t j;
 
     if (f == '?') {
         display_menu();
@@ -62,7 +64,13 @@ void parse_user_input(void)
         uart0_print(_utoh(itoa_buf, in));
         uart0_print("\r\n");
     } else if (f == 'a') {
-        uart0_print("123456789\r\n");
+        uart0_print("lotsa text\r\n");
+        for (j=20; j>0; j--) {
+            for (i=0x30; i<0x40; i++) {
+                uart0_tx(i);
+            }
+            uart0_print("\r\ntest sending a long string abcdefghijklmnopqrs\r\n");
+        }
     } else {
         //uart0_tx_str("\r\n", 2);
     }
