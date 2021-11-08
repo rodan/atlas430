@@ -23,7 +23,6 @@ void timer_a0_delay_noblk_ccr2(const uint16_t ticks);
 void timer_a0_set_ccr2_extra_ticks(const uint32_t ticks);
 void timer_a0_cancel_ccr2(void);
 void timer_a0_sleep_nonblock(const uint16_t ms);
-void uart0_disable_rx(void);
 
 uint8_t timer_a0_get_event(void);
 void timer_a0_rst_event(void);

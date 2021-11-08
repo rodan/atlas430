@@ -111,7 +111,6 @@ void timer0_A1_ISR(void)
         TA0CCTL1 &= ~CCIE;
         TA0CCTL1 = 0;
         timer_a0_last_event |= TIMER_A0_EVENT_CCR1;
-        //uart0_disable_rx();
         _BIC_SR_IRQ(LPM3_bits);
 #if defined TAIV__TACCR2
     } else if (iv == TAIV__TACCR2) {

@@ -22,7 +22,7 @@ void display_menu(void)
 
 void parse_user_input(void)
 {
-#ifdef uart1_RX_USES_RINGBUF
+#ifdef UART1_RX_USES_RINGBUF
     struct ringbuf *rbr = uart1_get_rx_ringbuf();
     uint8_t rx;
     uint8_t c = 0;

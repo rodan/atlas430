@@ -7,8 +7,12 @@
 #include "uart_config.h"
 #include "uart0.h"
 #include "uart1.h"
+
+#if FAMILY == MSP430FR5xx_6xx
 #include "uart2.h"
 #include "uart3.h"
+#endif
+
 #include "lib_convert.h"
 #include "lib_math.h"
 #include "lib_time.h"
