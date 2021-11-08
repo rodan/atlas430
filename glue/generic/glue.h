@@ -7,6 +7,7 @@
 #include "uart_config.h"
 #include "uart0.h"
 #include "uart1.h"
+#include "uart2.h"
 #include "uart3.h"
 #include "lib_convert.h"
 #include "lib_math.h"

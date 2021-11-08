@@ -1,0 +1,8 @@
+
+glue/MSP430FR2xx_4xx/clock
+glue/MSP430FR2xx_4xx/msp430_hal
+glue/MSP430FR2xx_4xx/uart0
+glue/MSP430FR2xx_4xx/uart1
+glue/MSP430FR2xx_4xx/uart2
+glue/MSP430FR2xx_4xx/uart3
+

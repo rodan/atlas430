@@ -18,18 +18,10 @@
 
 void main_init(void)
 {
-    P1OUT = 0;
-    P1DIR = 0xff;
 
-    P2OUT = 0;
-    P2DIR = 0xff;
+    msp430_hal_init();
 
-    P3OUT = 0;
-    P3DIR = 0xff;
-
-    P4OUT = 0;
-    P4DIR = 0xff;
-
+#if defined (__MSP430FR5994__)
     // P55 and P56 are buttons
     P5OUT = 0;
     P5DIR = 0x9f;
@@ -38,19 +30,7 @@ void main_init(void)
     P5REN = 0x60;
     // IRQ triggers on the falling edge
     P5IES = 0x60;
-
-    P6OUT = 0;
-    P6DIR = 0xff;
-
-    P7OUT = 0;
-    P7DIR = 0xff;
-
-    P8OUT = 0;
-    P8DIR = 0xff;
-
-    PJOUT = 0;
-    PJDIR = 0xffff;
-
+#endif
 }
 
 static void uart0_rx_irq(uint32_t msg)
