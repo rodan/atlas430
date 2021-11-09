@@ -34,7 +34,7 @@ This library provides a glue layer between the upstream [Texas Instruments mspdr
   * *Analog Devices AD7789* adc IC
   * *Cypress FM24xxx* i2c FRAM IC
   * *Texas Instruments TCA6408* IO expander 
-* Makefile-based build, document generation, flash, static scan, version control
+* Makefile-based build, source code tag file and document generation, flashing, code static scan, automatic version control
 * a Makefile driven collection of unit tests for different drivers
 * generic scripts for checking the build environment, flashing uCs, version control, RTC initialization
 
