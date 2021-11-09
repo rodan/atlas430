@@ -51,27 +51,33 @@ see [this Makefile](https://github.com/rodan/sigdup/blob/master/firmware/Makefil
 make TARGET=MSP430FXXXX
 ```
 
-the usual options are as follow:
+the makefile supports the following options:
 
 ```
-# clean the build/DEVICE directory
+# remove the build/DEVICE/ directory
 make clean
 
-# to compile the project and library
+# compile the project and library
+# create dependency tree and source code tags
 make
 
-# burn the firmware into the target microcontroller
+# burn the firmware onto the target microcontroller
 make install
 
-# perform a static scan of the source code 
+# perform an optional static scan of the source code 
 make cppcheck    # needs dev-util/cppcheck
 make scan-build  # needs sys-devel/clang +static-analyzer
+```
 
-# in order to use gdb to debug the project
-# enable CONFIG_DEBUG and run in a different terminal
-mspdebug --allow-fw-update tilib gdb
+in order to use gdb to debug the project make sure to enable the **CONFIG_DEBUG** macro in config.h and run in a terminal
 
-# and then run
+```
+LD_PRELOAD='/opt/reference_libs_msp430/lib/libmsp430.so' mspdebug --allow-fw-update tilib gdb
+```
+
+and then start gdb from within the project directory:
+
+```
 make debug
 ```
 
@@ -82,12 +88,12 @@ target remote localhost:2000
 monitor reset
 monitor erase
 load build/MSP430FR5994/main.elf
-tui enable
 b
 disassemble
 nexti
 info registers
 continue
+tui enable
 ```
 
 the included [Makefile.env](https://github.com/rodan/reference_libs_msp430/blob/master/Makefile.env) contains the paths for the excelent [TI msp430 toolchain](https://www.ti.com/tool/MSP430-GCC-OPENSOURCE) which is a requirement in this scenario. a [shell script](./tools/check_setup.sh) for checking the build environment can be run on a non-priviledged account and will provide pointers of what packages are needed for building using this library. it also helps in installing the TI toolchain and support files.
