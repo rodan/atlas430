@@ -54,24 +54,18 @@ compile and debug as usual via what CCS offers.
 
 tests of the library are performed on the following target devices:
 
-microcontroller | family | functionality
---------------- | ------ | ------------- 
---------------- | ------ | clock | uart | i2c | spi 
---------------- | ------ | ----- | ---- | --- | ---
-MSP430F5510 | MSP430F5xx_6xx | [x] | [x] | [x] | [x]
-
-
-microcontroller | family | functionality
---------------- | ------ | ------------- 
-MSP430FR5994 | MSP430FR5xx_6xx | [x] clock [x] uart [x] i2c [x] spi
-CC430F5137 | MSP430F5xx_6xx | [ ] clock [ ] uart [ ] i2c [ ] spi
-MSP430F5529 | MSP430F5xx_6xx | [ ] clock [ ] uart [ ] i2c [ ] spi
-MSP430F5438 | MSP430F5xx_6xx | [ ] clock [ ] uart [ ] i2c [ ] spi
-MSP430FR6989 | MSP430FR5xx_6xx | [ ] clock [ ] uart [ ] i2c [ ] spi
-MSP430FR4113 | MSP430FR2xx_4xx | [ ] clock [ ] uart [ ] i2c [ ] spi 
-MSP430FR2476 | MSP430FR2xx_4xx | [ ] clock [ ] uart [ ] i2c [ ] spi
-MSP430FR2433 | MSP430FR2xx_4xx | [ ] clock [ ] uart [ ] i2c [ ] spi
-MSP430FR2355 | MSP430FR2xx_4xx | [ ] clock [ ] uart [ ] i2c [ ] spi
+microcontroller | family       |clock|uart | i2c | spi | scheduling
+--------------- | ------------ | --- | --- | --- | --- | ----------
+MSP430F5510  | MSP430F5xx_6xx  | [x] | [x] | [x] | [x] | [ ]
+MSP430FR5994 | MSP430FR5xx_6xx | [x] | [x] | [x] | [x] | [ ]
+CC430F5137   | MSP430F5xx_6xx  | [ ] | [ ] | [ ] | [ ] | [ ]
+MSP430F5529  | MSP430F5xx_6xx  | [ ] | [ ] | [ ] | [ ] | [ ]
+MSP430F5438  | MSP430F5xx_6xx  | [ ] | [ ] | [ ] | [ ] | [ ]
+MSP430FR6989 | MSP430FR5xx_6xx | [ ] | [ ] | [ ] | [ ] | [ ]
+MSP430FR4113 | MSP430FR2xx_4xx | [ ] | [ ] | [ ] | [ ] | [ ]
+MSP430FR2476 | MSP430FR2xx_4xx | [ ] | [ ] | [ ] | [ ] | [ ]
+MSP430FR2433 | MSP430FR2xx_4xx | [ ] | [ ] | [ ] | [ ] | [ ]
+MSP430FR2355 | MSP430FR2xx_4xx | [ ] | [ ] | [ ] | [ ] | [ ]
 
 this list covers microcontrollers I have on hand. adding support for new ones is entirely possible and is mostly limited by devboard availability.
 
