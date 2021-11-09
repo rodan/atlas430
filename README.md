@@ -55,6 +55,7 @@ compile and debug as usual via what CCS offers.
 tests of the library are performed on the following target devices:
 
 microcontroller | family | functionality
+--------------- | ------ | ------------- 
 --------------- | ------ | clock | uart | i2c | spi 
 --------------- | ------ | ----- | ---- | --- | ---
 MSP430F5510 | MSP430F5xx_6xx | [x] | [x] | [x] | [x]
