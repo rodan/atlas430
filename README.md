@@ -17,15 +17,14 @@ This library provides a glue layer between the upstream [Texas Instruments mspdr
 
 * TI MSP430 DriverLib
 * HAL glue for
-  * system and auxiliary clocks
   * default port init
+  * system and auxiliary clocks
   * uart with optional interrupt driven tx
-  * i2c with blocking implementation
-  * i2c controlled by interrupts
+  * blocking i2c implementation
+  * non-blocking i2c controlled by interrupts
   * bitbanged i2c
   * interrupt-based event handling
   * scheduling (to be added soon)
-  * ring buffer
 * drivers
   * *Honeywell High Accuracy Ceramic* (HSC) and *Standard Accuracy Ceramic* (SSC) piezoresistive silicon pressure sensors
   * *Sensirion SHT 1x* humidity and temperature sensors
@@ -34,13 +33,13 @@ This library provides a glue layer between the upstream [Texas Instruments mspdr
   * *Analog Devices AD7789* adc IC
   * *Cypress FM24xxx* i2c FRAM IC
   * *Texas Instruments TCA6408* IO expander 
-* Makefile-based build, source code tag file and document generation, code static scan
-* a Makefile driven collection of unit tests for different drivers
+* Makefile-based build, tag file and document generation, code static scan
 * shell scripts for checking the build environment, flashing uCs, version incrementation, RTC initialization
+* a Makefile driven collection of unit tests for the drivers above
 
 ### software requirements
 
-the entire development is done on a Gentoo Linux using makefiles, vim, the ti toolchain and gdb.
+the entire development is done on a Gentoo Linux using makefiles, vim, the TI toolchain and gdb.
 while none of those are a requirement to making the library part of any msp430 project, it happens to be the beaten road. the library can be used in the following ways:
 
 #### via a special project makefile (in a linux environment)
@@ -54,6 +53,9 @@ make TARGET=MSP430FXXXX
 the makefile supports the following options:
 
 ```
+# check if everything is installed and paths are correct
+make envcheck
+
 # remove the build/DEVICE/ directory
 make clean
 
@@ -81,7 +83,7 @@ and then start gdb from within the project directory:
 make debug
 ```
 
-commands from within gdb:
+commonly used commands from within gdb provided as example for the unit tests:
 
 ```
 target remote localhost:2000

@@ -116,6 +116,9 @@ clean:
 install: $(OBJ_DIR)/$(PROJ).elf
 	@bash ../../tools/burn.sh $<
 
+envcheck:
+	@bash $(REFLIB_ROOT)/tools/check_setup.sh
+
 # rebuild if CFLAGS changed, as suggested in:
 # http://stackoverflow.com/questions/3236145/force-gnu-make-to-rebuild-objects-affected-by-compiler-definition/3237349#3237349
 $(OBJ_DIR)/$(PROJ).cflags: cflags_update

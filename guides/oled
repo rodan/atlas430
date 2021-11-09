@@ -1,8 +1,0 @@
-       timer_a0_delay(10000);
-       oled_128x64_init();
-       oled_128x64_clear_display();          //clear the screen and set start position to top left corner
-       oled_128x64_set_normal_display();      //Set display to normal mode (i.e non-inverse mode)
-       oled_128x64_set_page_mode();           //Set addressing mode to Page Mode
-       oled_128x64_set_text_xy(0,0);          //Set the cursor to Xth Page, Yth Column
-       oled_128x64_put_string("Hello World!11"); //Print the String
-
