@@ -34,7 +34,7 @@ This library provides a glue layer between the upstream [Texas Instruments mspdr
   * *Analog Devices AD7789* adc IC
   * *Cypress FM24xxx* i2c FRAM IC
   * *Texas Instruments TCA6408* IO expander 
-* Makefile-based build, source code tag file and document generation, flashing, code static scan, automatic version control
+* Makefile-based build, source code tag file and document generation, flashing, code static scan, automatic version incrementation
 * a Makefile driven collection of unit tests for different drivers
 * generic scripts for checking the build environment, flashing uCs, version control, RTC initialization
 
@@ -55,8 +55,13 @@ compile and debug as usual via what CCS offers.
 tests of the library are performed on the following target devices:
 
 microcontroller | family | functionality
------------ | ------ | -------------
-MSP430F5510 | MSP430F5xx_6xx | [x] clock [x] uart [x] i2c [x] spi
+--------------- | ------ | clock | uart | i2c | spi 
+--------------- | ------ | ----- | ---- | --- | ---
+MSP430F5510 | MSP430F5xx_6xx | [x] | [x] | [x] | [x]
+
+
+microcontroller | family | functionality
+--------------- | ------ | ------------- 
 MSP430FR5994 | MSP430FR5xx_6xx | [x] clock [x] uart [x] i2c [x] spi
 CC430F5137 | MSP430F5xx_6xx | [ ] clock [ ] uart [ ] i2c [ ] spi
 MSP430F5529 | MSP430F5xx_6xx | [ ] clock [ ] uart [ ] i2c [ ] spi
