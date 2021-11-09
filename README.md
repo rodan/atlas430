@@ -40,12 +40,12 @@ This library provides a glue layer between the upstream [Texas Instruments mspdr
 
 ### software requirements
 
-the entire development is done on a Gentoo Linux using makefiles, vim and gdb.
+the entire development is done on a Gentoo Linux using makefiles, vim, the ti toolchain and gdb.
 while none of those are a requirement to making the library part of any msp430 project, it happens to be the beaten road. the library can be used in the following ways:
 
 * via a special project makefile (in a linux environment). see [this Makefile](https://github.com/rodan/sigdup/blob/master/firmware/Makefile) for the perfect example. **REFLIB_ROOT** defines the path to where this reference library has been cloned, **TARGET** represents the target microcontroller and [config.h](https://github.com/rodan/sigdup/blob/master/firmware/config.h) will be automatically expanded into compilation macros (-DFOO arguments to be sent to gcc). the included [Makefile.env](https://github.com/rodan/reference_libs_msp430/blob/master/Makefile.env) contains the paths for the excelent [TI msp430 toolchain](https://www.ti.com/tool/MSP430-GCC-OPENSOURCE) which is a requirement in this scenario. a [shell script](./tools/check_setup.sh) for checking the build environment can be run on a non-priviledged account and will provide pointers of what packages are needed for building using this library. it also helps in installing the TI toolchain and support files.
 
-* via *Code Composer Studio for Linux*. import [this project](https://github.com/rodan/sigdup/tree/master/firmware) as an example. the reference library is expected to be symlinked or cloned into */opt/reference_libs_msp430/* while the compilation macros and the memory model are baked into the project's xml files - one needs to tweak them via **project properties** since this scenario is not using the provided Makefiles. compiling and debug as done via CCS.
+* via *Code Composer Studio for Linux*. import [this project](https://github.com/rodan/sigdup/tree/master/firmware) as an example. the reference library is expected to be symlinked or cloned into */opt/reference_libs_msp430/* while the compilation macros and the memory model are baked into the project's xml files - one needs to tweak them via *project properties* since this scenario is not using any of the provided Makefiles or scripts. compiling and debug as done via CCS.
 
 * via *Code Composer Studio for Windows*, theoretically like above, but I have never tested it.
 
@@ -55,18 +55,19 @@ tests of the library are performed on the following target devices:
 
 microcontroller | family       |clock|uart | i2c | spi | scheduling
 --------------- | ------------ | --- | --- | --- | --- | ----------
-MSP430F5510  | MSP430F5xx_6xx  | [x] | [x] | [x] | [x] | [ ]
-MSP430FR5994 | MSP430FR5xx_6xx | [x] | [x] | [x] | [x] | [ ]
 CC430F5137   | MSP430F5xx_6xx  | [ ] | [ ] | [ ] | [ ] | [ ]
-MSP430F5529  | MSP430F5xx_6xx  | [ ] | [ ] | [ ] | [ ] | [ ]
 MSP430F5438  | MSP430F5xx_6xx  | [ ] | [ ] | [ ] | [ ] | [ ]
-MSP430FR6989 | MSP430FR5xx_6xx | [ ] | [ ] | [ ] | [ ] | [ ]
-MSP430FR4113 | MSP430FR2xx_4xx | [ ] | [ ] | [ ] | [ ] | [ ]
-MSP430FR2476 | MSP430FR2xx_4xx | [ ] | [ ] | [ ] | [ ] | [ ]
-MSP430FR2433 | MSP430FR2xx_4xx | [ ] | [ ] | [ ] | [ ] | [ ]
+MSP430F5510  | MSP430F5xx_6xx  | [x] | [x] | [x] | [x] | [ ]
+MSP430F5529  | MSP430F5xx_6xx  | [ ] | [ ] | [ ] | [ ] | [ ]
 MSP430FR2355 | MSP430FR2xx_4xx | [ ] | [ ] | [ ] | [ ] | [ ]
+MSP430FR2433 | MSP430FR2xx_4xx | [ ] | [ ] | [ ] | [ ] | [ ]
+MSP430FR2476 | MSP430FR2xx_4xx | [ ] | [ ] | [ ] | [ ] | [ ]
+MSP430FR4113 | MSP430FR2xx_4xx | [ ] | [ ] | [ ] | [ ] | [ ]
+MSP430FR5994 | MSP430FR5xx_6xx | [x] | [x] | [x] | [x] | [ ]
+MSP430FR6989 | MSP430FR5xx_6xx | [ ] | [ ] | [ ] | [ ] | [ ]
 
 this list covers microcontrollers I have on hand. adding support for new ones is entirely possible and is mostly limited by devboard availability.
+in most cases adding the new device to [Makefile.identify-target](https://github.com/rodan/reference_libs_msp430/blob/master/Makefile.identify-target) is enough to get things started. patches are welcome.
 
 ### references 
 
