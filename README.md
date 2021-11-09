@@ -13,7 +13,7 @@ This library provides a glue layer between the upstream [Texas Instruments mspdr
  license:   BSD
 ```
 
-### Components
+### components
 
 * TI MSP430 DriverLib
 * HAL glue for
@@ -40,13 +40,21 @@ This library provides a glue layer between the upstream [Texas Instruments mspdr
 
 ### software requirements
 
-the entire development is done in Linux using makefiles, vim and gdb (without Code Composer Studio). once the library reaches a certain maturity I will try to make it more *CCS for Linux* friendly. if anyone is interested to make this also work with *CCS for Windows*, have at it. it's absolutely not something I want to sink my time into.
+the entire development is done on a Gentoo Linux using makefiles, vim and gdb.
+while none of those are a requirement to making the library part of any msp430 project, it happens to be the beaten road. the library can be used in the following ways:
 
-a script for checking the build environment is [provided](./tools/check_setup.sh). it can be run on a non-priviledged account and will provide pointers of what packages are needed for building using this library.
+* via a special project makefile (in a linux environment). see [this Makefile](https://github.com/rodan/sigdup/blob/master/firmware/Makefile) for the perfect example. **REFLIB_ROOT** defines the path to where this reference library has been cloned, **TARGET** represents the target microcontroller and [config.h](https://github.com/rodan/sigdup/blob/master/firmware/config.h) will be automatically expanded into compilation macros (-DFOO arguments to be sent to gcc)
+
+ a script for checking the build environment is [provided](./tools/check_setup.sh). it can be run on a non-priviledged account and will provide pointers of what packages are needed for building using this library.
+
+* via *Code Composer Studio for Linux*. import [this project](https://github.com/rodan/sigdup/tree/master/firmware) as an example. the reference library is expected to be symlinked or cloned into */opt/reference_libs_msp430/* while the compilation macros and the memory model are baked into the project's xml files - one needs to tweak them via **project properties**.
+compile and debug as usual via what CCS offers.
+
+* via *Code Composer Studio for Windows*, theoretically like above. I have never tested this. I might do it someday, maybe.
 
 ### support
 
-tests of the library are performed on the following microcontrollers:
+tests of the library are performed on the following target devices:
 
 microcontroller | family | functionality
 ----------- | ------ | -------------
@@ -62,8 +70,6 @@ MSP430FR2433 | MSP430FR2xx_4xx | [ ] clock [ ] uart [ ] i2c [ ] spi
 MSP430FR2355 | MSP430FR2xx_4xx | [ ] clock [ ] uart [ ] i2c [ ] spi
 
 this list covers microcontrollers I have on hand. adding support for new ones is entirely possible and is mostly limited by devboard availability.
-
-all R&D is done on a stable Gentoo Linux system with Mitto Systems GCC 9.3.1.1-based toolchain
 
 ### references 
 
