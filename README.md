@@ -1,7 +1,10 @@
 
 ## reference libraries for msp430
 
-This library provides a glue layer between the upstream [Texas Instruments mspdriverlib](https://www.ti.com/tool/MSPDRIVERLIB) and projects that need quick prototyping. On one hand it has a number of configurable compile-time defines that will set up the hardware abstraction layer allowing the user to focus on the higher level code and on the other hand it can be out-of-the-way and allow direct access to the registers or to the ti libs. feeling tripple blessed yet?
+This library provides a glue layer between the upstream [Texas Instruments mspdriverlib](https://www.ti.com/tool/MSPDRIVERLIB) and projects that need quick prototyping. On one hand it has a number of configurable compile-time defines that will set up the hardware abstraction layer allowing the user to focus on the higher level code and on the other hand it can be out-of-the-way and allow direct access to the registers or to the ti libs.
+
+
+![Lib Logo](./doc/img/target_devboard.png)
 
 
 ```
@@ -9,8 +12,6 @@ This library provides a glue layer between the upstream [Texas Instruments mspdr
  author:    Petre Rodan <2b4eda@subdimension.ro>
  license:   BSD
 ```
-
-![Lib Logo](./doc/img/target_devboard.png)
 
 ### Components
 
@@ -39,7 +40,7 @@ This library provides a glue layer between the upstream [Texas Instruments mspdr
 
 ### software requirements
 
-the entire development is done in linux outside of the Code Composer Studio. once the library reaches a certain maturity I will try to make it more *CCS for Linux* friendly. if anyone is interested to make this also work with *CCS for Windows*, have at it. it's absolutely not something I want to sink my time into.
+the entire development is done in Linux using makefiles, vim and gdb (without Code Composer Studio). once the library reaches a certain maturity I will try to make it more *CCS for Linux* friendly. if anyone is interested to make this also work with *CCS for Windows*, have at it. it's absolutely not something I want to sink my time into.
 
 a script for checking the build environment is [provided](./tools/check_setup.sh). it can be run on a non-priviledged account and will provide pointers of what packages are needed for building using this library.
 
@@ -47,7 +48,7 @@ a script for checking the build environment is [provided](./tools/check_setup.sh
 
 tests of the library are performed on the following microcontrollers:
 
-msp430 type | family | functionality
+microcontroller | family | functionality
 ----------- | ------ | -------------
 MSP430F5510 | MSP430F5xx_6xx | [x] clock [x] uart [x] i2c [x] spi
 MSP430FR5994 | MSP430FR5xx_6xx | [x] clock [x] uart [x] i2c [x] spi
@@ -63,4 +64,16 @@ MSP430FR2355 | MSP430FR2xx_4xx | [ ] clock [ ] uart [ ] i2c [ ] spi
 this list covers microcontrollers I have on hand. adding support for new ones is entirely possible and is mostly limited by devboard availability.
 
 all R&D is done on a stable Gentoo Linux system with Mitto Systems GCC 9.3.1.1-based toolchain
+
+### references 
+
+the following projects are already using this library:
+
+project | microcontroller | short description
+------- | --------------- | -----------------
+(sigdup)[https://github.com/rodan/sigdup] | msp430fr5994 | software that takes PulseView digital signal captures as input and re-plays them
+(solar-charger rev4.1)[https://github.com/rodan/solar-charger] | msp430f5510 | off-the-grid 1 cell lipo battery charger for very low efficiency 15-36V photovoltaic cells
+
+
+
 
