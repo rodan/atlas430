@@ -34,16 +34,16 @@ This library provides a glue layer between the upstream [Texas Instruments mspdr
   * *Analog Devices AD7789* adc IC
   * *Cypress FM24xxx* i2c FRAM IC
   * *Texas Instruments TCA6408* IO expander 
-* Makefile-based build, source code tag file and document generation, flashing, code static scan, automatic version incrementation
+* Makefile-based build, source code tag file and document generation, code static scan
 * a Makefile driven collection of unit tests for different drivers
-* generic scripts for checking the build environment, flashing uCs, version control, RTC initialization
+* shell scripts for checking the build environment, flashing uCs, version incrementation, RTC initialization
 
 ### software requirements
 
 the entire development is done on a Gentoo Linux using makefiles, vim, the ti toolchain and gdb.
 while none of those are a requirement to making the library part of any msp430 project, it happens to be the beaten road. the library can be used in the following ways:
 
-#### via a special project makefile (in a linux environment).
+#### via a special project makefile (in a linux environment)
 
 see [this Makefile](https://github.com/rodan/sigdup/blob/master/firmware/Makefile) for the perfect example. **REFLIB_ROOT** defines the path to where this reference library has been cloned, **TARGET** represents the target microcontroller and [config.h](https://github.com/rodan/sigdup/blob/master/firmware/config.h) will be automatically expanded into compilation macros (-DFOO arguments to be sent to gcc). if **TARGET** is not hardcoded in the Makefile, then the user needs to provide it as an argument to make:
 
@@ -51,7 +51,48 @@ see [this Makefile](https://github.com/rodan/sigdup/blob/master/firmware/Makefil
 make TARGET=MSP430FXXXX
 ```
 
+the usual options are as follow:
+
+```
+# clean the build/DEVICE directory
+make clean
+
+# to compile the project and library
+make
+
+# burn the firmware into the target microcontroller
+make install
+
+# perform a static scan of the source code 
+make cppcheck    # needs dev-util/cppcheck
+make scan-build  # needs sys-devel/clang +static-analyzer
+
+# in order to use gdb to debug the project
+# enable CONFIG_DEBUG and run in a different terminal
+mspdebug --allow-fw-update tilib gdb
+
+# and then run
+make debug
+```
+
+commands from within gdb:
+
+```
+target remote localhost:2000
+monitor reset
+monitor erase
+load build/MSP430FR5994/main.elf
+tui enable
+b
+disassemble
+nexti
+info registers
+continue
+```
+
 the included [Makefile.env](https://github.com/rodan/reference_libs_msp430/blob/master/Makefile.env) contains the paths for the excelent [TI msp430 toolchain](https://www.ti.com/tool/MSP430-GCC-OPENSOURCE) which is a requirement in this scenario. a [shell script](./tools/check_setup.sh) for checking the build environment can be run on a non-priviledged account and will provide pointers of what packages are needed for building using this library. it also helps in installing the TI toolchain and support files.
+
+all the [unit tests](https://github.com/rodan/reference_libs_msp430/tree/master/tests) can be compiled with this method.
 
 #### via *Code Composer Studio for Linux*
 

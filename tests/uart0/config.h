@@ -19,6 +19,6 @@
 //#define LED_SYSTEM_STATES
 
 //#define USE_ITOA_LUT
-//#define CONFIG_DEBUG
+#define CONFIG_DEBUG
 
 #endif
