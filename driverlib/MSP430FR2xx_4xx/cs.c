@@ -327,7 +327,7 @@ void CS_initClockSignal(uint8_t selectedClockSignal,
                 temp = HWREG16(CS_BASE + OFS_CSCTL6);
                 if (clockSourceDivider != CS_CLOCK_DIVIDER_1) {
                     clockSourceDivider = (clockSourceDivider-3) << 8;
-                    HWREG16(CS_BASE + OFS_CSCTL6) |= temp & ~(DIVA3|DIVA2|DIVA1|DIVA0)
+                    HWREG16(CS_BASE + OFS_CSCTL6) |= (temp & ~(DIVA3|DIVA2|DIVA1|DIVA0))
                                                      | clockSourceDivider;
                 }
             }
@@ -340,7 +340,7 @@ void CS_initClockSignal(uint8_t selectedClockSignal,
 
             temp = HWREG16(CS_BASE + OFS_CSCTL5);
             clockSourceDivider = clockSourceDivider << 4;
-            HWREG16(CS_BASE + OFS_CSCTL5) = temp & ~(DIVS_3) | clockSourceDivider;
+            HWREG16(CS_BASE + OFS_CSCTL5) = (temp & ~(DIVS_3)) | clockSourceDivider;
             break;
         case CS_MCLK:
 
@@ -348,7 +348,7 @@ void CS_initClockSignal(uint8_t selectedClockSignal,
             HWREG16(CS_BASE + OFS_CSCTL4) |= (clockSource);
 
             temp = HWREG16(CS_BASE + OFS_CSCTL5);
-            HWREG16(CS_BASE + OFS_CSCTL5) = temp & ~(DIVM_7) | clockSourceDivider;
+            HWREG16(CS_BASE + OFS_CSCTL5) = (temp & ~(DIVM_7)) | clockSourceDivider;
             break;
         case CS_FLLREF:
 
@@ -365,13 +365,13 @@ void CS_initClockSignal(uint8_t selectedClockSignal,
             //Hence handled differently from other CLK signals
             if (clockSourceDivider != CS_CLOCK_DIVIDER_1) {
                 if (clockSourceDivider == CS_CLOCK_DIVIDER_640) {
-                    HWREG8(CS_BASE + OFS_CSCTL3) = temp & ~(FLLREFDIV_7) | (clockSourceDivider - 10);
+                    HWREG8(CS_BASE + OFS_CSCTL3) = (temp & ~(FLLREFDIV_7)) | (clockSourceDivider - 10);
                 }
                 else if (clockSourceDivider != CS_CLOCK_DIVIDER_512) {
-                    HWREG8(CS_BASE + OFS_CSCTL3) = temp & ~(FLLREFDIV_7) | (clockSourceDivider - 4);
+                    HWREG8(CS_BASE + OFS_CSCTL3) = (temp & ~(FLLREFDIV_7)) | (clockSourceDivider - 4);
                 }
                 else {
-                    HWREG8(CS_BASE + OFS_CSCTL3) = temp & ~(FLLREFDIV_7) | (clockSourceDivider - 5);
+                    HWREG8(CS_BASE + OFS_CSCTL3) = (temp & ~(FLLREFDIV_7)) | (clockSourceDivider - 5);
                 }
             }
             break;

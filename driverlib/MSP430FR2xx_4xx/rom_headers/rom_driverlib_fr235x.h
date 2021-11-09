@@ -35,7 +35,8 @@
 #endif
 
 #if (defined(__TI_COMPILER_VERSION__) && !defined(__LARGE_DATA_MODEL__)) || \
-(defined(__IAR_SYSTEMS_ICC__) && (__DATA_MODEL__!=__DATA_MODEL_LARGE__))
+(defined(__IAR_SYSTEMS_ICC__) && (__DATA_MODEL__!=__DATA_MODEL_LARGE__)) || \
+(defined(__GNUC__) && !defined(__LARGE_DATA_MODEL__))
 #error "Only large data model supported for this ROM."
 #endif
 
@@ -43,7 +44,8 @@
 #define __ROM_DRIVERLIB_H__
 
 #if (defined(__TI_COMPILER_VERSION__) && defined(__LARGE_CODE_MODEL__)) || \
-    (defined(__IAR_SYSTEMS_ICC__) && (__CODE_MODEL__==__CODE_MODEL_LARGE__))
+    (defined(__IAR_SYSTEMS_ICC__) && (__CODE_MODEL__==__CODE_MODEL_LARGE__)) || \
+    (defined(__GNUC__) && defined(__LARGE_CODE_MODEL__))
 
 //*****************************************************************************
 //

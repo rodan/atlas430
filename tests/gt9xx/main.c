@@ -24,17 +24,8 @@ extern uint8_t gt9xx_debug_status[GT9XX_DEBUG_BUFFER_SZ];
 
 void main_init(void)
 {
-    P1OUT = 0;
-    P1DIR = 0xFF;
 
-    P2OUT = 0;
-    P2DIR = 0xFF;
-
-    P3OUT = 0;
-    P3DIR = 0xFF;
-
-    P4OUT = 0;
-    P4DIR = 0xFF;
+    msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
 
     P5OUT = 0;
     P5DIR = 0xbf;

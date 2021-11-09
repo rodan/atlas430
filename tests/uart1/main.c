@@ -13,13 +13,7 @@
 #include "driverlib.h"
 #include "glue.h"
 #include "ui.h"
-
 #include "timer_a0.h"
-
-void main_init(void)
-{
-    msp430_hal_init();
-}
 
 static void uart1_rx_irq(uint32_t msg)
 {
@@ -44,8 +38,7 @@ int main(void)
 {
     // stop watchdog
     WDTCTL = WDTPW | WDTHOLD;
-    main_init();
-    P1DIR |= BIT0;
+    msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
     sig0_on;
 
     clock_port_init();

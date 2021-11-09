@@ -73,7 +73,7 @@ all: mkdir_od config.h driverlib $(EXOUTPUT)
 else
 # Append specific CFLAGS/LDFLAGS
 DEBUG := $(shell grep "^\#define CONFIG_DEBUG" config.h)
-MACROS := -DDEVICE=$(DEVICE) -DFAMILY=$(FAMILY) $(shell $(REFLIB_ROOT)/tools/extract_macros.sh config.h)
+MACROS := $(shell $(REFLIB_ROOT)/tools/extract_macros.sh config.h)
 CFLAGS += $(MACROS)
 ifeq ($(DEBUG),)
 CTARGET	:= RELEASE
@@ -88,7 +88,7 @@ all: new_timestamps depend version.h config.h config_macros tags driverlib $(EXO
 endif
 
 ifeq ($(MEMORY_MODEL),LARGE)
-CFLAGS	+= -mlarge -mcode-region=lower -mdata-region=lower
+CFLAGS	+= -mlarge -mcode-region=lower -mdata-region=lower -D__LARGE_DATA_MODEL__ -D__LARGE_CODE_MODEL__
 LDFLAGS	+= -mlarge -mcode-region=lower
 endif
 

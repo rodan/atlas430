@@ -8,7 +8,7 @@
 #include "uart0.h"
 #include "uart1.h"
 
-#if FAMILY == MSP430FR5xx_6xx
+#ifdef __MSP430FR5XX_6XX_FAMILY__
 #include "uart2.h"
 #include "uart3.h"
 #endif

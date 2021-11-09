@@ -1,7 +1,7 @@
 
 ## reference libraries for msp430
 
-This library provides a glue layer between the upstream [Texas Instruments mspdriverlib](https://www.ti.com/tool/MSPDRIVERLIB) and projects that need quick prototyping. On one hand it has a number of configurable compile-time defines that will set up the hardware abstraction layer allowing the user to focus on the higher level code and on the other hand it can be out-of-the-way and allow direct access to the registers or to the ti libs.
+this library provides a glue layer between the upstream [Texas Instruments mspdriverlib](https://www.ti.com/tool/MSPDRIVERLIB) and projects that need quick prototyping while also allowing easier code migration from one msp430 microcontroller to another. on one hand it has a number of generic functions and configurable compile-time defines that will set up the hardware abstraction layer allowing the user to focus on the higher level code and on the other hand it can be out-of-the-way and allow direct access to the registers or to the TI driverlib.
 
 
 ![Lib Logo](./doc/img/target_devboard.png)
@@ -104,7 +104,7 @@ all the [unit tests](https://github.com/rodan/reference_libs_msp430/tree/master/
 
 #### via *Code Composer Studio for Linux*
 
-import [this project](https://github.com/rodan/sigdup/tree/master/firmware) as an example. the reference library is expected to be symlinked or cloned into */opt/reference_libs_msp430/* while the compilation macros and the memory model are baked into the project's xml files - one needs to tweak them via *project properties* since this scenario is not using any of the provided Makefiles or scripts. compiling and debug as done via CCS.
+import [this project](https://github.com/rodan/sigdup/tree/master/firmware) as an example. the reference library is expected to be symlinked or cloned into */opt/reference_libs_msp430/* while the compilation macros, the memory model, compile includes are all baked into the project's xml files - one needs to tweak them via *project properties* since this scenario is not using any of the provided Makefiles or scripts. compiling and debug is done via CCS.
 
 #### via *Code Composer Studio for Windows*
 
@@ -137,7 +137,7 @@ the following projects are already using this library:
 project | microcontroller | short description
 ------- | --------------- | -----------------
 [sigdup](https://github.com/rodan/sigdup) | msp430fr5994 | software that takes PulseView digital signal captures as input and re-plays them
-[solar-charger rev4.1](https://github.com/rodan/solar-charger) | msp430f5510 | off-the-grid 1 cell lipo battery charger for very low efficiency 15-36V photovoltaic cells
+[solar-charger rev4.1](https://github.com/rodan/solar-charger) | msp430f5510 | off-the-grid 1 cell lipo and 12v lead battery charger for low efficiency 15-36V photovoltaic cells
 
 
 

@@ -13,25 +13,7 @@
 #include "driverlib.h"
 #include "glue.h"
 #include "ui.h"
-
 #include "timer_a0.h"
-
-void main_init(void)
-{
-
-    msp430_hal_init();
-
-#if defined (__MSP430FR5994__)
-    // P55 and P56 are buttons
-    P5OUT = 0;
-    P5DIR = 0x9f;
-    // activate pullup
-    P5OUT = 0x60;
-    P5REN = 0x60;
-    // IRQ triggers on the falling edge
-    P5IES = 0x60;
-#endif
-}
 
 static void uart0_rx_irq(uint32_t msg)
 {
@@ -56,8 +38,7 @@ int main(void)
 {
     // stop watchdog
     WDTCTL = WDTPW | WDTHOLD;
-    //msp430_hal_init();
-    main_init();
+    msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
     sig0_on;
 
     clock_port_init();

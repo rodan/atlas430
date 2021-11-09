@@ -22,19 +22,10 @@ volatile uint8_t t_debug = 1;
 
 void main_init(void)
 {
-    // set all ports as output, low level
+    msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
 
     P1OUT = 0;
     P1DIR = 0xfb;
-
-    P2OUT = 0;
-    P2DIR = 0xff;
-
-    P3OUT = 0;
-    P3DIR = 0xff;
-
-    P4OUT = 0;
-    P4DIR = 0xff;
 
     P5OUT = 0;
     P5DIR = 0xf7;
@@ -51,18 +42,6 @@ void main_init(void)
     P5IFG &= ~CS_PIN;
     // Enable interrupt
     P5IE |= CS_PIN;
-
-    P6OUT = 0;
-    P6DIR = 0xFF;
-
-    P7OUT = 0;
-    P7DIR = 0xFF;
-
-    P8DIR = 0xFF;
-    P8OUT = 0;
-
-    PJOUT = 0;
-    PJDIR = 0xFFFF;
 
 #ifdef USE_XT1
     PJSEL0 |= BIT4 | BIT5;

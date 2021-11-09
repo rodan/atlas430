@@ -354,7 +354,7 @@ void Timer_B_setOutputMode(uint16_t baseAddress,
                              uint16_t compareOutputMode)
 {
     uint16_t temp = HWREG16(baseAddress + compareRegister);
-    HWREG16(baseAddress + compareRegister) = temp & ~(OUTMOD_7) | compareOutputMode;
+    HWREG16(baseAddress + compareRegister) = (temp & ~(OUTMOD_7)) | compareOutputMode;
 }
 
 void Timer_B_selectOutputHighImpedanceTrigger(uint16_t baseAddress,

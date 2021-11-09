@@ -19,6 +19,8 @@ int main(void)
 {
     WDTCTL = WDTPW | WDTHOLD;   // stop watchdog timer
 
+    msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
+
     // setup gpio
     P3DIR = 0xff;               // all P3.x are output
     PJSEL0 |= BIT4 | BIT5;      // XT1

@@ -10,7 +10,7 @@ SRC	= $(SRC_C) $(SRC_H) $(FAMILY_HEADER)
 
 tags: $(SRC) 
 	@echo "Generating tags .."
-	@exuberant-ctags --recurse=yes ./ $(FAMILY_HEADER)
+	@exuberant-ctags --recurse=yes ./ ../../driverlib/MSP430FR5xx_6xx $(FAMILY_HEADER)
 
 clean:
 	@rm -f tags

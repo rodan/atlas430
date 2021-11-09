@@ -19,19 +19,7 @@ spi_descriptor spid_ds3234;
 
 void main_init(void)
 {
-    // set all ports as output, low level
-
-    P1OUT = 0;
-    P1DIR = 0xFF;
-
-    P2OUT = 0;
-    P2DIR = 0xFF;
-
-    P3OUT = 0;
-    P3DIR = 0xFF;
-
-    P4OUT = 0;
-    P4DIR = 0xFF;
+    msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
 
     // 5.3 is the ~INT pin
     P5OUT = 0;
@@ -48,19 +36,6 @@ void main_init(void)
     P5IFG &= ~(BIT3);
     // Enable button interrupt
     P5IE |= BIT3;
-
-    P6OUT = 0;
-    P6DIR = 0xFF;
-
-    P7OUT = 0;
-    P7DIR = 0xFF;
-
-    P8DIR = 0xFF;
-    P8OUT = 0;
-
-    PJOUT = 0;
-    PJDIR = 0xFFFF;
-
 }
 
 void ds3234_cs_low(void)
