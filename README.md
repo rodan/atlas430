@@ -45,10 +45,9 @@ while none of those are a requirement to making the library part of any msp430 p
 
 * via a special project makefile (in a linux environment). see [this Makefile](https://github.com/rodan/sigdup/blob/master/firmware/Makefile) for the perfect example. **REFLIB_ROOT** defines the path to where this reference library has been cloned, **TARGET** represents the target microcontroller and [config.h](https://github.com/rodan/sigdup/blob/master/firmware/config.h) will be automatically expanded into compilation macros (-DFOO arguments to be sent to gcc). the included [Makefile.env](https://github.com/rodan/reference_libs_msp430/blob/master/Makefile.env) contains the paths for the excelent TI msp430 toolchain which is a requirement in this scenario. a script for checking the build environment is [provided](./tools/check_setup.sh). it can be run on a non-priviledged account and will provide pointers of what packages are needed for building using this library.
 
-* via *Code Composer Studio for Linux*. import [this project](https://github.com/rodan/sigdup/tree/master/firmware) as an example. the reference library is expected to be symlinked or cloned into */opt/reference_libs_msp430/* while the compilation macros and the memory model are baked into the project's xml files - one needs to tweak them via **project properties**.
-compile and debug as usual via what CCS offers.
+* via *Code Composer Studio for Linux*. import [this project](https://github.com/rodan/sigdup/tree/master/firmware) as an example. the reference library is expected to be symlinked or cloned into */opt/reference_libs_msp430/* while the compilation macros and the memory model are baked into the project's xml files - one needs to tweak them via **project properties** since this scenario is not using the provided Makefiles. compiling and debug as done via CCS.
 
-* via *Code Composer Studio for Windows*, theoretically like above. I have never tested this. I might do it someday, maybe.
+* via *Code Composer Studio for Windows*, theoretically like above, but I have never tested it.
 
 ### support
 
@@ -56,8 +55,8 @@ tests of the library are performed on the following target devices:
 
 microcontroller | family       |clock|uart | i2c | spi | scheduling
 --------------- | ------------ | --- | --- | --- | --- | ----------
-MSP430F5510  | MSP430F5xx_6xx  | ✅  | ✅  | ✅  | ✅  | ✅
-MSP430FR5994 | MSP430FR5xx_6xx | - [x] | [x] | [x] | [x] | [ ]
+MSP430F5510  | MSP430F5xx_6xx  | [x] | [x] | [x] | [x] | [ ]
+MSP430FR5994 | MSP430FR5xx_6xx | [x] | [x] | [x] | [x] | [ ]
 CC430F5137   | MSP430F5xx_6xx  | [ ] | [ ] | [ ] | [ ] | [ ]
 MSP430F5529  | MSP430F5xx_6xx  | [ ] | [ ] | [ ] | [ ] | [ ]
 MSP430F5438  | MSP430F5xx_6xx  | [ ] | [ ] | [ ] | [ ] | [ ]
