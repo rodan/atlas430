@@ -3,11 +3,14 @@
 
 This library provides a glue layer between the upstream [Texas Instruments mspdriverlib](https://www.ti.com/tool/MSPDRIVERLIB) and projects that need quick prototyping. On one hand it has a number of configurable compile-time defines that will set up the hardware abstraction layer allowing the user to focus on the higher level code and on the other hand it can be out-of-the-way and allow direct access to the registers or to the ti libs. feeling tripple blessed yet?
 
+
 ```
  source:    https://github.com/rodan/reference_libs_msp430
  author:    Petre Rodan <2b4eda@subdimension.ro>
  license:   BSD
 ```
+
+![Lib Logo](./doc/img/target_devboard.png)
 
 ### Components
 
@@ -19,7 +22,8 @@ This library provides a glue layer between the upstream [Texas Instruments mspdr
   * i2c with blocking implementation
   * i2c controlled by interrupts
   * bitbanged i2c
-  * system messagebus
+  * interrupt-based event handling
+  * scheduling (to be added soon)
   * ring buffer
 * drivers
   * *Honeywell High Accuracy Ceramic* (HSC) and *Standard Accuracy Ceramic* (SSC) piezoresistive silicon pressure sensors
@@ -35,7 +39,7 @@ This library provides a glue layer between the upstream [Texas Instruments mspdr
 
 ### software requirements
 
-the entire development is done in linux outside of the Code Composer Studio. once the library reaches a certain maturity I will try to make it more *CCS for Linux* friendly. if anyone is interested to make this also work with CCS for Windows, have at it. it's absolutely not something I want to sink my time into.
+the entire development is done in linux outside of the Code Composer Studio. once the library reaches a certain maturity I will try to make it more *CCS for Linux* friendly. if anyone is interested to make this also work with *CCS for Windows*, have at it. it's absolutely not something I want to sink my time into.
 
 a script for checking the build environment is [provided](./tools/check_setup.sh). it can be run on a non-priviledged account and will provide pointers of what packages are needed for building using this library.
 
