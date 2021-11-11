@@ -1,0 +1,6 @@
+
+tests for the glue logic
+
+can be compiled with make. a small usage guide is provided inside the readme
+located in the parent directory
+
