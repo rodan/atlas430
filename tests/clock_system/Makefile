@@ -26,9 +26,11 @@ GDB              = $(GCC_BIN_DIR)/msp430-elf-gdb
 # are used for dead code elimination, see:
 # http://gcc.gnu.org/ml/gcc-help/2003-08/msg00128.html
 
-CFLAGS           := -D__$(DEVICE)__ -mmcu=$(DEVICE) # -g -DDEPRECATED
-CFLAGS           += -Wall -Wno-switch -Wno-int-to-pointer-cast
-#CFLAGS           += -S -fverbose-asm
+CFLAGS       := -D__$(DEVICE)__ -mmcu=$(DEVICE) # -g -DDEPRECATED
+CFLAGS       += -Wall -Wno-switch -Wno-int-to-pointer-cast
+#CFLAGS       += $(CFLAGS_EXTRA)
+CFLAGS       += -Werror
+#CFLAGS      += -S -fverbose-asm
 #CFLAGS		 += -fno-force-addr -finline-limit=1 -fno-schedule-insns
 #CFLAGS		 += -fshort-enums -Wl,-Map=output.map
 LDFLAGS          := -T $(LDDIR).ld -L $(LIB_DIR) -L $(GCC_EXTRA_INC_DIR) -mmcu=$(DEVICE) $(HWMULT) -g -Wl,--gc-sections

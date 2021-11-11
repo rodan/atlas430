@@ -10,17 +10,24 @@ int main(void)
     WDTCTL = WDTPW | WDTHOLD;
 
     msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
+    #if defined (__MSP430_HAS_FRAM__)
+    hhhh
+    PMM_unlockLPM5();
+    #endif
     sig0_on;
 
     clock_port_init();
     clock_init();
 
+    // output SMCLK on a pin
     #if defined (__MSP430FR5994__)
-    // output SMCLK on P3.4
     P3OUT &= ~BIT4;
     P3DIR |= BIT4;
     P3SEL1 |= BIT4;
-    PM5CTL0 &= ~LOCKLPM5;
+    #elif defined (__MSP430FR2355__)
+    P3DIR |= BIT4;
+    P3SEL0 |= BIT4;
+    P3SEL1 &= ~BIT4;
     #endif
 
     sig0_off;

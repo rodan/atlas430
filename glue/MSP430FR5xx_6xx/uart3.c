@@ -39,36 +39,39 @@ void uart3_init(void)
     UCA3CTLW0 = UCSWRST;        // put eUSCI state machine in reset
 
 #if defined(UC_CTLW0)
-    UCA3CTLW0 |= UC_CTLW0;
 
     #if UART3_BAUD == 9600
+    UCA3CTLW0 |= UC_CTLW0;
     UCA3BRW = BRW_9600_BAUD;
     UCA3MCTLW = MCTLW_9600_BAUD;
 
     #elif UART3_BAUD == 19200
+    UCA3CTLW0 |= UC_CTLW0;
     UCA3BRW = BRW_19200_BAUD;
     UCA3MCTLW = MCTLW_19200_BAUD;
 
     #elif UART3_BAUD == 38400
+    UCA3CTLW0 |= UC_CTLW0;
     UCA3BRW = BRW_38400_BAUD;
     UCA3MCTLW = MCTLW_38400_BAUD;
 
     #elif UART3_BAUD == 57600
+    UCA3CTLW0 |= UC_CTLW0;
     UCA3BRW = BRW_57600_BAUD;
     UCA3MCTLW = MCTLW_57600_BAUD;
 
     #elif UART3_BAUD == 115200
+    UCA3CTLW0 |= UC_CTLW0;
     UCA3BRW = BRW_115200_BAUD;
     UCA3MCTLW = MCTLW_115200_BAUD;
 
-    #endif
-
-#else
-    //#error baud not defined
+    #else
+    #error UART3_BAUD not defined
     // a 9600 BAUD based on ACLK
-    UCA3CTLW0 |= UCSSEL__ACLK;
-    UCA3BRW = 3;
-    UCA3MCTLW |= 0x9200;
+    //UCA3CTLW0 |= UCSSEL__ACLK;
+    //UCA3BRW = 3;
+    //UCA3MCTLW |= 0x9200;
+    #endif
 #endif
 
     UCA3CTLW0 &= ~UCSWRST;      // Initialize eUSCI
@@ -289,12 +292,9 @@ uint16_t uart3_print(const char *str)
     while (p < size) {
         if (ringbuf_put(&uart3_rbtx, str[p])) {
             p++;
-        }
-        if (p == 1) {
             uart3_tx_activate();
         }
     }
-    //uart3_tx_activate();
     return p;
 }
 

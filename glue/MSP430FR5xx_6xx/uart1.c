@@ -39,36 +39,39 @@ void uart1_init(void)
     UCA1CTLW0 = UCSWRST;        // put eUSCI state machine in reset
 
 #if defined(UC_CTLW0)
-    UCA1CTLW0 |= UC_CTLW0;
 
     #if UART1_BAUD == 9600
+    UCA1CTLW0 |= UC_CTLW0;
     UCA1BRW = BRW_9600_BAUD;
     UCA1MCTLW = MCTLW_9600_BAUD;
 
     #elif UART1_BAUD == 19200
+    UCA1CTLW0 |= UC_CTLW0;
     UCA1BRW = BRW_19200_BAUD;
     UCA1MCTLW = MCTLW_19200_BAUD;
 
     #elif UART1_BAUD == 38400
+    UCA1CTLW0 |= UC_CTLW0;
     UCA1BRW = BRW_38400_BAUD;
     UCA1MCTLW = MCTLW_38400_BAUD;
 
     #elif UART1_BAUD == 57600
+    UCA1CTLW0 |= UC_CTLW0;
     UCA1BRW = BRW_57600_BAUD;
     UCA1MCTLW = MCTLW_57600_BAUD;
 
     #elif UART1_BAUD == 115200
+    UCA1CTLW0 |= UC_CTLW0;
     UCA1BRW = BRW_115200_BAUD;
     UCA1MCTLW = MCTLW_115200_BAUD;
 
-    #endif
-
-#else
-    //#error baud not defined
+    #else
+    #error UART1_BAUD not defined
     // a 9600 BAUD based on ACLK
-    UCA1CTLW0 |= UCSSEL__ACLK;
-    UCA1BRW = 3;
-    UCA1MCTLW |= 0x9200;
+    //UCA1CTLW0 |= UCSSEL__ACLK;
+    //UCA1BRW = 3;
+    //UCA1MCTLW |= 0x9200;
+    #endif
 #endif
 
     UCA1CTLW0 &= ~UCSWRST;      // Initialize eUSCI
@@ -289,12 +292,9 @@ uint16_t uart1_print(const char *str)
     while (p < size) {
         if (ringbuf_put(&uart1_rbtx, str[p])) {
             p++;
-        }
-        if (p == 1) {
             uart1_tx_activate();
         }
     }
-    //uart1_tx_activate();
     return p;
 }
 

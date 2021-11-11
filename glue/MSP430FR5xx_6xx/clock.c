@@ -3,6 +3,7 @@
 #include <inttypes.h>
 #include "clock_selection.h"
 #include "cs.h"
+#include "framctl.h"
 #include "clock.h"
 
 // USE_XT1 has to be defined if the LFXTCLK (32768 Hz) crystal is present
@@ -21,6 +22,9 @@ void clock_port_init(void)
 
 void clock_init(void)
 {
+
+    // set FRAM wait states before configuring MCLK
+    FRAMCtl_configureWaitStateControl(CLK_FRAM_NWAITS);
 
 #ifdef USE_XT1
     #ifdef USE_XT2
