@@ -26,6 +26,12 @@ extern "C" {
     #error SMCLK_FREQ_xM not defined in config.h
 #endif
 
+#if SMCLK_FREQ > 16000000
+    #if defined (__MSP430FR2433__)
+    #error "unsupported clock frequency for this IC"
+    #endif
+#endif
+
 #ifdef __cplusplus
 }
 #endif

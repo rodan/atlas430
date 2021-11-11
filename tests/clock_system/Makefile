@@ -7,7 +7,7 @@
 
 PROJ:=main
 REFLIB_ROOT:=/opt/reference_libs_msp430/
-MEMORY_MODEL=LARGE
+#MEMORY_MODEL=LARGE
 
 include $(REFLIB_ROOT)/Makefile.env
 

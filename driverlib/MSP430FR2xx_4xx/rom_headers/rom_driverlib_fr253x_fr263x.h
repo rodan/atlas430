@@ -13,7 +13,8 @@
 #define __ROM_DRIVERLIB_H__
 
 #if (defined(__TI_COMPILER_VERSION__) && !defined(__LARGE_CODE_MODEL__)) || \
-    (defined(__IAR_SYSTEMS_ICC__) && (__CODE_MODEL__==__CODE_MODEL_SMALL__))
+    (defined(__IAR_SYSTEMS_ICC__) && (__CODE_MODEL__==__CODE_MODEL_SMALL__)) || \
+    (defined(__GNUC__) && !defined(__LARGE_CODE_MODEL__))
 
 //*****************************************************************************
 //

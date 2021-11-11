@@ -57,18 +57,18 @@ the makefile supports the following options:
 make envcheck
 
 # remove the build/DEVICE/ directory
-make clean
+make TARGET=MSP430FXXXX clean
 
 # compile the project and library
 # create dependency tree and source code tags
-make
+make TARGET=MSP430FXXXX
 
 # burn the firmware onto the target microcontroller
-make install
+make TARGET=MSP430FXXXX install
 
 # perform an optional static scan of the source code 
-make cppcheck    # needs dev-util/cppcheck
-make scan-build  # needs sys-devel/clang +static-analyzer
+make TARGET=MSP430FXXXX cppcheck    # needs dev-util/cppcheck
+make TARGET=MSP430FXXXX scan-build  # needs sys-devel/clang +static-analyzer
 ```
 
 in order to use gdb to debug the project make sure to enable the **CONFIG_DEBUG** macro in config.h and run in a terminal
@@ -120,8 +120,8 @@ CC430F5137   | MSP430F5xx_6xx  | [ ] | [ ] | [ ] | [ ] | [ ]
 MSP430F5438  | MSP430F5xx_6xx  | [ ] | [ ] | [ ] | [ ] | [ ]
 MSP430F5510  | MSP430F5xx_6xx  | [x] | [x] | [x] | [x] | [ ]
 MSP430F5529  | MSP430F5xx_6xx  | [ ] | [ ] | [ ] | [ ] | [ ]
-MSP430FR2355 | MSP430FR2xx_4xx | [ ] | [ ] | [ ] | [ ] | [ ]
-MSP430FR2433 | MSP430FR2xx_4xx | [ ] | [ ] | [ ] | [ ] | [ ]
+MSP430FR2355 | MSP430FR2xx_4xx | [x] | [ ] | [ ] | [ ] | [ ]
+MSP430FR2433 | MSP430FR2xx_4xx | [x] | [ ] | [ ] | [ ] | [ ]
 MSP430FR2476 | MSP430FR2xx_4xx | [ ] | [ ] | [ ] | [ ] | [ ]
 MSP430FR4113 | MSP430FR2xx_4xx | [ ] | [ ] | [ ] | [ ] | [ ]
 MSP430FR5994 | MSP430FR5xx_6xx | [x] | [x] | [x] | [x] | [ ]

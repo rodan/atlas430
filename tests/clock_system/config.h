@@ -7,8 +7,8 @@
 //#define SMCLK_FREQ_1M
 //#define SMCLK_FREQ_4M
 //#define SMCLK_FREQ_8M
-//#define SMCLK_FREQ_16M
-#define SMCLK_FREQ_24M
+#define SMCLK_FREQ_16M
+//#define SMCLK_FREQ_24M
 
 //#define CONFIG_DEBUG
 

@@ -26,6 +26,10 @@ int main(void)
     P3DIR |= BIT4;
     P3SEL0 |= BIT4;
     P3SEL1 &= ~BIT4;
+    #elif defined (__MSP430FR2433__)
+    P1DIR |= BIT7;
+    P1SEL0 &= ~BIT7;
+    P1SEL1 |= BIT7;
     #endif
 
     sig0_off;
@@ -36,7 +40,7 @@ int main(void)
 
     while (1) {
         __no_operation();
-        __delay_cycles(8000000);
+        __delay_cycles(SMCLK_FREQ);
         sig0_switch;
     }
 }

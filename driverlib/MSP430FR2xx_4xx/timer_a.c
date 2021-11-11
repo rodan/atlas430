@@ -285,7 +285,7 @@ void Timer_A_setOutputMode(uint16_t baseAddress,
                              uint16_t compareOutputMode)
 {
     uint16_t temp = HWREG16(baseAddress + compareRegister);
-    HWREG16(baseAddress + compareRegister) = temp & ~(OUTMOD_7) | compareOutputMode;
+    HWREG16(baseAddress + compareRegister) = (temp & ~(OUTMOD_7)) | compareOutputMode;
 }
 void Timer_A_clearTimerInterrupt (uint16_t baseAddress)
 {

@@ -171,8 +171,8 @@ uint8_t SysCtl_getInfraredData(void)
 }
 
 void SysCtl_setFRWPOA( uint8_t offsetAddress){
-    uint16_t state = HWREG16(SYS_BASE + OFS_SYSCFG0);
 #ifdef FRWPOA
+    uint16_t state = HWREG16(SYS_BASE + OFS_SYSCFG0);
     HWREG16(SYS_BASE + OFS_SYSCFG0) = (FRWPPW | offsetAddress | (state & (DFWP | PFWP)));
 #endif
 }
