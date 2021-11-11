@@ -31,6 +31,8 @@ extern "C" {
     #define     CLK_DCOFSEL  CS_DCOFSEL_4
     #define  CLK_HFXT_DRIVE  CS_HFXT_DRIVE_16MHZ_24MHZ
     #define CLK_FRAM_NWAITS  NWAITS_1
+#elif defined(SMCLK_FREQ_24M)
+    #error 24MHz SMCLK not supported on this target
 #else
     #error SMCLK_FREQ_xM not defined in config.h
 #endif

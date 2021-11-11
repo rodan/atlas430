@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #define       ACLK_FREQ  32768
-#define  CLK_LFXT_DRIVE  CS_LFXT_DRIVE_0
+#define  CLK_LFXT_DRIVE  CS_XT1_DRIVE_0
 
 void clock_port_init(void);
 void clock_init(void);
