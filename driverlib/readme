@@ -1,5 +1,7 @@
 
-this is TI's MSP430 driver library available from https://www.ti.com/tool/MSPDRIVERLIB
+this is a slightly modified TI MSP430 driver library that fixes a dozen compiler warnings
 
-- used as git submodule for multiple projects -
+library version: 2.91.13.01
+upstream source: https://www.ti.com/tool/MSPDRIVERLIB
+license:         BSD 3-clause, Copyright (c) 2013, Texas Instruments
 
