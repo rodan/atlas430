@@ -17,7 +17,7 @@ void clock_port_init(void)
     #elif defined (__MSP430F5438__)
         P7SEL |= BIT0 | BIT1;
     #else
-    #error unknown pinout. modify clock.c
+    #error "USE_XT1 was defined but pins not known in 'glue/MSP430F5xx_6xx/clock.c'"
     #endif
 #endif
 
@@ -25,7 +25,7 @@ void clock_port_init(void)
     #if defined (__MSP430F5510__) || defined (__MSP430F5529__) || defined (__MSP430F5438__)
         P5SEL |= BIT2 | BIT3;
     #else
-    #error unknown pinout. modify clock.c
+    #error "USE_XT2 was defined but pins not known in 'glue/MSP430F5xx_6xx/clock.c'"
     #endif
 #endif
 }

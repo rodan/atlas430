@@ -33,6 +33,14 @@ int main(void)
 #elif defined (__MSP430FR4133__)
     P8DIR |= BIT0;
     P8SEL0 |= BIT0;
+#elif defined (__MSP430FR6989__)
+    // on the EXP430FR6989 devboard P10.0 is ties to an LCD segment, so don't output SMCLK to it
+    //P10DIR |= BIT0;
+    //P10SEL0 |= BIT0;
+    //P10SEL1 |= BIT0;
+#elif defined (__MSP430F5510__) || (__MSP430F5529__)
+    P2DIR |= BIT2;
+    P2SEL |= BIT2;
 #endif
 
     sig0_off;

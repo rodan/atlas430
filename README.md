@@ -119,13 +119,13 @@ microcontroller | family       |clock|uart | i2c | spi | scheduling
 CC430F5137   | MSP430F5xx_6xx  | [ ] | [ ] | [ ] | [ ] | [ ]
 MSP430F5438  | MSP430F5xx_6xx  | [ ] | [ ] | [ ] | [ ] | [ ]
 MSP430F5510  | MSP430F5xx_6xx  | [x] | [x] | [x] | [x] | [ ]
-MSP430F5529  | MSP430F5xx_6xx  | [ ] | [ ] | [ ] | [ ] | [ ]
+MSP430F5529  | MSP430F5xx_6xx  | [x] | [ ] | [ ] | [ ] | [ ]
 MSP430FR2355 | MSP430FR2xx_4xx | [x] | [ ] | [ ] | [ ] | [ ]
 MSP430FR2433 | MSP430FR2xx_4xx | [x] | [ ] | [ ] | [ ] | [ ]
 MSP430FR2476 | MSP430FR2xx_4xx | [x] | [ ] | [ ] | [ ] | [ ]
 MSP430FR4113 | MSP430FR2xx_4xx | [x] | [ ] | [ ] | [ ] | [ ]
 MSP430FR5994 | MSP430FR5xx_6xx | [x] | [x] | [x] | [x] | [ ]
-MSP430FR6989 | MSP430FR5xx_6xx | [ ] | [ ] | [ ] | [ ] | [ ]
+MSP430FR6989 | MSP430FR5xx_6xx | [x] | [ ] | [ ] | [ ] | [ ]
 
 this list covers microcontrollers I have on hand. adding support for new ones is entirely possible and is mostly limited by devboard availability.
 in most cases adding the new device to [Makefile.identify-target](https://github.com/rodan/reference_libs_msp430/blob/master/Makefile.identify-target) is enough to get things started. patches are welcome.

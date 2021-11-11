@@ -13,6 +13,7 @@
 
 #include "inc/hw_memmap.h"
 
+#if 0
 #ifdef __MSP430_HAS_ESI__
 #include "esi.h"
 
@@ -1411,4 +1412,5 @@ static void FindDAC(unsigned char selected_channel, unsigned char software_trigg
 //! @}
 //
 //*****************************************************************************
+#endif
 #endif

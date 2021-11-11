@@ -122,6 +122,25 @@ extern "C" {
 #define       BR_115200_BAUD  173
 #define     MCTL_115200_BAUD  UCBRS_5
 
+#elif SMCLK_FREQ == 24000000
+
+#define              UC_CTL1  UCSSEL__SMCLK
+
+#define         BR_9600_BAUD  
+#define       MCTL_9600_BAUD  
+
+#define        BR_19200_BAUD  
+#define      MCTL_19200_BAUD  
+
+#define        BR_38400_BAUD  
+#define      MCTL_38400_BAUD  
+
+#define        BR_57600_BAUD  
+#define      MCTL_57600_BAUD  
+
+#define       BR_115200_BAUD  
+#define     MCTL_115200_BAUD  
+
 #else
     #error SMCLK_FREQ is not defined or sourced from clock.h
 #endif
