@@ -10,27 +10,30 @@ int main(void)
     WDTCTL = WDTPW | WDTHOLD;
 
     msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
-    #if defined (__MSP430_HAS_FRAM__)
+#if defined (__MSP430_HAS_FRAM__)
     PMM_unlockLPM5();
-    #endif
+#endif
     sig0_on;
 
     clock_port_init();
     clock_init();
 
     // output SMCLK on a pin
-    #if defined (__MSP430FR5994__)
+#if defined (__MSP430FR5994__)
     P3DIR |= BIT4;
     P3SEL1 |= BIT4;
-    #elif defined (__MSP430FR2355__)
+#elif defined (__MSP430FR2355__)
     P3DIR |= BIT4;
     P3SEL0 |= BIT4;
     P3SEL1 &= ~BIT4;
-    #elif defined (__MSP430FR2433__) || (__MSP430FR2476__)
+#elif defined (__MSP430FR2433__) || (__MSP430FR2476__)
     P1DIR |= BIT7;
     P1SEL0 &= ~BIT7;
     P1SEL1 |= BIT7;
-    #endif
+#elif defined (__MSP430FR4133__)
+    P8DIR |= BIT0;
+    P8SEL0 |= BIT0;
+#endif
 
     sig0_off;
     sig1_off;
@@ -40,8 +43,7 @@ int main(void)
 
     while (1) {
         __no_operation();
-        __delay_cycles(SMCLK_FREQ);
+        __delay_cycles(SMCLK_FREQ / 2);
         sig0_switch;
     }
 }
-

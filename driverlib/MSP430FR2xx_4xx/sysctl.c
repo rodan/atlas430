@@ -117,8 +117,6 @@ void SysCtl_setJTAGOutgoingMessage32Bit (uint32_t outgoingMessage)
 }
 
 void SysCtl_protectFRAMWrite( uint8_t writeProtect){
-    uint8_t state = HWREG8(SYS_BASE + OFS_SYSCFG0_L);
-
 #ifndef DFWP
     if (writeProtect == SYSCTL_FRAMWRITEPROTECTION_DATA) {
         return;
@@ -126,6 +124,7 @@ void SysCtl_protectFRAMWrite( uint8_t writeProtect){
 #endif
 
 #ifdef FRWPPW
+    uint8_t state = HWREG8(SYS_BASE + OFS_SYSCFG0_L);
     HWREG16(SYS_BASE + OFS_SYSCFG0) = FWPW | state | writeProtect;
 #else
     HWREG8(SYS_BASE + OFS_SYSCFG0_L) |= writeProtect;
@@ -133,8 +132,6 @@ void SysCtl_protectFRAMWrite( uint8_t writeProtect){
 }
 
 void SysCtl_enableFRAMWrite( uint8_t writeEnable){
-    uint8_t state = HWREG8(SYS_BASE + OFS_SYSCFG0_L);
-
 #ifndef DFWP
     if (writeEnable == SYSCTL_FRAMWRITEPROTECTION_DATA) {
         return;
@@ -142,6 +139,7 @@ void SysCtl_enableFRAMWrite( uint8_t writeEnable){
 #endif
     
 #ifdef FRWPPW
+    uint8_t state = HWREG8(SYS_BASE + OFS_SYSCFG0_L);
     HWREG16(SYS_BASE + OFS_SYSCFG0) = FWPW | (state & ~writeEnable);
 #else
     HWREG8(SYS_BASE + OFS_SYSCFG0_L) &= ~writeEnable;
