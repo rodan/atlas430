@@ -26,7 +26,7 @@ int main(void)
     P3DIR |= BIT4;
     P3SEL0 |= BIT4;
     P3SEL1 &= ~BIT4;
-    #elif defined (__MSP430FR2433__)
+    #elif defined (__MSP430FR2433__) || (__MSP430FR2476__)
     P1DIR |= BIT7;
     P1SEL0 &= ~BIT7;
     P1SEL1 |= BIT7;

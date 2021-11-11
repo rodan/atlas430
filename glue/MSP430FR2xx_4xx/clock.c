@@ -14,11 +14,11 @@ void clock_port_init(void)
     #if defined (__MSP430FR2355__)
     P2SEL0 &= ~(BIT6 | BIT7);
     P2SEL1 |= BIT6 | BIT7;
-    #elif defined (__MSP430FR2433__)
+    #elif defined (__MSP430FR2433__) || (__MSP430FR2476__)
     P2SEL0 |= BIT0 | BIT1;
     P2SEL1 &= ~(BIT0 | BIT1);
     #else
-    #error USE_XT1 was defined but pins not known in 'glue/MSP430FR2xx_4xx/clock.c'
+    #error "USE_XT1 was defined but pins not known in 'glue/MSP430FR2xx_4xx/clock.c'"
     #endif
 #endif
 }
