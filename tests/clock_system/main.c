@@ -19,7 +19,7 @@ int main(void)
     clock_init();
 
     // output SMCLK on a pin
-#if defined (__MSP430FR5994__)
+#if defined (__MSP430FR5994__) || ((__MSP430FR5969__))
     P3DIR |= BIT4;
     P3SEL1 |= BIT4;
 #elif defined (__MSP430FR2355__)

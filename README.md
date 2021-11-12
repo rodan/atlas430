@@ -124,6 +124,7 @@ MSP430FR2355 | MSP430FR2xx_4xx | [x] | [ ] | [ ] | [ ] | [ ]
 MSP430FR2433 | MSP430FR2xx_4xx | [x] | [ ] | [ ] | [ ] | [ ]
 MSP430FR2476 | MSP430FR2xx_4xx | [x] | [ ] | [ ] | [ ] | [ ]
 MSP430FR4113 | MSP430FR2xx_4xx | [x] | [ ] | [ ] | [ ] | [ ]
+MSP430FR5969 | MSP430FR5xx_6xx | [x] | [ ] | [ ] | [ ] | [ ]
 MSP430FR5994 | MSP430FR5xx_6xx | [x] | [x] | [x] | [x] | [ ]
 MSP430FR6989 | MSP430FR5xx_6xx | [x] | [ ] | [ ] | [ ] | [ ]
 

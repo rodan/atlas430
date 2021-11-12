@@ -38,7 +38,7 @@ extern "C" {
 #endif
 
 #if SMCLK_FREQ > 16000000
-    #if defined (__MSP430FR5994__) || (__MSP430FR6989__)
+    #if defined (__MSP430FR5969__) || (__MSP430FR5994__) || (__MSP430FR6989__)
     #error "unsupported clock frequency for this IC"
     #endif
 #endif
