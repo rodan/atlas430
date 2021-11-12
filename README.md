@@ -1,6 +1,8 @@
 
 ## reference libraries for msp430
 
+/\/\/\/\/\/\/\/\/\/\/\/ UNDER DEVELOPMENT /\/\/\/\/\/\/\/\/\/\/\/
+
 this library provides a glue layer between the upstream [Texas Instruments mspdriverlib](https://www.ti.com/tool/MSPDRIVERLIB) and projects that need quick prototyping while also allowing easier code migration from one msp430 microcontroller to another. on one hand it has a number of generic functions and configurable compile-time defines that will set up the hardware abstraction layer allowing the user to focus on the higher level code and on the other hand it can be out-of-the-way and allow direct access to the registers or to the TI driverlib.
 
 
@@ -116,8 +118,8 @@ tests of the library are performed on the following target devices:
 
 microcontroller | family       |clock|uart | i2c | spi | scheduling
 --------------- | ------------ | --- | --- | --- | --- | ----------
-CC430F5137   | MSP430F5xx_6xx  | [ ] | [ ] | [ ] | [ ] | [ ]
-MSP430F5438  | MSP430F5xx_6xx  | [ ] | [ ] | [ ] | [ ] | [ ]
+CC430F5137   | MSP430F5xx_6xx  | [x] | [ ] | [ ] | [ ] | [ ]
+MSP430F5438  | MSP430F5xx_6xx  | [x] | [ ] | [ ] | [ ] | [ ]
 MSP430F5510  | MSP430F5xx_6xx  | [x] | [x] | [x] | [x] | [ ]
 MSP430F5529  | MSP430F5xx_6xx  | [x] | [ ] | [ ] | [ ] | [ ]
 MSP430FR2355 | MSP430FR2xx_4xx | [x] | [ ] | [ ] | [ ] | [ ]

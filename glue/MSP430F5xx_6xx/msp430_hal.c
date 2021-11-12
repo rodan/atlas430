@@ -10,15 +10,16 @@
 
 void msp430_hal_init(const uint8_t gpio_flags)
 {
+
     uint8_t dir = 0; // by default the pin is floating
     uint8_t out = 0; // default logic level is low if pin is output
 
     if (gpio_flags & HAL_GPIO_DIR_OUTPUT) {
-        dir = 1;
+        dir = 0xff;
     }
 
     if (gpio_flags & HAL_GPIO_OUT_HIGH) {
-        out = 1;
+        out = 0xff;
     }
 
     // Turn everything off, device drivers enable what is needed.
@@ -57,7 +58,6 @@ void msp430_hal_init(const uint8_t gpio_flags)
     P11SEL = 0;
 #endif
 
-    // make all gpios inputs
 #ifdef __MSP430_HAS_PORT1_R__
     P1DIR = dir;
     P1OUT = out;
@@ -102,4 +102,5 @@ void msp430_hal_init(const uint8_t gpio_flags)
     P11DIR = dir;
     P11OUT = out;
 #endif
+
 }

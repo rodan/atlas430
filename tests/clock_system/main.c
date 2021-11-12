@@ -19,7 +19,10 @@ int main(void)
     clock_init();
 
     // output SMCLK on a pin
-#if defined (__MSP430FR5994__) || ((__MSP430FR5969__))
+#if defined (__CC430F5137__)
+    P3DIR |= BIT7;
+    P3SEL |= BIT7;
+#elif defined (__MSP430FR5994__) || ((__MSP430FR5969__))
     P3DIR |= BIT4;
     P3SEL1 |= BIT4;
 #elif defined (__MSP430FR2355__)
@@ -38,6 +41,9 @@ int main(void)
     //P10DIR |= BIT0;
     //P10SEL0 |= BIT0;
     //P10SEL1 |= BIT0;
+#elif defined (__MSP430F5438__)
+    P11DIR |= BIT2;
+    P11SEL |= BIT2;
 #elif defined (__MSP430F5510__) || (__MSP430F5529__)
     P2DIR |= BIT2;
     P2SEL |= BIT2;

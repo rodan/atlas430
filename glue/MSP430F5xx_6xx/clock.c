@@ -12,7 +12,9 @@
 void clock_port_init(void)
 {
 #ifdef USE_XT1
-    #if defined (__MSP430F5510__) || defined (__MSP430F5529__)
+    #if defined (__CC430F5137__) 
+        P5SEL |= BIT0 | BIT1;
+    #elif defined (__MSP430F5510__) || defined (__MSP430F5529__)
         P5SEL |= BIT4 | BIT5;
     #elif defined (__MSP430F5438__)
         P7SEL |= BIT0 | BIT1;
@@ -72,7 +74,11 @@ void clock_init(void)
 
     // turn on 
 #ifdef USE_XT1
+    #if defined (__CC430F5137__)
+    UCS_turnOnLFXT1WithTimeout(CLK_LFXT_DRIVE, UCS_XCAP_0, 30000);
+    #else
     UCS_turnOnLFXT1(CLK_LFXT_DRIVE, UCS_XCAP_0);
+    #endif
 #endif
 
 #ifdef USE_XT2
