@@ -11,13 +11,6 @@ extern "C" {
 #define       BAUDRATE_57600  0x4
 #define      BAUDRATE_115200  0x5
 
-#define        UART_RET_WAKE  1
-#define       UART_RET_SLEEP  0
-
-#define      UART0_RX_NO_ERR  0x0
-#define   UART0_RX_WAKE_MAIN  0x1 // ringbuffer got a special value, wake up main loop
-#define      UART0_RX_ERR_RB  0x2 // ringbuffer is full, cannot add new element
-
 // values based on slau367p.pdf table 30-5 Typical Crystals and Baud Rates
 
 // UCAxBRW.UCBRx - clock prescaler (16bit)
@@ -126,6 +119,12 @@ extern "C" {
 
 #else
     #error SMCLK_FREQ is not defined or sourced from clock.h
+#endif
+
+#if defined USE_UART2 || USE_UART3
+    #if defined (__MSP430FR6989__)
+    #error "uart2/uart3 do not exist on this uC"
+    #endif
 #endif
 
 #ifdef __cplusplus

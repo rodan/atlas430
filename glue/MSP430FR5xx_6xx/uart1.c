@@ -144,8 +144,15 @@ void uart1_initb(const uint8_t baudrate)
 // default port locations
 void uart1_port_init(void)
 {
+#if defined (__MSP430FR5994__)
     P6SEL0 |= (BIT0 | BIT1);
     P6SEL1 &= ~(BIT0 | BIT1);
+#elif defined (__MSP430FR6989__)
+    P3SEL0 |= BIT4 | BIT5;
+    P3SEL1 &= ~(BIT4 | BIT5);
+#else
+    #error "UCA1 pins unknown for this uC, please modify glue/MSP430FR5xx_6xx/uart1.c"
+#endif
 }
 
 void uart1_set_rx_irq_handler(uint8_t (*input)(const uint8_t c))
@@ -332,6 +339,9 @@ uint16_t uart1_print(const char *str)
 }
 #endif
 
+// sometimes EUSCI-capable uCs define the interrupt vector as USCI_Ax_VECTOR instead of EUSCI_Ax_VECTOR
+#if defined (EUSCI_A1_VECTOR)
+
 #if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
 #pragma vector=EUSCI_A1_VECTOR
 __interrupt void USCI_A1_ISR(void)
@@ -340,6 +350,22 @@ void __attribute__ ((interrupt(EUSCI_A1_VECTOR))) USCI_A1_ISR(void)
 #else
 #error Compiler not supported!
 #endif
+
+#elif defined (USCI_A1_VECTOR)
+
+#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
+#pragma vector=USCI_A1_VECTOR
+__interrupt void USCI_A1_ISR(void)
+#elif defined(__GNUC__)
+void __attribute__ ((interrupt(USCI_A1_VECTOR))) USCI_A1_ISR(void)
+#else
+#error Compiler not supported!
+#endif
+
+#else
+    #error "can't find interrupt vector for USCI_A1"
+#endif
+
 {
     uint16_t iv = UCA1IV;
     register char r;

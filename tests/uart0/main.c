@@ -44,21 +44,6 @@ int main(void)
     clock_port_init();
     clock_init();
 
-#if defined (__MSP430FR5994__)
-    // output SMCLK on P3.4
-    //P3OUT &= ~BIT4;
-    P3DIR |= BIT4;
-    P3SEL1 |= BIT4;
-#elif defined (__MSP430F5438__)
-    // output SMCLK on P1.6
-    P1DIR |= BIT6;
-    P1SEL |= BIT6;
-#elif defined (__MSP430F5510__) || defined (__MSP430F5529__)
-    // output SMCLK on P2.2
-    P2DIR |= BIT2;
-    P2SEL |= BIT2;
-#endif
-
     uart0_port_init();
     uart0_init();
 
@@ -76,10 +61,8 @@ int main(void)
     timer_a0_init();
 #endif
 
-#if defined (__MSP430FR5994__) || defined (__MSP430F5529__)
-    // Disable the GPIO power-on default high-impedance mode to activate
-    // previously configured port settings
-    PM5CTL0 &= ~LOCKLPM5;
+#if defined (__MSP430_HAS_FRAM__)
+    PMM_unlockLPM5();
 #endif
 
     sig0_off;

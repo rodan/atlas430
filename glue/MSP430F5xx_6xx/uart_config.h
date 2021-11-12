@@ -11,13 +11,6 @@ extern "C" {
 #define       BAUDRATE_57600  0x4
 #define      BAUDRATE_115200  0x5
 
-#define        UART_RET_WAKE  1
-#define       UART_RET_SLEEP  0
-
-#define      UART0_RX_NO_ERR  0x0
-#define   UART0_RX_WAKE_MAIN  0x1 // ringbuffer got a special value, wake up main loop
-#define      UART0_RX_ERR_RB  0x2 // ringbuffer is full, cannot add new element
-
 // values based on slau208q.pdf Table 36-4 Commonly Used Baud Rates
 
 // UCAxBR0  - clock prescaler (8bit) LSB

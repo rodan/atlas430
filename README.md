@@ -128,7 +128,7 @@ MSP430FR2476 | MSP430FR2xx_4xx | [x] | [ ] | [ ] | [ ] | [ ]
 MSP430FR4113 | MSP430FR2xx_4xx | [x] | [ ] | [ ] | [ ] | [ ]
 MSP430FR5969 | MSP430FR5xx_6xx | [x] | [ ] | [ ] | [ ] | [ ]
 MSP430FR5994 | MSP430FR5xx_6xx | [x] | [x] | [x] | [x] | [ ]
-MSP430FR6989 | MSP430FR5xx_6xx | [x] | [ ] | [ ] | [ ] | [ ]
+MSP430FR6989 | MSP430FR5xx_6xx | [x] | [x] | [ ] | [ ] | [ ]
 
 this list covers microcontrollers I have on hand. adding support for new ones is entirely possible and is mostly limited by devboard availability.
 in most cases adding the new device to [Makefile.identify-target](https://github.com/rodan/reference_libs_msp430/blob/master/Makefile.identify-target) is enough to get things started. patches are welcome.
