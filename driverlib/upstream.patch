@@ -1,0 +1,395 @@
+Only in driverlib/MSP430F5xx_6xx: .ucs.c.swp
+Only in driverlib/MSP430F5xx_6xx: Makefile
+Only in driverlib/MSP430F5xx_6xx: tags
+diff -upr driverlib.orig/MSP430F5xx_6xx/timer_a.c driverlib/MSP430F5xx_6xx/timer_a.c
+--- driverlib.orig/MSP430F5xx_6xx/timer_a.c	2020-02-27 20:48:53.000000000 +0200
++++ driverlib/MSP430F5xx_6xx/timer_a.c	2021-06-19 14:13:21.000000000 +0300
+@@ -285,7 +285,7 @@ void Timer_A_setOutputMode(uint16_t base
+                              uint16_t compareOutputMode)
+ {
+     uint16_t temp = HWREG16(baseAddress + compareRegister);
+-    HWREG16(baseAddress + compareRegister) = temp & ~(OUTMOD_7) | compareOutputMode;
++    HWREG16(baseAddress + compareRegister) = (temp & ~(OUTMOD_7)) | compareOutputMode;
+ }
+ void Timer_A_clearTimerInterrupt (uint16_t baseAddress)
+ {
+diff -upr driverlib.orig/MSP430F5xx_6xx/timer_b.c driverlib/MSP430F5xx_6xx/timer_b.c
+--- driverlib.orig/MSP430F5xx_6xx/timer_b.c	2020-02-27 20:48:53.000000000 +0200
++++ driverlib/MSP430F5xx_6xx/timer_b.c	2021-06-19 14:18:46.000000000 +0300
+@@ -354,7 +354,7 @@ void Timer_B_setOutputMode(uint16_t base
+                              uint16_t compareOutputMode)
+ {
+     uint16_t temp = HWREG16(baseAddress + compareRegister);
+-    HWREG16(baseAddress + compareRegister) = temp & ~(OUTMOD_7) | compareOutputMode;
++    HWREG16(baseAddress + compareRegister) = (temp & ~(OUTMOD_7)) | compareOutputMode;
+ }
+ 
+ 
+diff -upr driverlib.orig/MSP430F5xx_6xx/ucs.c driverlib/MSP430F5xx_6xx/ucs.c
+--- driverlib.orig/MSP430F5xx_6xx/ucs.c	2020-02-27 20:48:53.000000000 +0200
++++ driverlib/MSP430F5xx_6xx/ucs.c	2021-11-12 15:42:17.270284876 +0200
+@@ -72,7 +72,7 @@ static uint32_t privateUCSSourceClockFro
+     uint16_t D_value = 1;
+     uint16_t N_value;
+     uint16_t n_value = 1;
+-    uint32_t Fref_value;
++    uint32_t Fref_value = 0;
+     uint8_t i;
+ 
+     N_value = (HWREG16(UCS_BASE + OFS_UCSCTL2)) & 0x03FF;
+@@ -156,7 +156,7 @@ static uint32_t privateUCSComputeCLKFreq
+     uint16_t CLKSourceDivider
+     )
+ {
+-    uint32_t CLKFrequency;
++    uint32_t CLKFrequency = 0;
+     uint8_t CLKSourceFrequencyDivider = 1;
+     uint8_t i = 0;
+ 
+@@ -266,7 +266,7 @@ void UCS_initClockSignal (uint8_t select
+             HWREG16(UCS_BASE + OFS_UCSCTL4) |= (clockSource);
+ 
+             clockSourceDivider = clockSourceDivider << 8;
+-            HWREG16(UCS_BASE + OFS_UCSCTL5) = temp & ~(DIVA_7) | clockSourceDivider;
++            HWREG16(UCS_BASE + OFS_UCSCTL5) = (temp & ~(DIVA_7)) | clockSourceDivider;
+             break;
+         case UCS_SMCLK:
+             HWREG16(UCS_BASE + OFS_UCSCTL4) &= ~(SELS_7);
+@@ -274,13 +274,13 @@ void UCS_initClockSignal (uint8_t select
+             HWREG16(UCS_BASE + OFS_UCSCTL4) |= (clockSource);
+ 
+             clockSourceDivider = clockSourceDivider << 4;
+-            HWREG16(UCS_BASE + OFS_UCSCTL5) = temp & ~(DIVS_7) | clockSourceDivider;
++            HWREG16(UCS_BASE + OFS_UCSCTL5) = (temp & ~(DIVS_7)) | clockSourceDivider;
+             break;
+         case UCS_MCLK:
+             HWREG16(UCS_BASE + OFS_UCSCTL4) &= ~(SELM_7);
+             HWREG16(UCS_BASE + OFS_UCSCTL4) |= (clockSource);
+ 
+-            HWREG16(UCS_BASE + OFS_UCSCTL5) = temp & ~(DIVM_7) | clockSourceDivider;
++            HWREG16(UCS_BASE + OFS_UCSCTL5) = (temp & ~(DIVM_7)) | clockSourceDivider;
+             break;
+         case UCS_FLLREF:
+             assert(clockSource <= SELA_5);
+@@ -295,13 +295,13 @@ void UCS_initClockSignal (uint8_t select
+             switch(clockSourceDivider)
+             {
+               case UCS_CLOCK_DIVIDER_12:
+-                HWREG8(UCS_BASE + OFS_UCSCTL3) = temp & ~(FLLREFDIV_7) | FLLREFDIV__12;
++                HWREG8(UCS_BASE + OFS_UCSCTL3) = (temp & ~(FLLREFDIV_7)) | FLLREFDIV__12;
+                 break;
+               case UCS_CLOCK_DIVIDER_16:
+-                HWREG8(UCS_BASE + OFS_UCSCTL3) = temp & ~(FLLREFDIV_7) | FLLREFDIV__16;
++                HWREG8(UCS_BASE + OFS_UCSCTL3) = (temp & ~(FLLREFDIV_7)) | FLLREFDIV__16;
+                 break;
+               default:
+-                HWREG8(UCS_BASE + OFS_UCSCTL3) = temp & ~(FLLREFDIV_7) | clockSourceDivider;
++                HWREG8(UCS_BASE + OFS_UCSCTL3) = (temp & ~(FLLREFDIV_7)) | clockSourceDivider;
+                 break;
+             }
+ 
+diff -upr driverlib.orig/MSP430F5xx_6xx/usci_a_uart.c driverlib/MSP430F5xx_6xx/usci_a_uart.c
+--- driverlib.orig/MSP430F5xx_6xx/usci_a_uart.c	2020-02-27 20:48:53.000000000 +0200
++++ driverlib/MSP430F5xx_6xx/usci_a_uart.c	2021-06-19 15:16:51.000000000 +0300
+@@ -123,13 +123,15 @@ void USCI_A_UART_disableInterrupt (uint1
+ {
+     uint8_t locMask;
+ 
+-    if(locMask = (mask & (USCI_A_UART_RECEIVE_INTERRUPT
+-        | USCI_A_UART_TRANSMIT_INTERRUPT))) {
++    locMask = mask & (USCI_A_UART_RECEIVE_INTERRUPT
++        | USCI_A_UART_TRANSMIT_INTERRUPT);
++    if (locMask) {
+         HWREG8(baseAddress + OFS_UCAxIE) &= ~locMask;
+     }
+ 
+-    if(locMask = (mask & (USCI_A_UART_RECEIVE_ERRONEOUSCHAR_INTERRUPT
+-        | USCI_A_UART_BREAKCHAR_INTERRUPT))) {
++    locMask = mask & (USCI_A_UART_RECEIVE_ERRONEOUSCHAR_INTERRUPT
++        | USCI_A_UART_BREAKCHAR_INTERRUPT);
++    if (locMask) {
+         HWREG8(baseAddress + OFS_UCAxCTL1) &= ~locMask;
+     }
+ }
+Only in driverlib/MSP430FR2xx_4xx: Makefile
+diff -upr driverlib.orig/MSP430FR2xx_4xx/cs.c driverlib/MSP430FR2xx_4xx/cs.c
+--- driverlib.orig/MSP430FR2xx_4xx/cs.c	2020-02-27 20:48:53.000000000 +0200
++++ driverlib/MSP430FR2xx_4xx/cs.c	2021-11-10 20:27:29.514284800 +0200
+@@ -327,7 +327,7 @@ void CS_initClockSignal(uint8_t selected
+                 temp = HWREG16(CS_BASE + OFS_CSCTL6);
+                 if (clockSourceDivider != CS_CLOCK_DIVIDER_1) {
+                     clockSourceDivider = (clockSourceDivider-3) << 8;
+-                    HWREG16(CS_BASE + OFS_CSCTL6) |= temp & ~(DIVA3|DIVA2|DIVA1|DIVA0)
++                    HWREG16(CS_BASE + OFS_CSCTL6) |= (temp & ~(DIVA3|DIVA2|DIVA1|DIVA0))
+                                                      | clockSourceDivider;
+                 }
+             }
+@@ -340,7 +340,7 @@ void CS_initClockSignal(uint8_t selected
+ 
+             temp = HWREG16(CS_BASE + OFS_CSCTL5);
+             clockSourceDivider = clockSourceDivider << 4;
+-            HWREG16(CS_BASE + OFS_CSCTL5) = temp & ~(DIVS_3) | clockSourceDivider;
++            HWREG16(CS_BASE + OFS_CSCTL5) = (temp & ~(DIVS_3)) | clockSourceDivider;
+             break;
+         case CS_MCLK:
+ 
+@@ -348,7 +348,7 @@ void CS_initClockSignal(uint8_t selected
+             HWREG16(CS_BASE + OFS_CSCTL4) |= (clockSource);
+ 
+             temp = HWREG16(CS_BASE + OFS_CSCTL5);
+-            HWREG16(CS_BASE + OFS_CSCTL5) = temp & ~(DIVM_7) | clockSourceDivider;
++            HWREG16(CS_BASE + OFS_CSCTL5) = (temp & ~(DIVM_7)) | clockSourceDivider;
+             break;
+         case CS_FLLREF:
+ 
+@@ -365,13 +365,13 @@ void CS_initClockSignal(uint8_t selected
+             //Hence handled differently from other CLK signals
+             if (clockSourceDivider != CS_CLOCK_DIVIDER_1) {
+                 if (clockSourceDivider == CS_CLOCK_DIVIDER_640) {
+-                    HWREG8(CS_BASE + OFS_CSCTL3) = temp & ~(FLLREFDIV_7) | (clockSourceDivider - 10);
++                    HWREG8(CS_BASE + OFS_CSCTL3) = (temp & ~(FLLREFDIV_7)) | (clockSourceDivider - 10);
+                 }
+                 else if (clockSourceDivider != CS_CLOCK_DIVIDER_512) {
+-                    HWREG8(CS_BASE + OFS_CSCTL3) = temp & ~(FLLREFDIV_7) | (clockSourceDivider - 4);
++                    HWREG8(CS_BASE + OFS_CSCTL3) = (temp & ~(FLLREFDIV_7)) | (clockSourceDivider - 4);
+                 }
+                 else {
+-                    HWREG8(CS_BASE + OFS_CSCTL3) = temp & ~(FLLREFDIV_7) | (clockSourceDivider - 5);
++                    HWREG8(CS_BASE + OFS_CSCTL3) = (temp & ~(FLLREFDIV_7)) | (clockSourceDivider - 5);
+                 }
+             }
+             break;
+diff -upr driverlib.orig/MSP430FR2xx_4xx/rom_headers/rom_driverlib_fr235x.h driverlib/MSP430FR2xx_4xx/rom_headers/rom_driverlib_fr235x.h
+--- driverlib.orig/MSP430FR2xx_4xx/rom_headers/rom_driverlib_fr235x.h	2020-02-27 20:48:53.000000000 +0200
++++ driverlib/MSP430FR2xx_4xx/rom_headers/rom_driverlib_fr235x.h	2021-11-09 17:12:53.396104844 +0200
+@@ -35,7 +35,8 @@
+ #endif
+ 
+ #if (defined(__TI_COMPILER_VERSION__) && !defined(__LARGE_DATA_MODEL__)) || \
+-(defined(__IAR_SYSTEMS_ICC__) && (__DATA_MODEL__!=__DATA_MODEL_LARGE__))
++(defined(__IAR_SYSTEMS_ICC__) && (__DATA_MODEL__!=__DATA_MODEL_LARGE__)) || \
++(defined(__GNUC__) && !defined(__LARGE_DATA_MODEL__))
+ #error "Only large data model supported for this ROM."
+ #endif
+ 
+@@ -43,7 +44,8 @@
+ #define __ROM_DRIVERLIB_H__
+ 
+ #if (defined(__TI_COMPILER_VERSION__) && defined(__LARGE_CODE_MODEL__)) || \
+-    (defined(__IAR_SYSTEMS_ICC__) && (__CODE_MODEL__==__CODE_MODEL_LARGE__))
++    (defined(__IAR_SYSTEMS_ICC__) && (__CODE_MODEL__==__CODE_MODEL_LARGE__)) || \
++    (defined(__GNUC__) && defined(__LARGE_CODE_MODEL__))
+ 
+ //*****************************************************************************
+ //
+diff -upr driverlib.orig/MSP430FR2xx_4xx/rom_headers/rom_driverlib_fr253x_fr263x.h driverlib/MSP430FR2xx_4xx/rom_headers/rom_driverlib_fr253x_fr263x.h
+--- driverlib.orig/MSP430FR2xx_4xx/rom_headers/rom_driverlib_fr253x_fr263x.h	2020-02-27 20:48:53.000000000 +0200
++++ driverlib/MSP430FR2xx_4xx/rom_headers/rom_driverlib_fr253x_fr263x.h	2021-11-11 20:15:46.929564518 +0200
+@@ -13,7 +13,8 @@
+ #define __ROM_DRIVERLIB_H__
+ 
+ #if (defined(__TI_COMPILER_VERSION__) && !defined(__LARGE_CODE_MODEL__)) || \
+-    (defined(__IAR_SYSTEMS_ICC__) && (__CODE_MODEL__==__CODE_MODEL_SMALL__))
++    (defined(__IAR_SYSTEMS_ICC__) && (__CODE_MODEL__==__CODE_MODEL_SMALL__)) || \
++    (defined(__GNUC__) && !defined(__LARGE_CODE_MODEL__))
+ 
+ //*****************************************************************************
+ //
+diff -upr driverlib.orig/MSP430FR2xx_4xx/sysctl.c driverlib/MSP430FR2xx_4xx/sysctl.c
+--- driverlib.orig/MSP430FR2xx_4xx/sysctl.c	2020-02-27 20:48:53.000000000 +0200
++++ driverlib/MSP430FR2xx_4xx/sysctl.c	2021-11-11 21:33:35.726567965 +0200
+@@ -117,8 +117,6 @@ void SysCtl_setJTAGOutgoingMessage32Bit
+ }
+ 
+ void SysCtl_protectFRAMWrite( uint8_t writeProtect){
+-    uint8_t state = HWREG8(SYS_BASE + OFS_SYSCFG0_L);
+-
+ #ifndef DFWP
+     if (writeProtect == SYSCTL_FRAMWRITEPROTECTION_DATA) {
+         return;
+@@ -126,6 +124,7 @@ void SysCtl_protectFRAMWrite( uint8_t wr
+ #endif
+ 
+ #ifdef FRWPPW
++    uint8_t state = HWREG8(SYS_BASE + OFS_SYSCFG0_L);
+     HWREG16(SYS_BASE + OFS_SYSCFG0) = FWPW | state | writeProtect;
+ #else
+     HWREG8(SYS_BASE + OFS_SYSCFG0_L) |= writeProtect;
+@@ -133,8 +132,6 @@ void SysCtl_protectFRAMWrite( uint8_t wr
+ }
+ 
+ void SysCtl_enableFRAMWrite( uint8_t writeEnable){
+-    uint8_t state = HWREG8(SYS_BASE + OFS_SYSCFG0_L);
+-
+ #ifndef DFWP
+     if (writeEnable == SYSCTL_FRAMWRITEPROTECTION_DATA) {
+         return;
+@@ -142,6 +139,7 @@ void SysCtl_enableFRAMWrite( uint8_t wri
+ #endif
+     
+ #ifdef FRWPPW
++    uint8_t state = HWREG8(SYS_BASE + OFS_SYSCFG0_L);
+     HWREG16(SYS_BASE + OFS_SYSCFG0) = FWPW | (state & ~writeEnable);
+ #else
+     HWREG8(SYS_BASE + OFS_SYSCFG0_L) &= ~writeEnable;
+@@ -171,8 +169,8 @@ uint8_t SysCtl_getInfraredData(void)
+ }
+ 
+ void SysCtl_setFRWPOA( uint8_t offsetAddress){
+-    uint16_t state = HWREG16(SYS_BASE + OFS_SYSCFG0);
+ #ifdef FRWPOA
++    uint16_t state = HWREG16(SYS_BASE + OFS_SYSCFG0);
+     HWREG16(SYS_BASE + OFS_SYSCFG0) = (FRWPPW | offsetAddress | (state & (DFWP | PFWP)));
+ #endif
+ }
+Only in driverlib/MSP430FR2xx_4xx: tags
+diff -upr driverlib.orig/MSP430FR2xx_4xx/timer_a.c driverlib/MSP430FR2xx_4xx/timer_a.c
+--- driverlib.orig/MSP430FR2xx_4xx/timer_a.c	2020-02-27 20:48:53.000000000 +0200
++++ driverlib/MSP430FR2xx_4xx/timer_a.c	2021-11-11 20:12:36.569308141 +0200
+@@ -285,7 +285,7 @@ void Timer_A_setOutputMode(uint16_t base
+                              uint16_t compareOutputMode)
+ {
+     uint16_t temp = HWREG16(baseAddress + compareRegister);
+-    HWREG16(baseAddress + compareRegister) = temp & ~(OUTMOD_7) | compareOutputMode;
++    HWREG16(baseAddress + compareRegister) = (temp & ~(OUTMOD_7)) | compareOutputMode;
+ }
+ void Timer_A_clearTimerInterrupt (uint16_t baseAddress)
+ {
+diff -upr driverlib.orig/MSP430FR2xx_4xx/timer_b.c driverlib/MSP430FR2xx_4xx/timer_b.c
+--- driverlib.orig/MSP430FR2xx_4xx/timer_b.c	2020-02-27 20:48:53.000000000 +0200
++++ driverlib/MSP430FR2xx_4xx/timer_b.c	2021-11-09 16:49:07.099558442 +0200
+@@ -354,7 +354,7 @@ void Timer_B_setOutputMode(uint16_t base
+                              uint16_t compareOutputMode)
+ {
+     uint16_t temp = HWREG16(baseAddress + compareRegister);
+-    HWREG16(baseAddress + compareRegister) = temp & ~(OUTMOD_7) | compareOutputMode;
++    HWREG16(baseAddress + compareRegister) = (temp & ~(OUTMOD_7)) | compareOutputMode;
+ }
+ 
+ void Timer_B_selectOutputHighImpedanceTrigger(uint16_t baseAddress,
+Only in driverlib/MSP430FR57xx: Makefile
+Only in driverlib/MSP430FR57xx: tags
+diff -upr driverlib.orig/MSP430FR57xx/timer_b.c driverlib/MSP430FR57xx/timer_b.c
+--- driverlib.orig/MSP430FR57xx/timer_b.c	2020-02-27 20:48:53.000000000 +0200
++++ driverlib/MSP430FR57xx/timer_b.c	2021-06-19 14:14:10.000000000 +0300
+@@ -354,7 +354,7 @@ void Timer_B_setOutputMode(uint16_t base
+                              uint16_t compareOutputMode)
+ {
+     uint16_t temp = HWREG16(baseAddress + compareRegister);
+-    HWREG16(baseAddress + compareRegister) = temp & ~(OUTMOD_7) | compareOutputMode;
++    HWREG16(baseAddress + compareRegister) = (temp & ~(OUTMOD_7)) | compareOutputMode;
+ }
+ 
+ 
+Only in driverlib/MSP430FR5xx_6xx: Makefile
+Only in driverlib/MSP430FR5xx_6xx: assert.h
+diff -upr driverlib.orig/MSP430FR5xx_6xx/cs.c driverlib/MSP430FR5xx_6xx/cs.c
+--- driverlib.orig/MSP430FR5xx_6xx/cs.c	2020-02-27 20:48:53.000000000 +0200
++++ driverlib/MSP430FR5xx_6xx/cs.c	2021-06-19 13:32:59.000000000 +0300
+@@ -268,7 +268,7 @@ void CS_initClockSignal (uint8_t selecte
+ 
+             HWREG16(CS_BASE + OFS_CSCTL2) &= ~(SELA_7);
+             HWREG16(CS_BASE + OFS_CSCTL2) |= (clockSource);
+-            HWREG16(CS_BASE + OFS_CSCTL3) = temp & ~(DIVA0 + DIVA1 + DIVA2) | 
++            HWREG16(CS_BASE + OFS_CSCTL3) = (temp & ~(DIVA0 + DIVA1 + DIVA2)) | 
+                                                 clockSourceDivider;
+             break;
+         case CS_SMCLK:
+@@ -286,7 +286,7 @@ void CS_initClockSignal (uint8_t selecte
+ 
+             HWREG16(CS_BASE + OFS_CSCTL2) &= ~(SELS_7);
+             HWREG16(CS_BASE + OFS_CSCTL2) |= clockSource;
+-            HWREG16(CS_BASE + OFS_CSCTL3) = temp & ~(DIVS0 + DIVS1 + DIVS2) |
++            HWREG16(CS_BASE + OFS_CSCTL3) = (temp & ~(DIVS0 + DIVS1 + DIVS2)) |
+                                                 clockSourceDivider;
+             break;
+         case CS_MCLK:
+@@ -301,7 +301,7 @@ void CS_initClockSignal (uint8_t selecte
+ 
+             HWREG16(CS_BASE + OFS_CSCTL2) &= ~(SELM_7);
+             HWREG16(CS_BASE + OFS_CSCTL2) |= clockSource;
+-            HWREG16(CS_BASE + OFS_CSCTL3) = temp & ~(DIVM0 + DIVM1 + DIVM2) |
++            HWREG16(CS_BASE + OFS_CSCTL3) = (temp & ~(DIVM0 + DIVM1 + DIVM2)) |
+                                                 clockSourceDivider;
+             break;
+     }
+@@ -905,8 +905,8 @@ void CS_setDCOFreq(uint16_t dcorsel,
+     //Keep overshoot transient within specification by setting clk
+     //sources to divide by 4
+     //Clear the DIVS & DIVM masks (~0x77) and set both fields to 4 divider
+-    HWREG16(CS_BASE + OFS_CSCTL3) = HWREG16(CS_BASE + OFS_CSCTL3) &
+-        (~(0x77)) | DIVS1 | DIVM1;
++    HWREG16(CS_BASE + OFS_CSCTL3) = (HWREG16(CS_BASE + OFS_CSCTL3) &
++        (~(0x77))) | DIVS1 | DIVM1;
+ 
+     //Set user's frequency selection for DCO
+     HWREG16(CS_BASE + OFS_CSCTL1) = (dcorsel + dcofsel);
+diff -upr driverlib.orig/MSP430FR5xx_6xx/esi.c driverlib/MSP430FR5xx_6xx/esi.c
+--- driverlib.orig/MSP430FR5xx_6xx/esi.c	2020-02-27 20:48:53.000000000 +0200
++++ driverlib/MSP430FR5xx_6xx/esi.c	2021-11-11 22:34:31.240161469 +0200
+@@ -13,6 +13,7 @@
+ 
+ #include "inc/hw_memmap.h"
+ 
++#if 0
+ #ifdef __MSP430_HAS_ESI__
+ #include "esi.h"
+ 
+@@ -1412,3 +1413,4 @@ static void FindDAC(unsigned char select
+ //
+ //*****************************************************************************
+ #endif
++#endif
+Only in driverlib/MSP430FR5xx_6xx: tags
+diff -upr driverlib.orig/MSP430FR5xx_6xx/timer_a.c driverlib/MSP430FR5xx_6xx/timer_a.c
+--- driverlib.orig/MSP430FR5xx_6xx/timer_a.c	2020-02-27 20:48:53.000000000 +0200
++++ driverlib/MSP430FR5xx_6xx/timer_a.c	2021-06-19 13:32:59.000000000 +0300
+@@ -285,7 +285,7 @@ void Timer_A_setOutputMode(uint16_t base
+                              uint16_t compareOutputMode)
+ {
+     uint16_t temp = HWREG16(baseAddress + compareRegister);
+-    HWREG16(baseAddress + compareRegister) = temp & ~(OUTMOD_7) | compareOutputMode;
++    HWREG16(baseAddress + compareRegister) = (temp & ~(OUTMOD_7)) | compareOutputMode;
+ }
+ void Timer_A_clearTimerInterrupt (uint16_t baseAddress)
+ {
+diff -upr driverlib.orig/MSP430FR5xx_6xx/timer_b.c driverlib/MSP430FR5xx_6xx/timer_b.c
+--- driverlib.orig/MSP430FR5xx_6xx/timer_b.c	2020-02-27 20:48:53.000000000 +0200
++++ driverlib/MSP430FR5xx_6xx/timer_b.c	2021-06-19 13:32:59.000000000 +0300
+@@ -354,7 +354,7 @@ void Timer_B_setOutputMode(uint16_t base
+                              uint16_t compareOutputMode)
+ {
+     uint16_t temp = HWREG16(baseAddress + compareRegister);
+-    HWREG16(baseAddress + compareRegister) = temp & ~(OUTMOD_7) | compareOutputMode;
++    HWREG16(baseAddress + compareRegister) = (temp & ~(OUTMOD_7)) | compareOutputMode;
+ }
+ 
+ 
+diff -upr driverlib.orig/MSP430FR5xx_6xx/tlv.c driverlib/MSP430FR5xx_6xx/tlv.c
+--- driverlib.orig/MSP430FR5xx_6xx/tlv.c	2020-02-27 20:48:53.000000000 +0200
++++ driverlib/MSP430FR5xx_6xx/tlv.c	2021-06-19 13:32:59.000000000 +0300
+@@ -130,7 +130,7 @@ uint16_t TLV_getPeripheral(uint8_t tag,
+         // adjust point to first address of Peripheral
+         pPDTAG += count*2;
+         // set counter back to 0
+-        count = 0;
++        //count = 0;
+         // align pcount for work comparision
+         pcount *= 2;
+ 
+@@ -185,7 +185,7 @@ uint8_t TLV_getInterrupt(uint8_t tag)
+         // adjust point to first address of Peripheral
+         pPDTAG += (pcount + count) * 2;
+         // set counter back to 0
+-        count = 0;
++        //count = 0;
+ 
+         // TLV access Function Call
+         for (count = 0; count <= tag; count += 2)
+Only in driverlib.orig: MSP430i2xx
+Only in driverlib: Makefile
+Only in driverlib: license.txt
+Only in driverlib: manifest.html
+Only in driverlib: readme
+Only in driverlib: release_notes.html
+Only in driverlib: upstream.patch

@@ -1,5 +1,5 @@
 
-this is a slightly modified TI MSP430 driver library that fixes a dozen compiler warnings
+this is a slightly modified TI MSP430 driver library that fixes a few compilation warnings. differences are visible in the upstream.patch file.
 
 library version: 2.91.13.01
 upstream source: https://www.ti.com/tool/MSPDRIVERLIB
