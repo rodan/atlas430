@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 #include <msp430.h>
+#include "pmm.h"
 #include "msp430_hal.h"
 
 void msp430_hal_init(const uint8_t gpio_flags)
@@ -101,4 +102,6 @@ void msp430_hal_init(const uint8_t gpio_flags)
     P11DIR = dir;
     P11OUT = out;
 #endif
+
+    PMM_unlockLPM5();
 }

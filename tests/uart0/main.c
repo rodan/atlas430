@@ -61,10 +61,6 @@ int main(void)
     timer_a0_init();
 #endif
 
-#if defined (__MSP430_HAS_FRAM__)
-    PMM_unlockLPM5();
-#endif
-
     sig0_off;
     sig1_off;
     sig2_off;

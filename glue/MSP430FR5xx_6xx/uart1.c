@@ -144,8 +144,11 @@ void uart1_initb(const uint8_t baudrate)
 // default port locations
 void uart1_port_init(void)
 {
-#if defined (__MSP430FR5994__)
-    P6SEL0 |= (BIT0 | BIT1);
+#if defined (__MSP430FR5969__)
+    P2SEL0 &= ~(BIT5 | BIT6);
+    P2SEL1 |= BIT5 | BIT6;
+#elif defined (__MSP430FR5994__)
+    P6SEL0 |= BIT0 | BIT1;
     P6SEL1 &= ~(BIT0 | BIT1);
 #elif defined (__MSP430FR6989__)
     P3SEL0 |= BIT4 | BIT5;

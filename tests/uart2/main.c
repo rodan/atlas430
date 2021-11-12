@@ -62,13 +62,7 @@ int main(void)
     timer_a0_init();
 //#endif
 
-#if defined (__MSP430FR5994__)
-    // Disable the GPIO power-on default high-impedance mode to activate
-    // previously configured port settings
-    PM5CTL0 &= ~LOCKLPM5;
-#endif
-
-    sig0_on;
+    sig0_off;
     sig1_off;
     sig2_off;
     sig3_off;

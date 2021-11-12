@@ -144,7 +144,7 @@ void uart0_initb(const uint8_t baudrate)
 // default port locations
 void uart0_port_init(void)
 {
-#if defined (__MSP430FR5994__) || (__MSP430FR6989__)
+#if defined (__MSP430FR5969__) ||(__MSP430FR5994__) || (__MSP430FR6989__)
     P2SEL0 &= ~(BIT0 | BIT1);
     P2SEL1 |= (BIT0 | BIT1);
 #else
