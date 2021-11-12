@@ -36,6 +36,8 @@ void check_events(void)
 
 int main(void)
 {
+    char buf[CONV_BASE_10_BUF_SZ];
+
     // stop watchdog
     WDTCTL = WDTPW | WDTHOLD;
     msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
@@ -75,8 +77,8 @@ int main(void)
     eh_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
 
 //#define TEST_UART0_TX_STR
-//#define TEST_UART0_PRINT
-//#define TEST_ITOA
+#define TEST_UART0_PRINT
+#define TEST_ITOA
 //#define TEST_SNPRINTF
 //#define TEST_UTOH
 //#define TEST_UTOB

@@ -76,15 +76,17 @@ void uart0_init(void)
 
     UCA0CTLW0 &= ~UCSWRST;      // Initialize eUSCI
 
+    //UCA0IFG &= ~UCTXIFG;
+
 #ifdef UART0_TX_USES_IRQ
     ringbuf_init(&uart0_rbtx, uart0_tx_buf, UART0_TXBUF_SZ);
-    UCA0IE |= UCRXIE | UCTXIE;           // Enable USCI_A0 interrupts
+    UCA0IE |= UCRXIE | UCTXIE;    // Enable USCI_A0 interrupts
     //UCA0IE |= UCRXIE;           // Enable USCI_A0 RX interrupt
     //UCA0IE |= UCTXIE;
     //UCA0IFG &= ~UCTXIFG;
     uart0_tx_busy = 0;
 #else
-    UCA0IE |= UCRXIE;           // Enable USCI_A0 RX interrupt
+    UCA0IE |= UCRXIE;            // Enable USCI_A0 RX interrupt
 #endif
 
     uart0_p = 0;
