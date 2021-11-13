@@ -1,7 +1,5 @@
 
-linux library that needs either to be LD_PRELOAD-ed when using the mspdebug(1) binary with the 'tilib' driver
-or added into a system-wide library directory that gets managed by ldconfig(8).
+    linux library needed by the mspdebug(1) application. it has to be either LD_PRELOAD-ed before the binary is called or added into a system-wide library directory that gets managed by ldconfig(8).
 
-the first scenario is less intrusive and is guaranteed to not break any other software that needs libmsp430, 
-so it gets used in the scripts that come with this reference library.
+    the first scenario is less intrusive and is guaranteed to not break any other software that needs libmsp430 and as such it's used in the scripts that come with this reference library.
 
