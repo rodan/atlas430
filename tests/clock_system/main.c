@@ -41,9 +41,6 @@ int main(void)
     //P10DIR |= BIT0;
     //P10SEL0 |= BIT0;
     //P10SEL1 |= BIT0;
-#elif defined (__MSP430F5438__)
-    P11DIR |= BIT2;
-    P11SEL |= BIT2;
 #elif defined (__MSP430F5510__) || (__MSP430F5529__)
     P2DIR |= BIT2;
     P2SEL |= BIT2;

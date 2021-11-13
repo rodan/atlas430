@@ -119,7 +119,6 @@ tests of the library are performed on the following target devices:
 microcontroller | family       |clock|uart | i2c | spi | scheduling
 --------------- | ------------ | --- | --- | --- | --- | ----------
 CC430F5137   | MSP430F5xx_6xx  | ok  | [ ] | [ ] | [ ] | [ ]
-MSP430F5438  | MSP430F5xx_6xx  | ok  | [ ] | [ ] | [ ] | [ ]
 MSP430F5510  | MSP430F5xx_6xx  | ok  | ok  | ok  | ok  | [ ]
 MSP430F5529  | MSP430F5xx_6xx  | ok  | [ ] | [ ] | [ ] | [ ]
 MSP430FR2355 | MSP430FR2xx_4xx | ok  | [ ] | [ ] | [ ] | [ ]

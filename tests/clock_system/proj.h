@@ -3,16 +3,6 @@
 
 #include <msp430.h>
 
-#if defined (__MSP430F5438__)
-#define sig0_on              P10OUT |= BIT6
-#define sig0_off             P10OUT &= ~BIT6
-#define sig0_switch          P10OUT ^= BIT6
-
-#define sig1_on              P10OUT |= BIT7
-#define sig1_off             P10OUT &= ~BIT7
-#define sig1_switch          P10OUT ^= BIT7
-
-#else
 #define sig0_on              P1OUT |= BIT0
 #define sig0_off             P1OUT &= ~BIT0
 #define sig0_switch          P1OUT ^= BIT0
@@ -20,7 +10,6 @@
 #define sig1_on              P1OUT |= BIT1
 #define sig1_off             P1OUT &= ~BIT1
 #define sig1_switch          P1OUT ^= BIT1
-#endif
 
 #define sig2_on              P1OUT |= BIT3
 #define sig2_off             P1OUT &= ~BIT3

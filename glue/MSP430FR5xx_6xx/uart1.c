@@ -286,12 +286,9 @@ uint16_t uart1_tx_str(const char *str, const uint16_t size)
     while (p < size) {        
         if (ringbuf_put(&uart1_rbtx, str[p])) {
             p++;
-        }
-        if (p == 1) {
             uart1_tx_activate();
         }
     }
-    //uart1_tx_activate();
     return p;
 }
 
