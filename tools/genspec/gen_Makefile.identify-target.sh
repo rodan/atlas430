@@ -59,6 +59,9 @@ special_rules()
             echo '	HWMULT=-mhwmult=f5series'
             echo '	CFLAGS_EXTRA=-D__MSP430_HAS_FRAM__ -DFRAM_BASE=0x0140'
             ;;
+        MSP430FR2355)
+            echo '  MEMORY_MODEL=LARGE'
+            ;;
         default)
             ;;
     esac

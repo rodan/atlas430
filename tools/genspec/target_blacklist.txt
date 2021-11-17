@@ -1,3 +1,4 @@
+# targets that appear valid in msp430.h but are missing from the ti.com website
 __MSP430F5213__
 __MSP430F5218__
 __MSP430F5223__
