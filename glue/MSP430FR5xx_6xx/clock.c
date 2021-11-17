@@ -4,32 +4,12 @@
 #include "clock_selection.h"
 #include "cs.h"
 #include "framctl.h"
+#include "clock_pin.h"
 #include "clock.h"
-
-// USE_XT1 has to be defined if the LFXTCLK (32768 Hz) crystal is present
-// USE_XT2 has to be defined if the HFXTCLK crystal is present
-
-void clock_port_init(void)
-{
-#ifdef USE_XT1
-    #if defined (__MSP430FR5994__) || (__MSP430FR5969__) || (__MSP430FR6989__)
-    PJSEL0 |= BIT4 | BIT5;
-    #else
-    #error "USE_XT1 was defined but pins not known in 'glue/MSP430FR5xx_6xx/clock.c'"
-    #endif
-#endif
-
-#ifdef USE_XT2
-    #if defined (__MSP430FR5994__) || (__MSP430FR5969__) || (__MSP430FR6989__)
-    PJSEL0 |= BIT6 | BIT7;
-    #else
-    #error "USE_XT2 was defined but pins not known in 'glue/MSP430FR5xx_6xx/clock.c'"
-    #endif
-#endif
-}
 
 void clock_init(void)
 {
+    clock_pin_init();
 
     // set FRAM wait states before configuring MCLK
     FRAMCtl_configureWaitStateControl(CLK_FRAM_NWAITS);
@@ -47,7 +27,6 @@ void clock_init(void)
 #endif
 
     // set up ACLK, SMCLK, MCLK
-
 #ifdef USE_XT1
     // LFXTCLK is the source for ACLK
     CS_initClockSignal(CS_ACLK, CS_LFXTCLK_SELECT, CS_CLOCK_DIVIDER_1);
@@ -65,7 +44,6 @@ void clock_init(void)
 #endif
 
     // turn on 
-
 #ifdef USE_XT1
     CS_turnOnLFXT(CLK_LFXT_DRIVE);
 #endif
@@ -73,5 +51,4 @@ void clock_init(void)
 #ifdef USE_XT2
     CS_turnOnHFXT(CLK_HFXT_DRIVE);
 #endif
-
 }
