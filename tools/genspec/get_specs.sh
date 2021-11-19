@@ -6,83 +6,27 @@ usage()
 {
     cat << EOF
     Usage: $0 [] [-f function] [-h]
-       -f FUNCTION  filters out pin specifications for FUNCTION
-       -F FAMILY    filter out by family. must be one of MSP430F5xx_6xx MSP430FR2xx_4xx MSP430FR5xx_6xx MSP430FR57xx
-       -t TARGET    filter out by device target identifier
-       -T TARGET    filter out by device target regexp identifier
-       -s SUFFIX    output source file suffix    
-       -d DIRECTORY output directory
+       -f  FUNCTION  filters out pin specifications for FUNCTION
+       -tf FUNCTION  filter inside the pin table based on FUNCTION
+       -F  FAMILY    filter out by family. must be one of MSP430F5xx_6xx MSP430FR2xx_4xx MSP430FR5xx_6xx MSP430FR57xx
+       -t  TARGET    filter out by device target identifier
+       -T  TARGET    filter out by device target regexp identifier
+       -ci REGEXP    ignore columns that match the sed regexp
+       -ri REGEXP    ignore rows that match the sed regexp
+       -s  SUFFIX    output source file suffix    
+       -d  DIRECTORY output directory
        -h           small usage text
 EOF
     exit
 }
 
-out_code()
-{
-    register="${1}"
-    bit="$2"
-    value="$3"
-
-    #${verbose} && 
-    err "out_code '${register}' '${bit}' '${value}'"
-
-    case "${value}" in
-        x)
-            return 0
-            ;;
-        X)
-            return 0
-            ;;
-        0)
-            echo "    ${register} &= ~BIT${bit};"
-            ;;
-        1)
-            echo "    ${register} |= BIT${bit};"
-            ;;
-        00)
-            echo "${register}" | grep -q 'SEL' || {
-                err "error: unknown value '${value}' for register '${register}' '${bit}'"
-                return 1
-            }
-            echo "    ${register}0 &= ~BIT${bit};"
-            echo "    ${register}1 &= ~BIT${bit};"
-            ;;
-        01)
-            echo "${register}" | grep -q 'SEL' || {
-                err "error: unknown value '${value}' for register '${register}' '${bit}'"
-                return 1
-            }
-            echo "    ${register}0 |= BIT${bit};"
-            echo "    ${register}1 &= ~BIT${bit};"
-            ;;
-        10)
-            echo "${register}" | grep -q 'SEL' || {
-                err "error: unknown value '${value}' for register '${register}' '${bit}'"
-                return 1
-            }
-            echo "    ${register}0 &= ~BIT${bit};"
-            echo "    ${register}1 |= BIT${bit};"
-            ;;
-        11)
-            echo "${register}" | grep -q 'SEL' || {
-                err "error: unknown value '${value}' for register '${register}' '${bit}'"
-                return 1
-            }
-            echo "    ${register}0 |= BIT${bit};"
-            echo "    ${register}1 |= BIT${bit};"
-            ;;
-        *)
-            err "error: unknown value '${value}' for register '${register}' '${bit}'"
-            return 1
-            ;;
-    esac
-}
-
 verbose=false
-
 while (( "$#" )); do
 	if [ "$1" = "-f" ]; then
         filter_functions="${2}"
+		shift; shift;
+	elif [ "$1" = "-tf" ]; then
+        filter_table_function="${2}"
 		shift; shift;
 	elif [ "$1" = "-F" ]; then
         filter_family="${2}"
@@ -99,6 +43,12 @@ while (( "$#" )); do
 	elif [ "$1" = "-T" ]; then
         filter_target_regexp="${2}"
 		shift; shift;
+	elif [ "$1" = "-ci" ]; then
+        column_ignore="${2}"
+        shift; shift;
+	elif [ "$1" = "-ri" ]; then
+        row_ignore="${2}"
+        shift; shift;
 	elif [ "$1" = "-v" ]; then
         verbose=true
         shift;
@@ -205,6 +155,7 @@ for uc in ${ucs}; do
     unset function_found
 
     uc_spec_dump="${output_dir}/${uc}.txt"
+    # shellcheck disable=SC2086
     pdftotext -layout -eol unix -nopgbrk ${pdftotext_arg_first} ${pdftotext_arg_last} "${datasheet_pdf}" "${uc_spec_dump}"
 
     pin_found=false
@@ -224,56 +175,118 @@ for uc in ${ucs}; do
         err "${BAD}error: functions not found in ${uc}${NORMAL}"
     else
         ${verbose} && echo "${pin_str}"
-        echo " found '${function_found}' as pin '${HILITE}${pins}${NORMAL}'"
+        inf "found '${function_found}' as pin '${HILITE}${pins}${NORMAL}'"
     fi
 
     for pin in ${pins}; do
         # fish for control bits
         port=$(echo "${pin}" | grep -o 'P[0-9J]*');
         bit=$(echo "${pin}" | grep -o '[0-7]$');
-        control_line=$(grep -A4 "Table.*Port ${port}.*Pin Functions" "${uc_spec_dump}" | grep -E "(${port}DIR.x)|(${port}SEL)" | head -n1)
-        columns_cnt=$(echo "${control_line}" | wc -w)
 
-        # keep only relevant columns (DIR and SEL)
+        # find the table header for my particular pin
+        table_title=$(grep "Table.*Port ${port}.*Pin Functions" "${uc_spec_dump}" | pin_matches_header "${pin}");
+        inf "table title: '${table_title}'"
+        [ -z "${table_title}" ] && {
+            err "table_title is NULL"
+            continue
+        }
+
+        #table_header_line=$(grep -A4 "Table.*Port ${port}.*Pin Functions" "${uc_spec_dump}" | grep -E "(${port}DIR.x)|(${port}SEL)" | sed 's|([0-9]*)||g' | sed "${column_ignore}" | head -n1 | xargs)
+        table_header_line=$(grep -A4 "${table_title}" "${uc_spec_dump}" | grep -E "(${port}DIR.x)|(${port}SEL)" | sed 's|([0-9]*)||g' | sed "${column_ignore}" | head -n1 | xargs)
+        columns_cnt=$(echo "${table_header_line}" | wc -w)
+
+        # keep only the relevant columns (DIR and SEL)
         for ((i=1; i<=columns_cnt; i++)); do
-            column_def=$(echo "${control_line}" | awk "{ print \$${i} }")
+            column_def=$(echo "${table_header_line}" | awk "{ print \$${i} }")
             echo "${column_def}" | grep -q "${port}DIR.x" && column[$i]=${port}DIR
             echo "${column_def}" | grep -q "${port}SELx" && column[$i]=${port}SEL
             echo "${column_def}" | grep -q "${port}SEL0.x" && column[$i]=${port}SEL0
             echo "${column_def}" | grep -q "${port}SEL1.x" && column[$i]=${port}SEL1
+            echo "${column_def}" | grep -q "${port}SEL0.[0-7]" && {
+                special_bit[$i]=$(echo "${column_def}" | cut -d'.' -f2)
+                column[$i]=${port}SEL0
+            }
+            echo "${column_def}" | grep -q "${port}SEL1.[0-7]" && {
+                special_bit[$i]=$(echo "${column_def}" | cut -d'.' -f2)
+                column[$i]=${port}SEL1
+            }
             echo "${column_def}" | grep -q "ANALOG" && column[$i]=ANALOG
         done
 
         #echo "${columns_cnt}"
-        #[ "${columns_cnt}" -gt 2 ] && echo "$control_line" 
+        #[ "${columns_cnt}" -gt 2 ] && echo "$table_header_line" 
 
-        function_line=$(grep -A50 "Table.*Port ${port}.*Pin Functions" "${uc_spec_dump}" | grep "[ ]${function_found}[ ]")
-        function_line_cnt=$(echo "${function_line}" | wc -w)
-      
-        #echo "${columns_cnt} ${function_line_cnt}"
-        #echo "$control_line" 
-        #echo "${function_line}"
-
-        if [ "${columns_cnt}" == 2 ] && [ "${function_line_cnt}" == 3 ]; then
-            value[1]=$(echo "${function_line}" | awk '{ print $2 }');
-            value[2]=$(echo "${function_line}" | awk '{ print $3 }');
-            out_code "${column[1]}" "${bit}" "${value[1]}" >> "${output_dir}/${uc}_${output_suffix}.c"
-            out_code "${column[2]}" "${bit}" "${value[2]}" >> "${output_dir}/${uc}_${output_suffix}.c"
-        elif [ "${columns_cnt}" == 2 ] && [ "${function_line_cnt}" == 4 ]; then
-            # if in the table header the last column's name is interlaced and missing from the found line
-            # quite risky
-            value[1]=$(echo "${function_line}" | awk '{ print $2 }');
-            value[2]=$(echo "${function_line}" | awk '{ print $3 }');
-            out_code "${column[1]}" "${bit}" "${value[1]}" >> "${output_dir}/${uc}_${output_suffix}.c"
-            out_code "${column[2]}" "${bit}" "${value[2]}" >> "${output_dir}/${uc}_${output_suffix}.c"
-        elif [ "${columns_cnt}" == 4 ] && [ "${function_line_cnt}" == 4 ] && [ "${column[3]}" == "ANALOG" ]; then
-            value[1]=$(echo "${function_line}" | awk '{ print $2 }');
-            value[2]=$(echo "${function_line}" | awk '{ print $3 }');
-            out_code "${column[1]}" "${bit}" "${value[1]}" >> "${output_dir}/${uc}_${output_suffix}.c"
-            out_code "${column[2]}" "${bit}" "${value[2]}" >> "${output_dir}/${uc}_${output_suffix}.c"
+        # filter the line containing the function, make sure to ignore all footnotes
+        if [ -n "${filter_table_function}" ]; then
+            function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | grep "[ ]${filter_table_function}[ ]" | xargs)
         else
-            err "${BAD}error: unknown column arrangement${NORMAL}"
+            function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | xargs)
         fi
+        function_line_cnt=$(echo "${function_line}" | wc -w)
+        # sometimes the data for the function is shifted one line lower due to limited tabular cell size
+        function_line_data=$(echo "${function_line}" | sed "s|${function_found}||g;s|${filter_table_function}||g" | xargs)
+        function_line_data_cnt=$(echo "${function_line_data}" | wc -w)
+        if [ "${function_line_data_cnt}" == 0 ]; then
+            # data is likely missing from this line, concatenate with the next one
+            inf "concatenating data with next line"
+            if [ -n "${filter_table_function}" ]; then
+                function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep -A1 "[ ]${function_found}[ ]" | grep -A1 "${filter_table_function}" | xargs)
+            else
+                function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep -A1 "[ ]${function_found}[ ]" | xargs )
+            fi
+            function_line_cnt=$(echo "${function_line}" | wc -w)
+            function_line_data=$(echo "${function_line}" | sed "s|${function_found}||g;s|${filter_table_function}||g" | xargs)
+            function_line_data_cnt=$(echo "${function_line_data}" | wc -w)
+        fi
+        #inf "${columns_cnt} ${function_line_data_cnt}"
+        inf "${table_header_line}"
+        inf "${function_line_data}"
+
+        # shellcheck disable=SC2129
+        if [ "${columns_cnt}" == 2 ] && [ "${function_line_data_cnt}" == 2 ]; then
+            value[1]=$(echo "${function_line_data}" | awk '{ print $1 }');
+            value[2]=$(echo "${function_line_data}" | awk '{ print $2 }');
+            for i in {1..2}; do
+                unset tbit
+                if [[ ${special_bit[$i]} == ?(-)+([0-9]) ]]; then
+                    tbit="${special_bit[$i]}"
+                else
+                    tbit="${bit}"
+                fi
+                out_code "${column[$i]}" "${tbit}" "${value[$i]}" >> "${output_dir}/${uc}_${output_suffix}.c"
+            done            
+        elif [ "${columns_cnt}" == 2 ] && [ "${function_line_data_cnt}" == 3 ] && [ "${FAMILY}" == "MSP430FR2xx_4xx" ]; then
+            value[1]=$(echo "${function_line_data}" | awk '{ print $1 }');
+            value[2]=$(echo "${function_line_data}" | awk '{ print $2 }');
+            for i in {1..2}; do
+                unset tbit
+                if [[ ${special_bit[$i]} == ?(-)+([0-9]) ]]; then
+                    tbit="${special_bit[$i]}"
+                else
+                    tbit="${bit}"
+                fi
+                out_code "${column[$i]}" "${tbit}" "${value[$i]}" >> "${output_dir}/${uc}_${output_suffix}.c"
+            done
+        elif [ "${columns_cnt}" == 5 ] && [ "${function_line_data_cnt}" == 6 ]; then # && [ "${FAMILY}" == "MSP430FR5xx_6xx" ] ; then
+            # FR5xx_6xx
+            value[1]=$(echo "${function_line_data}" | awk '{ print $1 }');
+            value[2]=$(echo "${function_line_data}" | awk '{ print $2 }');
+            value[3]=$(echo "${function_line_data}" | awk '{ print $3 }');
+            value[4]=$(echo "${function_line_data}" | awk '{ print $4 }');
+            value[5]=$(echo "${function_line_data}" | awk '{ print $5 }');
+            for i in {1..5}; do
+                unset tbit
+                if [[ ${special_bit[$i]} == ?(-)+([0-9]) ]]; then
+                    tbit="${special_bit[$i]}"
+                else
+                    tbit="${bit}"
+                fi
+                out_code "${column[$i]}" "${tbit}" "${value[$i]}" >> "${output_dir}/${uc}_${output_suffix}.c"
+            done
+        else
+            err "${BAD}error: unknown column arrangement${NORMAL} col:${columns_cnt} data:${function_line_data_cnt}"
+        fi
+        cat "${output_dir}/${uc}_${output_suffix}.c"
     done
 
 done

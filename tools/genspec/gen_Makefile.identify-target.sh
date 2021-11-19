@@ -70,10 +70,14 @@ special_rules()
 expand_target()
 {
     target=$1
+
+    local E_DEVICE
+    local E_DEVICE_L
+    local E_FAMILY
     
-    local E_DEVICE="${target//_/}"
-    local E_DEVICE_L=$(echo "${target//_/}" | tr '[:upper:]' '[:lower:]')
-    local E_FAMILY=$(guess_family_from_target "${target}")
+    E_DEVICE="${target//_/}"
+    E_DEVICE_L=$(echo "${target//_/}" | tr '[:upper:]' '[:lower:]')
+    E_FAMILY=$(guess_family_from_target "${target}")
 
     [ -z "${E_FAMILY}" ] && return 1
 
@@ -94,7 +98,6 @@ EOF
 }
 
 TARGETS=$(grep -B1 "#include.*.h" ${GCC_EXTRA_INC_DIR}/msp430.h | grep 'if defined' | sed 's|.*defined[ ](\(.*\))|\1|' | strings | grep -v GENERIC | sort | xargs)
-TARGETS_C=$(echo "${TARGETS}" | sed 's|_||g')
 
 get_header_version
 

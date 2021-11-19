@@ -10,7 +10,6 @@ extern "C" {
 #define  CLK_LFXT_DRIVE  CS_LFXT_DRIVE_0
 #endif
 
-void clock_port_init(void);
 void clock_init(void);
 
 #ifdef __cplusplus

@@ -12,7 +12,17 @@ export NORMAL=$'\e[0m'
 
 err()
 {
-    >&2 echo "$@"; 
+    >&2 echo "${BAD} !ERR ${NORMAL} $@"; 
+}
+
+warn()
+{
+    >&2 echo "${WARN} WARN ${NORMAL} $@"; 
+}
+
+inf()
+{
+    >&2 echo "${HILITE} .... ${NORMAL} $@"; 
 }
 
 # convert 'msp430f5510' to '__MSP430F5510__'
@@ -80,12 +90,128 @@ guess_family_from_target()
     echo "${FAMILY}"
 }
 
+
+# function that returns 0 if pin name is inside an interval
+pin_in_interval()
+{
+    pin="$1"
+    interval="$2"
+
+    #inf "pin_in_interval '${pin}' '${interval}'"
+
+    # check if port matches
+    port_of_pin="${pin//\.*/}"
+    port_of_interval="${interval//\.*/}"
+    [ "${port_of_pin}" != "${port_of_interval}" ] && return 1
+
+    input_pin="${pin//*\./}"
+    pin_low=$(echo "$interval" | cut -d' ' -f1 | sed 's|.*\.||')
+    pin_high=$(echo "$interval" | cut -d' ' -f3 | sed 's|.*\.||')
+
+    [ "${input_pin}" -ge "${pin_low}" ] && [ "${input_pin}" -le "${pin_high}" ] && return 0
+    return 1
+}
+
+# function that prints out the line which 
+pin_matches_header()
+{
+    pin="${1}"
+    port="${1//\.*/}"
+
+    cat | while read line; do
+        #err "${line}"
+        echo "${line}" | grep -q "${pin}" && {
+            #err "found by direct comparison"
+            echo "${line}"
+            continue
+        }
+        echo "${line}" | grep -q "Port ${port} Pin Functions" && {
+            #err "found by direct comparison"
+            echo "${line}"
+            continue
+        }
+        if echo "${line}" | grep -q '(P[0-9J]\.[0-7] to P[0-9J]\.[0-7])'; then
+            comparison_str=$(echo "${line}" | sed 's|.*(\(P[0-9J]*\.[0-7]\) to \(P[0-9J]*\.[0-7]\)).*|\1 to \2|')
+            #inf "found this comparison: $comparison_str"
+            pin_in_interval "${pin}" "${comparison_str}" && {
+                #err "pin was found!!!!"
+                echo "${line}"
+                continue
+            }
+        #else
+        #    err "warning: pin_matches_header comparison is missing"
+        fi
+    done
+}
+
 # function thet uses two algorithms to guess the family name based on chip name
 # the best guess is sent to stdout
 guess_family_from_name()
 {
     target=$(convert_name_to_target "${1}")
     guess_family_from_target "${target}"
+}
+
+# function that generates bitwise operations as C code 
+out_code()
+{
+    register="${1}"
+    bit="$2"
+    value="$3"
+
+    #${verbose} && 
+    inf "out_code '${register}' '${bit}' '${value}'"
+
+    case "${value}" in
+        x)
+            return 0
+            ;;
+        X)
+            return 0
+            ;;
+        0)
+            echo "    ${register} &= ~BIT${bit};"
+            ;;
+        1)
+            echo "    ${register} |= BIT${bit};"
+            ;;
+        00)
+            echo "${register}" | grep -q 'SEL' || {
+                err "error: unknown value '${value}' for register '${register}' '${bit}'"
+                return 1
+            }
+            echo "    ${register}0 &= ~BIT${bit};"
+            echo "    ${register}1 &= ~BIT${bit};"
+            ;;
+        01)
+            echo "${register}" | grep -q 'SEL' || {
+                err "error: unknown value '${value}' for register '${register}' '${bit}'"
+                return 1
+            }
+            echo "    ${register}0 |= BIT${bit};"
+            echo "    ${register}1 &= ~BIT${bit};"
+            ;;
+        10)
+            echo "${register}" | grep -q 'SEL' || {
+                err "error: unknown value '${value}' for register '${register}' '${bit}'"
+                return 1
+            }
+            echo "    ${register}0 &= ~BIT${bit};"
+            echo "    ${register}1 |= BIT${bit};"
+            ;;
+        11)
+            echo "${register}" | grep -q 'SEL' || {
+                err "error: unknown value '${value}' for register '${register}' '${bit}'"
+                return 1
+            }
+            echo "    ${register}0 |= BIT${bit};"
+            echo "    ${register}1 |= BIT${bit};"
+            ;;
+        *)
+            err "error: unknown value '${value}' for register '${register}' '${bit}'"
+            return 1
+            ;;
+    esac
 }
 
 # function that combines multiple bitwise operations on the same register with a single operation
@@ -101,12 +227,12 @@ bitwise_comb()
         err "error: cannot write to output file, exiting"
         return 1
     }
-
-    cat "${input}" | while read -r line; do
+    # shellcheck disable=SC2002
+    sort -u "${input}" | while read -r line; do
         if echo "${line}" | grep -q 'P[0-9JSELDIR]* &= .*'; then
             register=$(echo "${line}" | grep -o 'P[0-9JSELDIR]*')
             #search for the same register with the same operator
-            register_comb=$(grep "${register} &=" "${input}")
+            register_comb=$(sort -u "${input}" | grep "${register} &=")
             register_comb_lncnt=$(echo "${register_comb}" | wc -l)
             if [ "${register_comb_lncnt}" == "2" ]; then
                 #extract values
@@ -118,16 +244,16 @@ bitwise_comb()
                     grep -q "^${new_line}$" "${output}" || 
                         echo "${new_line}" >> "${output}"
                 else
-                    echo "${line}" >> "${output}"
+                    echo "    ${line}" >> "${output}"
                 fi
                 #echo ${values}
             else
-                echo "${line}" >> "${output}"
+                echo "    ${line}" >> "${output}"
             fi
-        elif echo "${line}" | grep -q 'P[0-9SELDIR]* |= .*'; then
+        elif echo "${line}" | grep -q 'P[0-9JSELDIR]* |= .*'; then
             register=$(echo "${line}" | grep -o 'P[0-9JSELDIR]*')
             #search for the same register with the same operator
-            register_comb=$(grep "${register} |=" "${input}")
+            register_comb=$(sort -u "${input}" | grep "${register} |=")
             register_comb_lncnt=$(echo "${register_comb}" | wc -l)
             if [ "${register_comb_lncnt}" == "2" ]; then
                 #extract values
@@ -139,16 +265,16 @@ bitwise_comb()
                     grep -q "^${new_line}$" "${output}" || 
                         echo "${new_line}" >> "${output}"
                 else
-                    echo "${line}" >> "${output}"
+                    echo "    ${line}" >> "${output}"
                 fi
                 #echo ${values}
             else
-                echo "${line}" >> "${output}"
+                echo "    ${line}" >> "${output}"
             fi
 
         else
             # line not recognized, output as is
-            echo "${line}"
+            echo "${line}" >> "${output}"
         fi
     done
 }
@@ -181,7 +307,8 @@ ifdef_comb()
                     first_ifdef_in_line=false
                 else
                     [ "${def_cnt}" -gt 1 ] && {
-                        echo ' \' >> "${output_file}"
+                        # shellcheck disable=SC1003
+                        echo ' \'
                         def_cnt=0
                     }
                     echo -n " || defined (${target})"

@@ -5,7 +5,7 @@
 # temporary output directory
 output_dir='/tmp/2'
 
-out_head_MSP430FR2xx_4xx()
+out_head()
 {
     cat << EOF
 /*
@@ -37,23 +37,93 @@ out_tail_MSP430FR2xx_4xx()
 EOF
 }
 
-rm -f ${output_dir}/*.c;  
-bash get_specs.sh -f 'XIN' -F 'MSP430FR2xx_4xx' -s clock -d "${output_dir}"
-bash get_specs.sh -f 'XOUT' -F 'MSP430FR2xx_4xx' -s clock -d "${output_dir}"
+out_xt1_xt2_MSP430FR5xx_6xx()
+{
+    cat << EOF
+#else
+    #error "USE_XT1 was defined but pins not known in 'glue/MSP430FR5xx_6xx/clock_pin.c'"
+#endif
+#endif
 
-# output (generated) source file
-output_file='/tmp/clock_pin.c'
+#ifdef USE_XT2
+EOF
+}
 
-for source_in in "${output_dir}"/*_clock.c; do
-    source_out=$(echo "${source_in}" | sed 's|_clock.c|_clock_comb.c|')
-    bitwise_comb "${source_in}" "${source_out}"
-done
+out_tail_MSP430FR5xx_6xx()
+{
+    cat << EOF
+#else
+    #error "USE_XT2 was defined but pins not known in 'glue/MSP430FR5xx_6xx/clock_pin.c'"
+#endif
+#endif
+}
+EOF
+}
 
-out_head_MSP430FR2xx_4xx > "${output_file}"
-sha256sum ${output_dir}/*_clock_comb.c > "${output_dir}/clocks.hash"
-ifdef_comb "${output_dir}/clocks.hash" >> "${output_file}"
-out_tail_MSP430FR2xx_4xx >> "${output_file}"
+gen_clock_MSP430FR2xx_4xx()
+{
+    rm -f ${output_dir}/*.c;  
+    bash get_specs.sh -f 'XIN' -F 'MSP430FR2xx_4xx' -ci 's|ANALOG||;s|FUNCTION||' -s clock -d "${output_dir}"
+    bash get_specs.sh -f 'XOUT' -F 'MSP430FR2xx_4xx' -ci 's|ANALOG||;s|FUNCTION||' -s clock -d "${output_dir}"
+    #bash get_specs.sh -f 'XIN' -T 'msp430fr2422' -ci 's|ANALOG||;s|FUNCTION||' -s clock -d "${output_dir}"
+    
+
+    # output (generated) source file
+    output_file='/tmp/MSP430FR2xx_4xx/clock_pin.c'
+    mkdir -p '/tmp/MSP430FR2xx_4xx'
+
+    for source_in in "${output_dir}"/*_clock.c; do
+        #source_out=$(echo "${source_in}" | sed 's|_clock.c|_clock_comb.c|')
+        source_out=${source_in//_clock.c/_clock_comb.c}
+        bitwise_comb "${source_in}" "${source_out}"
+    done
+
+    out_head > "${output_file}"
+    sha256sum ${output_dir}/*_clock_comb.c > "${output_dir}/clocks.hash"
+    ifdef_comb "${output_dir}/clocks.hash" >> "${output_file}"
+    out_tail_MSP430FR2xx_4xx >> "${output_file}"
+}
+
+gen_clock_MSP430FR5xx_6xx()
+{
+    # output (generated) source file
+    output_file='/tmp/MSP430FR5xx_6xx/clock_pin.c'
+    mkdir -p /tmp/MSP430FR5xx_6xx
+
+    rm -f ${output_dir}/*.c; 
+    bash get_specs.sh -f 'LFXIN' -tf 'crystal[ ]*mode' -ci 's|RGC||;s|64||;s|[LH]FXTBYPASS||' -F 'MSP430FR5xx_6xx' -s clock -d "${output_dir}"
+    bash get_specs.sh -f 'LFXOUT' -tf 'crystal[ ]*mode' -ci 's|RGC||;s|64||;s|[LH]FXTBYPASS||' -F 'MSP430FR5xx_6xx' -s clock -d "${output_dir}"
+
+    for source_in in "${output_dir}"/*_clock.c; do
+        source_out=${source_in//_clock.c/_clock_comb.c}
+        bitwise_comb "${source_in}" "${source_out}"
+    done
+
+    out_head > "${output_file}"
+    sha256sum ${output_dir}/*_clock_comb.c > "${output_dir}/clocks.hash"
+    ifdef_comb "${output_dir}/clocks.hash" >> "${output_file}"
+
+    out_xt1_xt2_MSP430FR5xx_6xx >> "${output_file}"
+
+    rm -f ${output_dir}/*.c; 
+    bash get_specs.sh -f 'HFXIN' -tf 'crystal[ ]*mode' -ci 's|RGC||;s|64||;s|[LH]FXTBYPASS||' -F 'MSP430FR5xx_6xx' -s clock -d "${output_dir}"
+    bash get_specs.sh -f 'HFXOUT' -tf 'crystal[ ]*mode' -ci 's|RGC||;s|64||;s|[LH]FXTBYPASS||' -F 'MSP430FR5xx_6xx' -s clock -d "${output_dir}"
+
+    for source_in in "${output_dir}"/*_clock.c; do
+        source_out=${source_in//_clock.c/_clock_comb.c}
+        bitwise_comb "${source_in}" "${source_out}"
+    done
+
+    sha256sum ${output_dir}/*_clock_comb.c > "${output_dir}/clocks.hash"
+    ifdef_comb "${output_dir}/clocks.hash" >> "${output_file}"
+
+    out_tail_MSP430FR5xx_6xx >> "${output_file}"
+}
 
 ##bash get_specs.sh -f 'XIN' -T 'msp430fr2.*' -s clock -d "${output_dir}"
 ##bash get_specs.sh -f 'XOUT' -T 'msp430fr2.*' -s clock -d "${output_dir}"
+#bash get_specs.sh -f 'LFXOUT' -tf 'crystal mode' -ci 's|RGC||;s|64||;s|[LH]FXTBYPASS||' -T 'msp430fr69721' -s clock -d "${output_dir}"
+
+#gen_clock_MSP430FR2xx_4xx
+gen_clock_MSP430FR5xx_6xx
 
