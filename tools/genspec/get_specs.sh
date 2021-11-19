@@ -11,8 +11,6 @@ usage()
        -F  FAMILY    filter out by family. must be one of MSP430F5xx_6xx MSP430FR2xx_4xx MSP430FR5xx_6xx MSP430FR57xx
        -t  TARGET    filter out by device target identifier
        -T  TARGET    filter out by device target regexp identifier
-       -ci REGEXP    ignore columns that match the sed regexp
-       -ri REGEXP    ignore rows that match the sed regexp
        -s  SUFFIX    output source file suffix    
        -d  DIRECTORY output directory
        -h           small usage text
@@ -43,12 +41,6 @@ while (( "$#" )); do
 	elif [ "$1" = "-T" ]; then
         filter_target_regexp="${2}"
 		shift; shift;
-	elif [ "$1" = "-ci" ]; then
-        column_ignore="${2}"
-        shift; shift;
-	elif [ "$1" = "-ri" ]; then
-        row_ignore="${2}"
-        shift; shift;
 	elif [ "$1" = "-v" ]; then
         verbose=true
         shift;
@@ -191,41 +183,71 @@ for uc in ${ucs}; do
             continue
         }
 
-        #table_header_line=$(grep -A4 "Table.*Port ${port}.*Pin Functions" "${uc_spec_dump}" | grep -E "(${port}DIR.x)|(${port}SEL)" | sed 's|([0-9]*)||g' | sed "${column_ignore}" | head -n1 | xargs)
-        table_header_line=$(grep -A4 "${table_title}" "${uc_spec_dump}" | grep -E "(${port}DIR.x)|(${port}SEL)" | sed 's|([0-9]*)||g' | sed "${column_ignore}" | head -n1 | xargs)
+        table_header_line=$(grep -A4 "${table_title}" "${uc_spec_dump}" | grep -E "(${port}DIR.x)|(${port}SEL)" | sed 's|([0-9]*)||g' | head -n1 | xargs)
+
+        # modify the header line based on local rules
+        if [ "${output_suffix}" == "clock" ] && [ "${FAMILY}" == "MSP430FR2xx_4xx" ]; then
+            if echo "${table_header_line}" | grep -q 'ANALOG' || echo "${table_header_line}" | grep -q 'FUNCTION'; then
+                table_header_line=$(echo "${table_header_line}" | sed 's|ANALOG.*FUNCTION|analog|' | xargs)
+            else
+                if grep -A4 "${table_title}" "${uc_spec_dump}" | grep -q 'ANALOG'; then
+                    table_header_line="${table_header_line} analog"
+                fi
+            fi
+        elif [ "${output_suffix}" == "clock" ] && [ "${FAMILY}" == "MSP430FR5xx_6xx" ]; then
+            if echo "${table_header_line}" | grep -q 'BYPA'; then
+                table_header_line=$(echo "${table_header_line}" | sed 's|[LH]FXT[BYPASS]*|bypass|' | xargs)
+            else
+                if grep -A4 "${table_title}" "${uc_spec_dump}" | grep -q '[LH]FX[TBYPASS]'; then
+                    table_header_line="${table_header_line} bypass"
+                fi
+            fi
+            if echo "${table_header_line}" | grep -Eq '(64)|(RGC)'; then
+                table_header_line=$(echo "${table_header_line}" | sed 's|RGC||;s|64||' | xargs)
+            fi
+        fi
+
+
         columns_cnt=$(echo "${table_header_line}" | wc -w)
 
         # keep only the relevant columns (DIR and SEL)
         for ((i=1; i<=columns_cnt; i++)); do
             column_def=$(echo "${table_header_line}" | awk "{ print \$${i} }")
-            echo "${column_def}" | grep -q "${port}DIR.x" && column[$i]=${port}DIR
-            echo "${column_def}" | grep -q "${port}SELx" && column[$i]=${port}SEL
-            echo "${column_def}" | grep -q "${port}SEL0.x" && column[$i]=${port}SEL0
-            echo "${column_def}" | grep -q "${port}SEL1.x" && column[$i]=${port}SEL1
-            echo "${column_def}" | grep -q "${port}SEL0.[0-7]" && {
+            if echo "${column_def}" | grep -q "${port}DIR.x"; then
+                column[$i]=${port}DIR
+            elif echo "${column_def}" | grep -q "${port}SELx"; then
+                column[$i]=${port}SEL
+            elif echo "${column_def}" | grep -q "${port}SEL0.x"; then
+                column[$i]=${port}SEL0
+            elif echo "${column_def}" | grep -q "${port}SEL1.x"; then
+                column[$i]=${port}SEL1
+            elif echo "${column_def}" | grep -q "${port}SEL.[0-7]"; then
+                special_bit[$i]=$(echo "${column_def}" | cut -d'.' -f2)
+                column[$i]=${port}SEL
+            elif echo "${column_def}" | grep -q "${port}SEL0.[0-7]"; then
                 special_bit[$i]=$(echo "${column_def}" | cut -d'.' -f2)
                 column[$i]=${port}SEL0
-            }
-            echo "${column_def}" | grep -q "${port}SEL1.[0-7]" && {
+            elif echo "${column_def}" | grep -q "${port}SEL1.[0-7]"; then
                 special_bit[$i]=$(echo "${column_def}" | cut -d'.' -f2)
                 column[$i]=${port}SEL1
-            }
-            echo "${column_def}" | grep -q "ANALOG" && column[$i]=ANALOG
+            elif echo "${column_def}" | grep -q "ANALOG"; then
+                column[$i]=ANALOG
+            else
+                column[$i]=ignore
+            fi
+            #inf "column[$i] = ${column[$i]}"
         done
-
-        #echo "${columns_cnt}"
-        #[ "${columns_cnt}" -gt 2 ] && echo "$table_header_line" 
 
         # filter the line containing the function, make sure to ignore all footnotes
         if [ -n "${filter_table_function}" ]; then
             function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | grep "[ ]${filter_table_function}[ ]" | xargs)
+            function_line_data=$(echo "${function_line}" | sed "s|.*${function_found}||g;s|.*${filter_table_function}||g" | xargs)
         else
             function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | xargs)
+            function_line_data=$(echo "${function_line}" | sed "s|.*${function_found}||g" | xargs)
         fi
-        function_line_cnt=$(echo "${function_line}" | wc -w)
-        # sometimes the data for the function is shifted one line lower due to limited tabular cell size
-        function_line_data=$(echo "${function_line}" | sed "s|${function_found}||g;s|${filter_table_function}||g" | xargs)
         function_line_data_cnt=$(echo "${function_line_data}" | wc -w)
+        # sometimes the data for the function is shifted one line lower due to limited tabular cell size
         if [ "${function_line_data_cnt}" == 0 ]; then
             # data is likely missing from this line, concatenate with the next one
             inf "concatenating data with next line"
@@ -234,47 +256,18 @@ for uc in ${ucs}; do
             else
                 function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep -A1 "[ ]${function_found}[ ]" | xargs )
             fi
-            function_line_cnt=$(echo "${function_line}" | wc -w)
-            function_line_data=$(echo "${function_line}" | sed "s|${function_found}||g;s|${filter_table_function}||g" | xargs)
+            function_line_data=$(echo "${function_line}" | sed "s|.*${function_found}||g;s|.*${filter_table_function}||g" | xargs)
             function_line_data_cnt=$(echo "${function_line_data}" | wc -w)
         fi
-        #inf "${columns_cnt} ${function_line_data_cnt}"
-        inf "${table_header_line}"
-        inf "${function_line_data}"
+        cat << EOF | column -t -s' '
+${table_header_line}
+${function_line_data}
+EOF
 
         # shellcheck disable=SC2129
-        if [ "${columns_cnt}" == 2 ] && [ "${function_line_data_cnt}" == 2 ]; then
-            value[1]=$(echo "${function_line_data}" | awk '{ print $1 }');
-            value[2]=$(echo "${function_line_data}" | awk '{ print $2 }');
-            for i in {1..2}; do
-                unset tbit
-                if [[ ${special_bit[$i]} == ?(-)+([0-9]) ]]; then
-                    tbit="${special_bit[$i]}"
-                else
-                    tbit="${bit}"
-                fi
-                out_code "${column[$i]}" "${tbit}" "${value[$i]}" >> "${output_dir}/${uc}_${output_suffix}.c"
-            done            
-        elif [ "${columns_cnt}" == 2 ] && [ "${function_line_data_cnt}" == 3 ] && [ "${FAMILY}" == "MSP430FR2xx_4xx" ]; then
-            value[1]=$(echo "${function_line_data}" | awk '{ print $1 }');
-            value[2]=$(echo "${function_line_data}" | awk '{ print $2 }');
-            for i in {1..2}; do
-                unset tbit
-                if [[ ${special_bit[$i]} == ?(-)+([0-9]) ]]; then
-                    tbit="${special_bit[$i]}"
-                else
-                    tbit="${bit}"
-                fi
-                out_code "${column[$i]}" "${tbit}" "${value[$i]}" >> "${output_dir}/${uc}_${output_suffix}.c"
-            done
-        elif [ "${columns_cnt}" == 5 ] && [ "${function_line_data_cnt}" == 6 ]; then # && [ "${FAMILY}" == "MSP430FR5xx_6xx" ] ; then
-            # FR5xx_6xx
-            value[1]=$(echo "${function_line_data}" | awk '{ print $1 }');
-            value[2]=$(echo "${function_line_data}" | awk '{ print $2 }');
-            value[3]=$(echo "${function_line_data}" | awk '{ print $3 }');
-            value[4]=$(echo "${function_line_data}" | awk '{ print $4 }');
-            value[5]=$(echo "${function_line_data}" | awk '{ print $5 }');
-            for i in {1..5}; do
+        if [ "${columns_cnt}" == "${function_line_data_cnt}" ]; then
+            for ((i=1; i<=columns_cnt; i++)); do
+                value[$i]=$(echo "${function_line_data}" | awk "{ print \$${i} }");
                 unset tbit
                 if [[ ${special_bit[$i]} == ?(-)+([0-9]) ]]; then
                     tbit="${special_bit[$i]}"

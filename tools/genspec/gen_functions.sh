@@ -12,17 +12,17 @@ export NORMAL=$'\e[0m'
 
 err()
 {
-    >&2 echo "${BAD} !ERR ${NORMAL} $@"; 
+    >&2 echo "${BAD} !ERR ${NORMAL} $*"; 
 }
 
 warn()
 {
-    >&2 echo "${WARN} WARN ${NORMAL} $@"; 
+    >&2 echo "${WARN} WARN ${NORMAL} $*"; 
 }
 
 inf()
 {
-    >&2 echo "${HILITE} .... ${NORMAL} $@"; 
+    >&2 echo "${HILITE} .... ${NORMAL} $*"; 
 }
 
 # convert 'msp430f5510' to '__MSP430F5510__'
@@ -118,7 +118,7 @@ pin_matches_header()
     pin="${1}"
     port="${1//\.*/}"
 
-    cat | while read line; do
+    cat | while read -r line; do
         #err "${line}"
         echo "${line}" | grep -q "${pin}" && {
             #err "found by direct comparison"
@@ -131,6 +131,7 @@ pin_matches_header()
             continue
         }
         if echo "${line}" | grep -q '(P[0-9J]\.[0-7] to P[0-9J]\.[0-7])'; then
+            # shellcheck disable=SC2001
             comparison_str=$(echo "${line}" | sed 's|.*(\(P[0-9J]*\.[0-7]\) to \(P[0-9J]*\.[0-7]\)).*|\1 to \2|')
             #inf "found this comparison: $comparison_str"
             pin_in_interval "${pin}" "${comparison_str}" && {
@@ -159,8 +160,9 @@ out_code()
     bit="$2"
     value="$3"
 
+    [ "${register}" == "ignore" ] && return 0
     #${verbose} && 
-    inf "out_code '${register}' '${bit}' '${value}'"
+    #inf "out_code '${register}' '${bit}' '${value}'"
 
     case "${value}" in
         x)
