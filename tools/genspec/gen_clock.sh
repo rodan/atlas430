@@ -153,11 +153,14 @@ gen_clock_MSP430F5xx_6xx()
     mkdir -p /tmp/MSP430F5xx_6xx
 
     rm -f ${output_dir}/*.c; 
-    #bash get_specs.sh -f 'LFXIN' -tf 'crystal[ ]*mode' -ci 's|RGC||;s|64||;s|[LH]FXTBYPASS||' -F 'MSP430F5xx_6xx' -s clock -d "${output_dir}"
-    #bash get_specs.sh -f 'LFXOUT' -tf 'crystal[ ]*mode' -ci 's|RGC||;s|64||;s|[LH]FXTBYPASS||' -F 'MSP430F5xx_6xx' -s clock -d "${output_dir}"
+    bash get_specs.sh -f 'XIN' -tf 'crystal[ ]*mode' -F 'MSP430F5xx_6xx' -s clock -d "${output_dir}"
+    bash get_specs.sh -f 'XOUT' -tf 'crystal[ ]*mode' -F 'MSP430F5xx_6xx' -s clock -d "${output_dir}"
 
-    bash get_specs.sh -f 'XIN' -tf 'crystal[ ]*mode' -T 'msp430f5510' -s clock -d "${output_dir}"
-return
+    #bash get_specs.sh -f 'XT2IN' -tf 'crystal[ ]*mode' -T 'msp430f534' -s clock -d "${output_dir}"
+    #bash get_specs.sh -f 'XT2OUT' -tf 'crystal[ ]*mode' -T 'msp430f534' -s clock -d "${output_dir}"
+    #bash get_specs.sh -f 'XOUT' -tf 'crystal[ ]*mode' -T 'msp430f5510' -s clock -d "${output_dir}"
+    #bash get_specs.sh -f 'XT2IN' -tf 'crystal[ ]*mode' -T 'msp430f5510' -s clock -d "${output_dir}"
+    #bash get_specs.sh -f 'XT2OUT' -tf 'crystal[ ]*mode' -T 'msp430f5510' -s clock -d "${output_dir}"
 
     for source_in in "${output_dir}"/*_clock.c; do
         source_out=${source_in//_clock.c/_clock_comb.c}
@@ -170,9 +173,9 @@ return
 
     out_xt1_xt2_MSP430F5xx_6xx >> "${output_file}"
 
-    rm -f ${output_dir}/*.c; 
-    bash get_specs.sh -f 'HFXIN' -tf 'crystal[ ]*mode' -ci 's|RGC||;s|64||;s|[LH]FXTBYPASS||' -F 'MSP430FR5xx_6xx' -s clock -d "${output_dir}"
-    bash get_specs.sh -f 'HFXOUT' -tf 'crystal[ ]*mode' -ci 's|RGC||;s|64||;s|[LH]FXTBYPASS||' -F 'MSP430FR5xx_6xx' -s clock -d "${output_dir}"
+    rm -f ${output_dir}/*.c;
+    bash get_specs.sh -f 'XT2IN' -tf 'crystal[ ]*mode' -F 'MSP430F5xx_6xx' -s clock -d "${output_dir}"
+    bash get_specs.sh -f 'XT2OUT' -tf 'crystal[ ]*mode' -F 'MSP430F5xx_6xx' -s clock -d "${output_dir}"
 
     for source_in in "${output_dir}"/*_clock.c; do
         source_out=${source_in//_clock.c/_clock_comb.c}
@@ -192,6 +195,6 @@ return
 #bash get_specs.sh -f 'LFXOUT' -tf 'crystal mode' -ci 's|RGC||;s|64||;s|[LH]FXTBYPASS||' -T 'msp430fr69721' -s clock -d "${output_dir}"
 
 #gen_clock_MSP430FR2xx_4xx
-gen_clock_MSP430FR5xx_6xx   #1m20s
-#gen_clock_MSP430F5xx_6xx
+#gen_clock_MSP430FR5xx_6xx   #1m20s
+gen_clock_MSP430F5xx_6xx    #2m40s
 

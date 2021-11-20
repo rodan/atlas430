@@ -4,36 +4,13 @@
 #include "pmm.h"
 #include "clock_selection.h"
 #include "ucs.h"
+#include "clock_pin.h"
 #include "clock.h"
-
-// USE_XT1 has to be defined if the LFXTCLK (32768 Hz) crystal is present
-// USE_XT2 has to be defined if the HFXTCLK crystal is present
-
-void clock_port_init(void)
-{
-#ifdef USE_XT1
-    #if defined (__CC430F5137__) 
-        P5SEL |= BIT0 | BIT1;
-    #elif defined (__MSP430F5510__) || defined (__MSP430F5529__)
-        P5SEL |= BIT4 | BIT5;
-    #elif defined (__MSP430F5438__)
-        P7SEL |= BIT0 | BIT1;
-    #else
-    #error "USE_XT1 was defined but pins not known in 'glue/MSP430F5xx_6xx/clock.c'"
-    #endif
-#endif
-
-#ifdef USE_XT2
-    #if defined (__MSP430F5510__) || defined (__MSP430F5529__) || defined (__MSP430F5438__)
-        P5SEL |= BIT2 | BIT3;
-    #else
-    #error "USE_XT2 was defined but pins not known in 'glue/MSP430F5xx_6xx/clock.c'"
-    #endif
-#endif
-}
 
 void clock_init(void)
 {
+
+    clock_pin_init();
 
 #ifdef USE_XT1
     #ifdef USE_XT2

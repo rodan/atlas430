@@ -114,7 +114,7 @@ for uc in ${ucs}; do
     fi
 
     if [ -z "$toc" ]; then
-        err "${BAD}toc still empty for ${uc}${NORMAL}"
+        warn "ToC missing for ${uc}"
     else
         start_page=$(echo "${toc}" | grep "${chapter}[ \.]*" | sed "s|.*${chapter}[ \.]*\([0-9]*\).*|\1|")
 
@@ -164,7 +164,7 @@ for uc in ${ucs}; do
     done
 
     if [ -z "${pin_str}" ]; then
-        err "${BAD}error: functions not found in ${uc}${NORMAL}"
+        err "${BAD}error: function(s) '${filter_functions}' not found in ${uc}${NORMAL}"
     else
         ${verbose} && echo "${pin_str}"
         inf "found '${function_found}' as pin '${HILITE}${pins}${NORMAL}'"
@@ -177,6 +177,7 @@ for uc in ${ucs}; do
 
         # find the table header for my particular pin
         table_title=$(grep "Table.*Port ${port}.*Pin Functions" "${uc_spec_dump}" | pin_matches_header "${pin}");
+        [ -z "${table_title}" ] && table_title=$(grep "Table.*Port ${port}.*Pin Functions" "${uc_spec_dump}" | pin_matches_broken_header "${pin}");
         inf "table title: '${table_title}'"
         [ -z "${table_title}" ] && {
             err "table_title is NULL"
@@ -205,10 +206,19 @@ for uc in ${ucs}; do
             if echo "${table_header_line}" | grep -Eq '(64)|(RGC)'; then
                 table_header_line=$(echo "${table_header_line}" | sed 's|RGC||;s|64||' | xargs)
             fi
+        elif [ "${output_suffix}" == "clock" ] && [ "${FAMILY}" == "MSP430F5xx_6xx" ]; then
+            if echo "${table_header_line}" | grep -q 'BYPA'; then
+                table_header_line=$(echo "${table_header_line}" | sed 's|XT[12BYPASS]*|bypass|' | xargs)
+            else
+                if grep -A4 "${table_title}" "${uc_spec_dump}" | grep -q 'X[T12BYPASS]'; then
+                    table_header_line="${table_header_line} bypass"
+                fi
+            fi
         fi
 
 
         columns_cnt=$(echo "${table_header_line}" | wc -w)
+        unset bit_override
 
         # keep only the relevant columns (DIR and SEL)
         for ((i=1; i<=columns_cnt; i++)); do
@@ -222,13 +232,13 @@ for uc in ${ucs}; do
             elif echo "${column_def}" | grep -q "${port}SEL1.x"; then
                 column[$i]=${port}SEL1
             elif echo "${column_def}" | grep -q "${port}SEL.[0-7]"; then
-                special_bit[$i]=$(echo "${column_def}" | cut -d'.' -f2)
+                bit_override[$i]=$(echo "${column_def}" | cut -d'.' -f2)
                 column[$i]=${port}SEL
             elif echo "${column_def}" | grep -q "${port}SEL0.[0-7]"; then
-                special_bit[$i]=$(echo "${column_def}" | cut -d'.' -f2)
+                bit_override[$i]=$(echo "${column_def}" | cut -d'.' -f2)
                 column[$i]=${port}SEL0
             elif echo "${column_def}" | grep -q "${port}SEL1.[0-7]"; then
-                special_bit[$i]=$(echo "${column_def}" | cut -d'.' -f2)
+                bit_override[$i]=$(echo "${column_def}" | cut -d'.' -f2)
                 column[$i]=${port}SEL1
             elif echo "${column_def}" | grep -q "ANALOG"; then
                 column[$i]=ANALOG
@@ -269,8 +279,8 @@ EOF
             for ((i=1; i<=columns_cnt; i++)); do
                 value[$i]=$(echo "${function_line_data}" | awk "{ print \$${i} }");
                 unset tbit
-                if [[ ${special_bit[$i]} == ?(-)+([0-9]) ]]; then
-                    tbit="${special_bit[$i]}"
+                if [[ ${bit_override[$i]} == ?(-)+([0-9]) ]]; then
+                    tbit="${bit_override[$i]}"
                 else
                     tbit="${bit}"
                 fi
@@ -283,3 +293,4 @@ EOF
     done
 
 done
+

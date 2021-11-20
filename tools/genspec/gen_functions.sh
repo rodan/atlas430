@@ -145,6 +145,24 @@ pin_matches_header()
     done
 }
 
+# same as above, but for titles that have typos in them
+pin_matches_broken_header()
+{
+    pin="${1}"
+    port="${1//\.*/}"
+
+    pin_no_prefix=${pin//P/}
+
+    cat | while read -r line; do
+        # remove once Table 6-47 title is fixed in https://www.ti.com/lit/gpn/msp430f5340
+        echo "${line}" | grep -q "${pin_no_prefix}" && {
+            echo "${line}"
+            continue
+        }
+    done
+}
+
+
 # function thet uses two algorithms to guess the family name based on chip name
 # the best guess is sent to stdout
 guess_family_from_name()
