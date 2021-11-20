@@ -152,11 +152,12 @@ gen_clock_MSP430F5xx_6xx()
     output_file='/tmp/MSP430F5xx_6xx/clock_pin.c'
     mkdir -p /tmp/MSP430F5xx_6xx
 
-    rm -f ${output_dir}/*.c; 
-    bash get_specs.sh -f 'XIN' -tf 'crystal[ ]*mode' -F 'MSP430F5xx_6xx' -s clock -d "${output_dir}"
-    bash get_specs.sh -f 'XOUT' -tf 'crystal[ ]*mode' -F 'MSP430F5xx_6xx' -s clock -d "${output_dir}"
+    #rm -f ${output_dir}/*.c; 
+    #bash get_specs.sh -f 'XIN' -tf 'crystal[ ]*mode' -F 'MSP430F5xx_6xx' -s clock -d "${output_dir}"
+    #bash get_specs.sh -f 'XOUT' -tf 'crystal[ ]*mode' -F 'MSP430F5xx_6xx' -s clock -d "${output_dir}"
 
-    #bash get_specs.sh -f 'XT2IN' -tf 'crystal[ ]*mode' -T 'msp430f534' -s clock -d "${output_dir}"
+    #bash get_specs.sh -f 'XIN' -tf 'crystal[ ]*mode' -T 'msp430f5333' -s clock -d "${output_dir}"
+    #bash get_specs.sh -f 'XOUT' -tf 'crystal[ ]*mode' -T 'msp430f5333' -s clock -d "${output_dir}"
     #bash get_specs.sh -f 'XT2OUT' -tf 'crystal[ ]*mode' -T 'msp430f534' -s clock -d "${output_dir}"
     #bash get_specs.sh -f 'XOUT' -tf 'crystal[ ]*mode' -T 'msp430f5510' -s clock -d "${output_dir}"
     #bash get_specs.sh -f 'XT2IN' -tf 'crystal[ ]*mode' -T 'msp430f5510' -s clock -d "${output_dir}"

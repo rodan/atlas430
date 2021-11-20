@@ -99,19 +99,18 @@ for uc in ${ucs}; do
 
     ###############################
     # get the start and end page of the chapter containing the pin data
-    
     unset start_page
     unset end_page
     unset pdftotext_arg_first
     unset pdftotext_arg_last
 
-    chapter='Input/Output Diagrams'
     echo -e "${GOOD}${uc}${NORMAL}  ${HILITE}${FAMILY}${NORMAL}"
-    toc=$(grep --after-context=2 --extended-regexp "${chapter}.*[\.]{20,100}" "${datasheet_txt}")
-    if [ -z "${toc}" ]; then 
-        chapter='Peripherals'
+    parse_chapters=('Input/Output Diagrams' 'Input/Output Schematics' 'Peripherals')
+
+    for chapter in "${parse_chapters[@]}"; do
         toc=$(grep --after-context=2 --extended-regexp "${chapter}.*[\.]{20,100}" "${datasheet_txt}")
-    fi
+        [ -n "${toc}" ] && break
+    done
 
     if [ -z "$toc" ]; then
         warn "ToC missing for ${uc}"
@@ -137,7 +136,7 @@ for uc in ${ucs}; do
         ${verbose} && echo "${toc}"
         [ -n "${start_page}" ] && pdftotext_arg_first=" -f ${start_page}"
         [ -n "${end_page}" ] && pdftotext_arg_last=" -l ${end_page}"
-        #echo "${WARN}'${pdftotext_arg_first}'${NORMAL}"
+        #inf "pdftotext '${pdftotext_arg_first}' '${pdftotext_arg_last}'"
     fi
 
     ###############################
@@ -160,11 +159,22 @@ for uc in ${ucs}; do
             pins=$(echo "${pin_str}" | grep -o 'P[0-9J]\{1,2\}\.[0-7]' | sort -u)
             function_found="${filter_function}"
             pin_found=true
+        else
+            # seach dedicated pins
+            dedicated_pin_str=$(grep -E -A65 '(Terminal Functions)|(Signal Descriptions)' "${datasheet_txt}" | grep "${filter_function}")
+            dedicated_function_found="${filter_function}"
+            dedicated_pin_found=true
         fi
     done
 
     if [ -z "${pin_str}" ]; then
-        err "${BAD}error: function(s) '${filter_functions}' not found in ${uc}${NORMAL}"
+        warn "warning: no shared pins with '${filter_functions}' function(s) found"
+        if [ -z "${dedicated_pin_str}" ]; then
+            err "error: no dedicated pins with those functions have been found"
+        else
+            echo "${dedicated_pin_str}" | sed 's/ \+ /\t/g'
+            echo "    // dedicated pin found, no setup needed, but need to dodge the catch-all #else below" > "${output_dir}/${uc}_${output_suffix}.c"
+        fi
     else
         ${verbose} && echo "${pin_str}"
         inf "found '${function_found}' as pin '${HILITE}${pins}${NORMAL}'"
