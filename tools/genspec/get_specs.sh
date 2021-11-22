@@ -153,10 +153,18 @@ for uc in ${ucs}; do
     for filter_function in ${filter_functions}; do
         ${pin_found} && continue
         pin_str=$(grep "^[ ]\{0,3\}P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./]*${filter_function}[a-zA-Z0-9\./]*" "${uc_spec_dump}")
+
+        # usually the pin name is the first word on a table row
         [ -z "${pin_str}" ] && pin_str=$(grep "^[ ]*P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./]*${filter_function}[a-zA-Z0-9\./]*" "${uc_spec_dump}")
+
+        # when the pin name is not the first word on a table row
         [ -z "${pin_str}" ] && pin_str=$(grep "[ ]*P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./]*${filter_function}[a-zA-Z0-9\./]*" "${uc_spec_dump}")
+
+        # when the pin name (first column data) is on multiple lines
+        [ -z "${pin_str}" ] && pin_str=$(grep '^[ ]\{0,2\}[A-Z]' "${uc_spec_dump}" | awk '{ print $1 }' | sed ':x; /\/$/ { N; s|/\n|/|; tx }' | grep "^P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./]*${filter_function}")
         if [ -n "${pin_str}" ]; then
-            pins=$(echo "${pin_str}" | grep -o 'P[0-9J]\{1,2\}\.[0-7]' | sort -u)
+            # remove the head -n1 to parse all pins having this function
+            pins=$(echo "${pin_str}" | grep -o 'P[0-9J]\{1,2\}\.[0-7]' | head -n1 | sort -u)
             function_found="${filter_function}"
             pin_found=true
         else
@@ -226,6 +234,12 @@ for uc in ${ucs}; do
             fi
         fi
 
+        # generic rules
+        if [ "${FAMILY}" == "MSP430FR5xx_6xx" ]; then
+            if echo "${table_header_line}" | grep -Eq '(64)|(RGC)'; then
+                table_header_line=$(echo "${table_header_line}" | sed 's|RGC||;s|64||' | xargs)
+            fi
+        fi
 
         columns_cnt=$(echo "${table_header_line}" | wc -w)
         unset bit_override
@@ -258,13 +272,25 @@ for uc in ${ucs}; do
             #inf "column[$i] = ${column[$i]}"
         done
 
+        multi_function=false
+        echo "${function_found}" | grep -q 'UC[AB][0-3]' && multi_function=true
+
         # filter the line containing the function, make sure to ignore all footnotes
         if [ -n "${filter_table_function}" ]; then
-            function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | grep "[ ]${filter_table_function}[ ]" | xargs)
+            if [ "${multi_function}" == "true" ]; then
+                function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "^[A-Z0-9/ \.]\{25,\}${function_found}" | grep "[ ]${filter_table_function}[ ]" | xargs)
+            else
+                function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | grep "[ ]${filter_table_function}[ ]" | xargs)
+            fi
             function_line_data=$(echo "${function_line}" | sed "s|.*${function_found}||g;s|.*${filter_table_function}||g" | xargs)
         else
-            function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | xargs)
-            function_line_data=$(echo "${function_line}" | sed "s|.*${function_found}||g" | xargs)
+            if [ "${multi_function}" == "true" ]; then
+                function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "^[A-Z0-9/ \.]\{25,\}${function_found}" | xargs)
+                function_line_data=$(echo "${function_line}" | sed "s|.*${function_found}[A-Z0-9/\.]*||g" | xargs)
+            else
+                function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | xargs)
+                function_line_data=$(echo "${function_line}" | sed "s|.*${function_found}||g" | xargs)
+            fi
         fi
         function_line_data_cnt=$(echo "${function_line_data}" | wc -w)
         # sometimes the data for the function is shifted one line lower due to limited tabular cell size
@@ -279,6 +305,9 @@ for uc in ${ucs}; do
             function_line_data=$(echo "${function_line}" | sed "s|.*${function_found}||g;s|.*${filter_table_function}||g" | xargs)
             function_line_data_cnt=$(echo "${function_line_data}" | wc -w)
         fi
+
+        
+
         cat << EOF | column -t -s' '
 ${table_header_line}
 ${function_line_data}

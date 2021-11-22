@@ -7,6 +7,7 @@
 #include "clock_selection.h"
 #include "uart_config.h"
 #include "uart3.h"
+#include "uart3_pin.h"
 #include "lib_ringbuf.h"
 
 static uint8_t (*uart3_rx_irq_handler)(const uint8_t c);
@@ -144,8 +145,7 @@ void uart3_initb(const uint8_t baudrate)
 // default port locations
 void uart3_port_init(void)
 {
-    P6SEL0 |= (BIT0 | BIT1);
-    P6SEL1 &= ~(BIT0 | BIT1);
+    uart3_pin_init();
 }
 
 void uart3_set_rx_irq_handler(uint8_t (*input)(const uint8_t c))

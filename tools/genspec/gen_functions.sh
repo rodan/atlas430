@@ -337,7 +337,9 @@ ifdef_comb()
             fi
         done
         echo ''
+        echo ''
         cat "${source}"
+        echo ''
     done
 }
 

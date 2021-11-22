@@ -7,6 +7,7 @@
 #include "clock_selection.h"
 #include "uart_config.h"
 #include "uart0.h"
+#include "uart0_pin.h"
 #include "lib_ringbuf.h"
 
 static uint8_t (*uart0_rx_irq_handler)(const uint8_t c);
@@ -146,12 +147,7 @@ void uart0_initb(const uint8_t baudrate)
 // default port locations
 void uart0_port_init(void)
 {
-#if defined (__MSP430FR5969__) ||(__MSP430FR5994__) || (__MSP430FR6989__)
-    P2SEL0 &= ~(BIT0 | BIT1);
-    P2SEL1 |= (BIT0 | BIT1);
-#else
-    #error "UCA0 pins unknown for this uC, please modify glue/MSP430FR5xx_6xx/uart0.c"
-#endif
+    uart0_pin_init();
 }
 
 void uart0_set_rx_irq_handler(uint8_t (*input)(const uint8_t c))
