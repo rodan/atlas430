@@ -1,5 +1,11 @@
 #!/bin/bash
 
+#  msp430 device-specific datasheet parser 
+#  collection of functions that extracts pin information from pdf datasheets
+#  and generates C code used to initialize the control bits for selected pins
+#  Author:          Petre Rodan <2b4eda@subdimension.ro>
+#  Available from:  https://github.com/rodan/reference_libs_msp430
+
 . gen_functions.sh
 
 usage()
@@ -170,8 +176,8 @@ for uc in ${ucs}; do
         else
             # seach dedicated pins
             dedicated_pin_str=$(grep -E -A65 '(Terminal Functions)|(Signal Descriptions)' "${datasheet_txt}" | grep "${filter_function}")
-            dedicated_function_found="${filter_function}"
-            dedicated_pin_found=true
+            #dedicated_function_found="${filter_function}"
+            #dedicated_pin_found=true
         fi
     done
 
@@ -180,6 +186,7 @@ for uc in ${ucs}; do
         if [ -z "${dedicated_pin_str}" ]; then
             err "error: no dedicated pins with those functions have been found"
         else
+            # shellcheck disable=SC2001
             echo "${dedicated_pin_str}" | sed 's/ \+ /\t/g'
             echo "    // dedicated pin found, no setup needed, but need to dodge the catch-all #else below" > "${output_dir}/${uc}_${output_suffix}.c"
         fi
@@ -256,6 +263,16 @@ for uc in ${ucs}; do
             fi
         fi
 
+        if [ "${FAMILY}" == "MSP430F5xx_6xx" ]; then
+            if echo "${table_header_line}" | grep -q 'LCDS'; then
+                table_header_line=$(echo "${table_header_line}" | sed 's|LCDS[0-9\.]*|lcds|' | xargs)
+            else
+                if grep -A4 "${table_title}" "${uc_spec_dump}" | grep -q 'LCDS'; then
+                    table_header_line="${table_header_line} lcds"
+                fi
+            fi
+        fi
+
         columns_cnt=$(echo "${table_header_line}" | wc -w)
         unset bit_override
 
@@ -303,7 +320,6 @@ for uc in ${ucs}; do
                 # xargs -0 needed due to typo containing an apostrophe in msp430fr2433.pdf
                 function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "^[A-Z0-9/ \.]\{25,\}${function_found}" | grep -Ev "${function_line_ignore}" | head -n1 |xargs -0)
                 function_line_data=$(echo "${function_line}" | sed "s|.*${function_found}[A-Z0-9/\.']*||g" | xargs)
-                echo ${function_line}
             else
                 function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | grep -Ev "${function_line_ignore}" | xargs)
                 function_line_data=$(echo "${function_line}" | sed "s|.*${function_found}||g" | xargs)

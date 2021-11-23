@@ -4,7 +4,7 @@
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/reference_libs_msp430
 
-  generated on Fri Nov 19 14:26:30 UTC 2021
+  generated on Tue Nov 23 07:56:19 UTC 2021
 */
 
 #include <msp430.h>
@@ -57,8 +57,10 @@ void clock_pin_init(void)
  || defined (__MSP430FR6979__) || defined (__MSP430FR6987__) \
  || defined (__MSP430FR6988__) || defined (__MSP430FR69891__) \
  || defined (__MSP430FR6989__)
+
     PJSEL0 |= BIT4;
     PJSEL1 &= ~BIT4;
+
 #else
     #error "USE_XT1 was defined but pins not known in 'glue/MSP430FR5xx_6xx/clock_pin.c'"
 #endif
@@ -109,8 +111,10 @@ void clock_pin_init(void)
  || defined (__MSP430FR6979__) || defined (__MSP430FR6987__) \
  || defined (__MSP430FR6988__) || defined (__MSP430FR69891__) \
  || defined (__MSP430FR6989__)
+
     PJSEL0 |= BIT6;
     PJSEL1 &= ~BIT6;
+
 #else
     #error "USE_XT2 was defined but pins not known in 'glue/MSP430FR5xx_6xx/clock_pin.c'"
 #endif

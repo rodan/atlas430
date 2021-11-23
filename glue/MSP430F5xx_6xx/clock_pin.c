@@ -4,7 +4,7 @@
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/reference_libs_msp430
 
-  generated on Sat Nov 20 16:28:31 UTC 2021
+  generated on Tue Nov 23 07:58:33 UTC 2021
 */
 
 #include <msp430.h>
@@ -76,11 +76,15 @@ void clock_pin_init(void)
  || defined (__MSP430F6779__) || defined (__MSP430F6779A__) \
  || defined (__MSP430FG6425__) || defined (__MSP430FG6426__) \
  || defined (__MSP430FG6625__) || defined (__MSP430FG6626__)
+
 // dedicated pin found, no setup needed, but need to dodge the catch-all #else below
+
 #elif defined (__MSP430F5131__) || defined (__MSP430F5132__) \
  || defined (__MSP430F5151__) || defined (__MSP430F5152__) \
  || defined (__MSP430F5171__) || defined (__MSP430F5172__)
+
     PJSEL |= BIT5;
+
 #elif defined (__MSP430F5212__) || defined (__MSP430F5214__) \
  || defined (__MSP430F5217__) || defined (__MSP430F5219__) \
  || defined (__MSP430F5222__) || defined (__MSP430F5224__) \
@@ -111,7 +115,9 @@ void clock_pin_init(void)
  || defined (__MSP430F5524__) || defined (__MSP430F5525__) \
  || defined (__MSP430F5526__) || defined (__MSP430F5527__) \
  || defined (__MSP430F5528__) || defined (__MSP430F5529__)
+
     P5SEL |= BIT4;
+
 #elif defined (__CC430F5123__) || defined (__CC430F5125__) \
  || defined (__CC430F5133__) || defined (__CC430F5135__) \
  || defined (__CC430F5137__) || defined (__CC430F5143__) \
@@ -119,7 +125,9 @@ void clock_pin_init(void)
  || defined (__CC430F6125__) || defined (__CC430F6126__) \
  || defined (__CC430F6127__) || defined (__CC430F6135__) \
  || defined (__CC430F6137__) || defined (__CC430F6147__)
+
     P5SEL |= BIT0;
+
 #elif defined (__MSP430BT5190__) || defined (__MSP430F5418__) \
  || defined (__MSP430F5418A__) || defined (__MSP430F5419__) \
  || defined (__MSP430F5419A__) || defined (__MSP430F5435__) \
@@ -127,7 +135,9 @@ void clock_pin_init(void)
  || defined (__MSP430F5436A__) || defined (__MSP430F5437__) \
  || defined (__MSP430F5437A__) || defined (__MSP430F5438__) \
  || defined (__MSP430F5438A__)
+
     P7SEL |= BIT0;
+
 #else
     #error "USE_XT1 was defined but pins not known in 'glue/MSP430F5xx_6xx/clock_pin.c'"
 #endif
@@ -171,7 +181,9 @@ void clock_pin_init(void)
  || defined (__MSP430F5525__) || defined (__MSP430F5526__) \
  || defined (__MSP430F5527__) || defined (__MSP430F5528__) \
  || defined (__MSP430F5529__)
+
     P5SEL |= BIT2;
+
 #elif defined (__MSP430F5333__) || defined (__MSP430F5335__) \
  || defined (__MSP430F5336__) || defined (__MSP430F5338__) \
  || defined (__MSP430F5358__) || defined (__MSP430F5359__) \
@@ -191,7 +203,9 @@ void clock_pin_init(void)
  || defined (__MSP430F6658__) || defined (__MSP430F6659__) \
  || defined (__MSP430FG6425__) || defined (__MSP430FG6426__) \
  || defined (__MSP430FG6625__) || defined (__MSP430FG6626__)
+
     P7SEL |= BIT2;
+
 #else
     #error "USE_XT2 was defined but pins not known in 'glue/MSP430F5xx_6xx/clock_pin.c'"
 #endif
