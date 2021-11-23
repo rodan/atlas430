@@ -42,10 +42,9 @@ int main(void)
     msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
     sig0_on;
 
-    clock_port_init();
     clock_init();
 
-    uart2_port_init();
+    uart2_pin_init();
     uart2_init();
 
 #ifdef UART2_RX_USES_RINGBUF

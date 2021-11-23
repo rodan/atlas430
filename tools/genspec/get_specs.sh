@@ -203,6 +203,7 @@ for uc in ${ucs}; do
         }
 
         table_header_line=$(grep -A4 "${table_title}" "${uc_spec_dump}" | grep -E "(${port}DIR.x)|(${port}SEL)" | sed 's|([0-9]*)||g' | head -n1 | xargs)
+        function_line_ignore='#############'
 
         # modify the header line based on local rules
         if [ "${output_suffix}" == "clock" ] && [ "${FAMILY}" == "MSP430FR2xx_4xx" ]; then
@@ -211,6 +212,20 @@ for uc in ${ucs}; do
             else
                 if grep -A4 "${table_title}" "${uc_spec_dump}" | grep -q 'ANALOG'; then
                     table_header_line="${table_header_line} analog"
+                fi
+            fi
+        elif [[ "${output_suffix}" == "uart"* ]] && [ "${FAMILY}" == "MSP430FR2xx_4xx" ]; then
+            function_line_ignore='TB3'
+            if echo "${table_header_line}" | grep -q 'ANALOG' || echo "${table_header_line}" | grep -q 'FUNCTION'; then
+                table_header_line=$(echo "${table_header_line}" | sed 's|ANALOG.*FUNCTION|analog|' | xargs)
+            else
+                if grep -A4 "${table_title}" "${uc_spec_dump}" | grep -q 'ANALOG'; then
+                    # 'analog function' should end up into the second-to-last position before any JTAG
+                    if echo "${table_header_line}" | grep -q 'JTAG'; then
+                        table_header_line=$(echo "${table_header_line}" | sed 's|JTAG|analog JTAG|' | xargs)
+                    else
+                        table_header_line="${table_header_line} analog"
+                    fi
                 fi
             fi
         elif [ "${output_suffix}" == "clock" ] && [ "${FAMILY}" == "MSP430FR5xx_6xx" ]; then
@@ -278,17 +293,19 @@ for uc in ${ucs}; do
         # filter the line containing the function, make sure to ignore all footnotes
         if [ -n "${filter_table_function}" ]; then
             if [ "${multi_function}" == "true" ]; then
-                function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "^[A-Z0-9/ \.]\{25,\}${function_found}" | grep "[ ]${filter_table_function}[ ]" | xargs)
+                function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "^[A-Z0-9/ \.]\{25,\}${function_found}" | grep "[ ]${filter_table_function}[ ]" | grep -Ev "${function_line_ignore}" | xargs)
             else
-                function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | grep "[ ]${filter_table_function}[ ]" | xargs)
+                function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | grep "[ ]${filter_table_function}[ ]" | grep -Ev "${function_line_ignore}" | xargs)
             fi
             function_line_data=$(echo "${function_line}" | sed "s|.*${function_found}||g;s|.*${filter_table_function}||g" | xargs)
         else
             if [ "${multi_function}" == "true" ]; then
-                function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "^[A-Z0-9/ \.]\{25,\}${function_found}" | xargs)
-                function_line_data=$(echo "${function_line}" | sed "s|.*${function_found}[A-Z0-9/\.]*||g" | xargs)
+                # xargs -0 needed due to typo containing an apostrophe in msp430fr2433.pdf
+                function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "^[A-Z0-9/ \.]\{25,\}${function_found}" | grep -Ev "${function_line_ignore}" | head -n1 |xargs -0)
+                function_line_data=$(echo "${function_line}" | sed "s|.*${function_found}[A-Z0-9/\.']*||g" | xargs)
+                echo ${function_line}
             else
-                function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | xargs)
+                function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | grep -Ev "${function_line_ignore}" | xargs)
                 function_line_data=$(echo "${function_line}" | sed "s|.*${function_found}||g" | xargs)
             fi
         fi

@@ -4,7 +4,7 @@
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/reference_libs_msp430
 
-  generated on Mon Nov 22 16:31:22 UTC 2021
+  generated on Tue Nov 23 07:18:17 UTC 2021
 */
 
 #include <msp430.h>
