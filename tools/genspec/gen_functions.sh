@@ -352,3 +352,18 @@ ifdef_comb()
     done
 }
 
+
+export -f err
+export -f warn
+export -f inf
+export -f convert_name_to_target
+export -f convert_target_to_name
+export -f guess_family_from_target
+export -f pin_in_interval
+export -f pin_matches_header
+export -f pin_matches_broken_header
+export -f guess_family_from_name
+export -f out_code
+export -f bitwise_comb
+export -f ifdef_comb
+

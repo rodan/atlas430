@@ -76,20 +76,37 @@ gen_uart()
     out_tail "${family}" "${uart_id}" >> "${output_file}"
 }
 
-    
-rm -f "${output_dir}"/*_uart[0-3].c
-rm -f "${output_dir}"/*_uart[0-3]_comb.c
-rm -f "${output_dir}"/uart[0-3].hash
-sync
+cleanup()
+{
+    rm -f "${output_dir}"/*_uart[0-3].c
+    rm -f "${output_dir}"/*_uart[0-3]_comb.c
+    rm -f "${output_dir}"/uart[0-3].hash
+    sync
+}
+
+cleanup
 
 gen_uart 'MSP430FR2xx_4xx' '0'
 gen_uart 'MSP430FR2xx_4xx' '1'
+cleanup
+
 gen_uart 'MSP430FR5xx_6xx' '0'
 gen_uart 'MSP430FR5xx_6xx' '1'
 gen_uart 'MSP430FR5xx_6xx' '2'
 gen_uart 'MSP430FR5xx_6xx' '3'
+cleanup
+
 gen_uart 'MSP430F5xx_6xx' '0'
 gen_uart 'MSP430F5xx_6xx' '1'
 gen_uart 'MSP430F5xx_6xx' '2'
 gen_uart 'MSP430F5xx_6xx' '3'
+cleanup
+
+# without USE_PARALLEL
+# 534.40user 69.58system 8:25.61elapsed 119%CPU (0avgtext+0avgdata 15352maxresident)k
+# 0inputs+776120outputs (789major+115578338minor)pagefaults 0swaps
+
+# with USE_PARALLEL="true"
+# 665.91user 88.19system 1:17.63elapsed 971%CPU (0avgtext+0avgdata 17808maxresident)k
+# 0inputs+1855328outputs (12747major+100234489minor)pagefaults 0swaps
 

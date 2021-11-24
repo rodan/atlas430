@@ -8,6 +8,8 @@
 
 . gen_functions.sh
 
+#set -x
+
 usage()
 {
     cat << EOF
@@ -24,70 +26,19 @@ EOF
     exit
 }
 
-verbose=false
-while (( "$#" )); do
-	if [ "$1" = "-f" ]; then
-        filter_functions="${2}"
-		shift; shift;
-	elif [ "$1" = "-tf" ]; then
-        filter_table_function="${2}"
-		shift; shift;
-	elif [ "$1" = "-F" ]; then
-        filter_family="${2}"
-		shift; shift;
-	elif [ "$1" = "-t" ]; then
-        filter_target="${2}"
-		shift; shift;
-	elif [ "$1" = "-s" ]; then
-        output_suffix="${2}"
-		shift; shift;
-	elif [ "$1" = "-d" ]; then
-        output_dir="${2}"
-		shift; shift;
-	elif [ "$1" = "-T" ]; then
-        filter_target_regexp="${2}"
-		shift; shift;
-	elif [ "$1" = "-v" ]; then
-        verbose=true
-        shift;
-    else
-		shift;
-		usage
-    fi
-done
+process_uc()
+{
+    uc="$1"
 
-[ -z "${filter_functions}" ] && {
-    err "no '-f FUNCTION' was specified, exiting"
-    usage
-}
-
-[ -z "${output_dir}" ] && {
-    err "error: no '-d DIRECTORY' was specified, exiting"
-    usage
-}
-
-mkdir -p "${output_dir}" || {
-    err "error: unable to create output directory '${output_dir}'"
-    exit 1
-}
-
-if [ -n "${filter_target}" ]; then
-    ucs="${filter_target}"
-else
-    ucs=$(grep ifeq ../..//Makefile.identify-target | sed 's|.*,\(.*\))|\1|'  | tr '[:upper:]' '[:lower:]')
-fi
-
-for uc in ${ucs}; do
-
-     [ -n "${filter_target_regexp}" ] && {
-        echo "${uc}" | grep -q "${filter_target_regexp}" || continue
+    [ -n "${filter_target_regexp}" ] && {
+        echo "${uc}" | grep -q "${filter_target_regexp}" || return
     }
 
     # try to guess the family
     FAMILY=$(guess_family_from_name "${uc}")
 
     [ -n "${filter_family}" ] && {
-        echo "${FAMILY}" | grep -q "${filter_family}" || continue
+        echo "${FAMILY}" | grep -q "${filter_family}" || return
     }
 
     datasheet_pdf="${DATASHEET_PATH}/${uc}.pdf"
@@ -95,12 +46,12 @@ for uc in ${ucs}; do
 
     [ ! -e "${datasheet_txt}" ] && {
         err "err ${datasheet_txt} not found"
-        continue
+        return
     }
 
     [ ! -e "${datasheet_pdf}" ] && {
         err "err ${datasheet_pdf} not found"
-        continue
+        return
     }
 
     ###############################
@@ -438,6 +389,79 @@ EOF
         fi
         cat "${output_dir}/${uc}_${output_suffix}.c"
     done
+}
 
+export -f process_uc
+
+verbose=false
+while (( "$#" )); do
+	if [ "$1" = "-f" ]; then
+        filter_functions="${2}"
+		shift; shift;
+	elif [ "$1" = "-tf" ]; then
+        filter_table_function="${2}"
+		shift; shift;
+	elif [ "$1" = "-F" ]; then
+        filter_family="${2}"
+		shift; shift;
+	elif [ "$1" = "-t" ]; then
+        filter_target="${2}"
+		shift; shift;
+	elif [ "$1" = "-s" ]; then
+        output_suffix="${2}"
+		shift; shift;
+	elif [ "$1" = "-d" ]; then
+        output_dir="${2}"
+		shift; shift;
+	elif [ "$1" = "-T" ]; then
+        filter_target_regexp="${2}"
+		shift; shift;
+	elif [ "$1" = "-v" ]; then
+        verbose=true
+        shift;
+    else
+		shift;
+		usage
+    fi
 done
+
+[ -z "${filter_functions}" ] && {
+    err "no '-f FUNCTION' was specified, exiting"
+    usage
+}
+
+[ -z "${output_dir}" ] && {
+    err "error: no '-d DIRECTORY' was specified, exiting"
+    usage
+}
+
+mkdir -p "${output_dir}" || {
+    err "error: unable to create output directory '${output_dir}'"
+    exit 1
+}
+
+export filter_functions
+export filter_table_function
+export filter_family
+export filter_target
+export output_suffix
+export output_dir
+export filter_target_regexp
+export verbose
+
+if [ -n "${filter_target}" ]; then
+    ucs="${filter_target}"
+else
+    ucs=$(grep 'ifeq.*430' ../..//Makefile.identify-target | sed 's|.*,\(.*\))|\1|'  | tr '[:upper:]' '[:lower:]')
+fi
+
+USE_PARALLEL='false'
+
+if [ "${USE_PARALLEL}" == "true" ]; then
+    echo "${ucs}" | parallel -j+0 process_uc
+else
+    for i in ${ucs}; do
+        process_uc "$i"
+    done
+fi
 

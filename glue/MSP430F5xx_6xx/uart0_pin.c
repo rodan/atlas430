@@ -4,7 +4,7 @@
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/reference_libs_msp430
 
-  generated on Wed Nov 24 06:52:17 UTC 2021
+  generated on Wed Nov 24 13:20:53 UTC 2021
 */
 
 #include <msp430.h>
@@ -147,7 +147,7 @@ void uart0_pin_init(void)
     P3SEL0 |= BIT0 | BIT1;
 
 #else
-    #error "USE_UART0 was defined but pins not known in 'glue/MSP430FR5xx_6xx/uart0_pin.c'"
+    #error "USE_UART0 was defined but pins not known in 'glue/MSP430F5xx_6xx/uart0_pin.c'"
 #endif
 #endif
 }

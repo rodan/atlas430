@@ -194,17 +194,30 @@ gen_clock_MSP430F5xx_6xx()
     out_tail_MSP430F5xx_6xx >> "${output_file}"
 }
 
-rm -f "${output_dir}"/*_clock.c
-rm -f "${output_dir}"/*_clock_comb.c
-rm -f "${output_dir}/clock.hash"
-sync
+cleanup()
+{
+    rm -f "${output_dir}"/*_clock.c
+    rm -f "${output_dir}"/*_clock_comb.c
+    rm -f "${output_dir}/clock.hash"
+    sync
+}
 
-gen_clock_MSP430FR2xx_4xx   #18s
-gen_clock_MSP430FR5xx_6xx   #1m38s
-gen_clock_MSP430F5xx_6xx    #2m50s
+cleanup
 
+gen_clock_MSP430FR2xx_4xx
+cleanup
 
-# without parallel
-# 257.67user 31.17system 4:05.71elapsed 117%CPU (0avgtext+0avgdata 15332maxresident)k
-# 0inputs+390600outputs (380major+49469336minor)pagefaults 0swaps
+gen_clock_MSP430FR5xx_6xx
+cleanup
+
+gen_clock_MSP430F5xx_6xx
+cleanup
+
+# without USE_PARALLEL
+# 270.96user 37.23system 4:21.71elapsed 117%CPU (0avgtext+0avgdata 15352maxresident)k
+# 0inputs+390600outputs (281major+59455616minor)pagefaults 0swaps
+
+# with USE_PARALLEL="true"
+# 336.63user 46.62system 0:35.46elapsed 1080%CPU (0avgtext+0avgdata 17792maxresident)k
+# 0inputs+936288outputs (7284major+51558214minor)pagefaults 0swaps
 
