@@ -157,42 +157,72 @@ for uc in ${ucs}; do
 
     pin_found=false
     for filter_function in ${filter_functions}; do
+        function_type=''
         ${pin_found} && continue
-        pin_str=$(grep "^[ ]\{0,3\}P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./]*${filter_function}[a-zA-Z0-9\./]*" "${uc_spec_dump}")
+        function_is_port_mapped=false
+        pin_str=$(grep "^[ ]\{0,3\}P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_]*${filter_function}[a-zA-Z0-9\./]*" "${uc_spec_dump}")
 
         # usually the pin name is the first word on a table row
-        [ -z "${pin_str}" ] && pin_str=$(grep "^[ ]*P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./]*${filter_function}[a-zA-Z0-9\./]*" "${uc_spec_dump}")
+        [ -z "${pin_str}" ] && pin_str=$(grep "^[ ]*P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_]*${filter_function}[a-zA-Z0-9\./]*" "${uc_spec_dump}")
 
         # when the pin name is not the first word on a table row
-        [ -z "${pin_str}" ] && pin_str=$(grep "[ ]*P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./]*${filter_function}[a-zA-Z0-9\./]*" "${uc_spec_dump}")
+        [ -z "${pin_str}" ] && pin_str=$(grep "[ ]*P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_]*${filter_function}[a-zA-Z0-9\./]*" "${uc_spec_dump}")
 
-        # when the pin name (first column data) is on multiple lines
-        [ -z "${pin_str}" ] && pin_str=$(grep '^[ ]\{0,2\}[A-Z]' "${uc_spec_dump}" | awk '{ print $1 }' | sed ':x; /\/$/ { N; s|/\n|/|; tx }' | grep "^P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./]*${filter_function}")
+        # when the pin name (first column data) is on multiple rows
+        [ -z "${pin_str}" ] && pin_str=$(grep '^[ ]\{0,2\}[A-Z]' "${uc_spec_dump}" | awk '{ print $1 }' | sed ':x; /\/$/ { N; s|/\n|/|; tx }' | grep "^P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_]*${filter_function}")
         if [ -n "${pin_str}" ]; then
+            if echo "${pin_str}" | grep -q "PM_${filter_function}"; then
+                function_is_port_mapped=true
+                function_type="PM_"
+            fi
+            function_found="${filter_function}"
             # remove the head -n1 to parse all pins having this function
             pins=$(echo "${pin_str}" | grep -o 'P[0-9J]\{1,2\}\.[0-7]' | head -n1 | sort -u)
-            function_found="${filter_function}"
             pin_found=true
         else
-            # seach dedicated pins
-            dedicated_pin_str=$(grep -E -A65 '(Terminal Functions)|(Signal Descriptions)' "${datasheet_txt}" | grep "${filter_function}")
+            # seach dedicated pins, ignore port mapped ones
+            dedicated_pin_str=$(grep -E -A65 '(Terminal Functions)|(Signal Descriptions)' "${datasheet_txt}" | grep "${filter_function}" | grep -v "PM_${filter_function}")
             #dedicated_function_found="${filter_function}"
             #dedicated_pin_found=true
         fi
     done
 
     if [ -z "${pin_str}" ]; then
-        warn "warning: no shared pins with '${filter_functions}' function(s) found"
+        default_mapping_table=$(grep -E -A65 'Table.*Default Mapping' "${datasheet_txt}")
+        if echo "${default_mapping_table}" | grep -q "${filter_function}"; then
+            for (( i=0;i<2;i++ )); do
+                after_check="-A${i}"
+                before_check="-B${i}"
+                pin_str=$(echo "${default_mapping_table}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "${filter_function}" | grep '^[ ]*P[0-9J]\{1,2\}\.[0-7]')
+                pin_str_lines=$(echo "${pin_str}" | wc -l)
+                if [ "${pin_str_lines}" == 1 ] && [ -n "${pin_str}" ]; then 
+                    pins=$(echo "${pin_str}" | grep -o 'P[0-9J]\{1,2\}\.[0-7]')
+                    pin_found=true
+                    function_is_port_mapped=true
+                    function_found="${filter_function}"
+                    function_type="default PM "
+                    break
+                elif [ "${pin_str_lines}" -gt 1 ]; then
+                    err "multiple pins found with the same distance from filter_function"
+                    unset pin_str
+                    break
+                fi
+            done
+        fi
+    fi
+
+    if [ -z "${pin_str}" ]; then
         if [ -z "${dedicated_pin_str}" ]; then
-            err "error: no dedicated pins with those functions have been found"
+            warn "no dedicated, shared or port-mapped pins with those functions have been found"
         else
+            warn "only a dedicated pin with '${filter_functions}' function(s) was found"
             # shellcheck disable=SC2001
             echo "${dedicated_pin_str}" | sed 's/ \+ /\t/g'
             echo "    // dedicated pin found, no setup needed, but need to dodge the catch-all #else below" > "${output_dir}/${uc}_${output_suffix}.c"
         fi
     else
         ${verbose} && echo "${pin_str}"
-        inf "found '${function_found}' as pin '${HILITE}${pins}${NORMAL}'"
+        inf "found '${HILITE}${function_type}${function_found}${NORMAL}' as pin '${HILITE}${pins}${NORMAL}'"
     fi
 
     for pin in ${pins}; do
@@ -201,87 +231,91 @@ for uc in ${ucs}; do
         bit=$(echo "${pin}" | grep -o '[0-7]$');
 
         # find the table header for my particular pin
-        table_title=$(grep "Table.*Port ${port}.*Pin Functions" "${uc_spec_dump}" | pin_matches_header "${pin}");
-        [ -z "${table_title}" ] && table_title=$(grep "Table.*Port ${port}.*Pin Functions" "${uc_spec_dump}" | pin_matches_broken_header "${pin}");
+        # Port_s_ because ti_ticket_01
+        # head -n1 limits the search to the first match
+        table_title=$(grep "Table.*Port[s]\{0,1\} ${port}.*Pin Functions" "${uc_spec_dump}" | pin_matches_header "${pin}" | head -n1);
+        [ -z "${table_title}" ] && table_title=$(grep "Table.*Port[s]\{0,1\} ${port}.*Pin Functions" "${uc_spec_dump}" | pin_matches_broken_header "${pin}" | head -n1);
         inf "table title: '${table_title}'"
         [ -z "${table_title}" ] && {
             err "table_title is NULL"
             continue
         }
 
-        table_header_line=$(grep -A4 "${table_title}" "${uc_spec_dump}" | grep -E "(${port}DIR.x)|(${port}SEL)" | sed 's|([0-9]*)||g' | head -n1 | xargs)
-        function_line_ignore='#############'
+        table_header_row=$(grep -A4 "${table_title}" "${uc_spec_dump}" | grep -E "(${port}DIR.x)|(${port}SEL)" | sed 's|([0-9]*)||g' | head -n1 | xargs)
+        function_row_ignore='#############'
 
-        # modify the header line based on local rules
+        # modify the header row based on local rules
         if [ "${output_suffix}" == "clock" ] && [ "${FAMILY}" == "MSP430FR2xx_4xx" ]; then
-            if echo "${table_header_line}" | grep -q 'ANALOG' || echo "${table_header_line}" | grep -q 'FUNCTION'; then
-                table_header_line=$(echo "${table_header_line}" | sed 's|ANALOG.*FUNCTION|analog|' | xargs)
+            if echo "${table_header_row}" | grep -q 'ANALOG' || echo "${table_header_row}" | grep -q 'FUNCTION'; then
+                table_header_row=$(echo "${table_header_row}" | sed 's|ANALOG.*FUNCTION|analog|' | xargs)
             else
                 if grep -A4 "${table_title}" "${uc_spec_dump}" | grep -q 'ANALOG'; then
-                    table_header_line="${table_header_line} analog"
+                    table_header_row="${table_header_row} analog"
                 fi
             fi
         elif [[ "${output_suffix}" == "uart"* ]] && [ "${FAMILY}" == "MSP430FR2xx_4xx" ]; then
-            function_line_ignore='TB3'
-            if echo "${table_header_line}" | grep -q 'ANALOG' || echo "${table_header_line}" | grep -q 'FUNCTION'; then
-                table_header_line=$(echo "${table_header_line}" | sed 's|ANALOG.*FUNCTION|analog|' | xargs)
+            function_row_ignore='TB3'
+            if echo "${table_header_row}" | grep -q 'ANALOG' || echo "${table_header_row}" | grep -q 'FUNCTION'; then
+                table_header_row=$(echo "${table_header_row}" | sed 's|ANALOG.*FUNCTION|analog|' | xargs)
             else
                 if grep -A4 "${table_title}" "${uc_spec_dump}" | grep -q 'ANALOG'; then
                     # 'analog function' should end up into the second-to-last position before any JTAG
-                    if echo "${table_header_line}" | grep -q 'JTAG'; then
-                        table_header_line=$(echo "${table_header_line}" | sed 's|JTAG|analog JTAG|' | xargs)
+                    if echo "${table_header_row}" | grep -q 'JTAG'; then
+                        table_header_row=$(echo "${table_header_row}" | sed 's|JTAG|analog JTAG|' | xargs)
                     else
-                        table_header_line="${table_header_line} analog"
+                        table_header_row="${table_header_row} analog"
                     fi
                 fi
             fi
         elif [ "${output_suffix}" == "clock" ] && [ "${FAMILY}" == "MSP430FR5xx_6xx" ]; then
-            if echo "${table_header_line}" | grep -q 'BYPA'; then
-                table_header_line=$(echo "${table_header_line}" | sed 's|[LH]FXT[BYPASS]*|bypass|' | xargs)
+            if echo "${table_header_row}" | grep -q 'BYPA'; then
+                table_header_row=$(echo "${table_header_row}" | sed 's|[LH]FXT[BYPASS]*|bypass|' | xargs)
             else
                 if grep -A4 "${table_title}" "${uc_spec_dump}" | grep -q '[LH]FX[TBYPASS]'; then
-                    table_header_line="${table_header_line} bypass"
+                    table_header_row="${table_header_row} bypass"
                 fi
             fi
-            if echo "${table_header_line}" | grep -Eq '(64)|(RGC)'; then
-                table_header_line=$(echo "${table_header_line}" | sed 's|RGC||;s|64||' | xargs)
+            if echo "${table_header_row}" | grep -Eq '(64)|(RGC)'; then
+                table_header_row=$(echo "${table_header_row}" | sed 's|RGC||;s|64||' | xargs)
             fi
         elif [ "${output_suffix}" == "clock" ] && [ "${FAMILY}" == "MSP430F5xx_6xx" ]; then
-            if echo "${table_header_line}" | grep -q 'BYPA'; then
-                table_header_line=$(echo "${table_header_line}" | sed 's|XT[12BYPASS]*|bypass|' | xargs)
+            if echo "${table_header_row}" | grep -q 'BYPA'; then
+                table_header_row=$(echo "${table_header_row}" | sed 's|XT[12BYPASS]*|bypass|' | xargs)
             else
                 if grep -A4 "${table_title}" "${uc_spec_dump}" | grep -q 'X[T12BYPASS]'; then
-                    table_header_line="${table_header_line} bypass"
+                    table_header_row="${table_header_row} bypass"
                 fi
             fi
         fi
 
         # generic rules
         if [ "${FAMILY}" == "MSP430FR5xx_6xx" ]; then
-            if echo "${table_header_line}" | grep -Eq '(64)|(RGC)'; then
-                table_header_line=$(echo "${table_header_line}" | sed 's|RGC||;s|64||' | xargs)
+            if echo "${table_header_row}" | grep -Eq '(64)|(RGC)'; then
+                table_header_row=$(echo "${table_header_row}" | sed 's|RGC||;s|64||' | xargs)
             fi
         fi
 
         if [ "${FAMILY}" == "MSP430F5xx_6xx" ]; then
-            if echo "${table_header_line}" | grep -q 'LCDS'; then
-                table_header_line=$(echo "${table_header_line}" | sed 's|LCDS[0-9\.]*|lcds|' | xargs)
+            if echo "${table_header_row}" | grep -q 'LCDS'; then
+                table_header_row=$(echo "${table_header_row}" | sed 's|LCDS[0-9\.]*|lcds|' | sed 's|to [0-9]*||' | xargs)
             else
                 if grep -A4 "${table_title}" "${uc_spec_dump}" | grep -q 'LCDS'; then
-                    table_header_line="${table_header_line} lcds"
+                    table_header_row="${table_header_row} lcds"
                 fi
             fi
         fi
 
-        columns_cnt=$(echo "${table_header_line}" | wc -w)
+        columns_cnt=$(echo "${table_header_row}" | wc -w)
         unset bit_override
 
         # keep only the relevant columns (DIR and SEL)
         for ((i=1; i<=columns_cnt; i++)); do
-            column_def=$(echo "${table_header_line}" | awk "{ print \$${i} }")
+            column_def=$(echo "${table_header_row}" | awk "{ print \$${i} }")
             if echo "${column_def}" | grep -q "${port}DIR.x"; then
                 column[$i]=${port}DIR
             elif echo "${column_def}" | grep -q "${port}SELx"; then
+                column[$i]=${port}SEL
+            elif echo "${column_def}" | grep -q "${port}SEL.x"; then
                 column[$i]=${port}SEL
             elif echo "${column_def}" | grep -q "${port}SEL0.x"; then
                 column[$i]=${port}SEL0
@@ -307,49 +341,90 @@ for uc in ${ucs}; do
         multi_function=false
         echo "${function_found}" | grep -q 'UC[AB][0-3]' && multi_function=true
 
-        # filter the line containing the function, make sure to ignore all footnotes
+        # filter the row containing the function, make sure to ignore all footnotes
         if [ -n "${filter_table_function}" ]; then
             if [ "${multi_function}" == "true" ]; then
-                function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "^[A-Z0-9/ \.]\{25,\}${function_found}" | grep "[ ]${filter_table_function}[ ]" | grep -Ev "${function_line_ignore}" | xargs)
+                function_row=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "^[A-Z0-9/ \._]\{25,\}${function_found}" | grep "[ ]${filter_table_function}[ ]" | grep -Ev "${function_row_ignore}" | xargs)
             else
-                function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | grep "[ ]${filter_table_function}[ ]" | grep -Ev "${function_line_ignore}" | xargs)
+                function_row=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | grep "[ ]${filter_table_function}[ ]" | grep -Ev "${function_row_ignore}" | xargs)
             fi
-            function_line_data=$(echo "${function_line}" | sed "s|.*${function_found}||g;s|.*${filter_table_function}||g" | xargs)
+            function_row_data=$(echo "${function_row}" | sed "s|.*${function_found}||g;s|.*${filter_table_function}||g" | xargs)
         else
             if [ "${multi_function}" == "true" ]; then
-                # xargs -0 needed due to typo containing an apostrophe in msp430fr2433.pdf
-                function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "^[A-Z0-9/ \.]\{25,\}${function_found}" | grep -Ev "${function_line_ignore}" | head -n1 |xargs -0)
-                function_line_data=$(echo "${function_line}" | sed "s|.*${function_found}[A-Z0-9/\.']*||g" | xargs)
+                # xargs -0 needed due to typo containing an apostrophe in msp430fr2433.pdf ti_ticket_02
+                function_row=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "^[A-Z0-9/ \._]\{25,\}${function_found}" | grep -Ev "${function_row_ignore}" | head -n1 |xargs -0)
+                function_row_data=$(echo "${function_row}" | sed "s|.*${function_found}[A-Z0-9/\.'_]*||g" | xargs)
             else
-                function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | grep -Ev "${function_line_ignore}" | xargs)
-                function_line_data=$(echo "${function_line}" | sed "s|.*${function_found}||g" | xargs)
+                function_row=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | grep -Ev "${function_row_ignore}" | xargs)
+                function_row_data=$(echo "${function_row}" | sed "s|.*${function_found}||g" | xargs)
             fi
         fi
-        function_line_data_cnt=$(echo "${function_line_data}" | wc -w)
-        # sometimes the data for the function is shifted one line lower due to limited tabular cell size
-        if [ "${function_line_data_cnt}" == 0 ]; then
-            # data is likely missing from this line, concatenate with the next one
-            inf "concatenating data with next line"
+        function_row_data_cnt=$(echo "${function_row_data}" | wc -w)
+
+        if [ "${function_row_data_cnt}" == 0 ] && [ "${function_is_port_mapped}" == "true" ]; then
+            # might need to add an if [ -n "${filter_table_function}" ]
+            for (( i=0;i<3;i++ )); do
+                after_check="-A${i}"
+                before_check="-B${i}"
+                function_row_data=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "[ ]\{0,10\}${pin}" | grep "Mapped secondary digital" | sed 's|0; 1|ignore|g;s|.*Table [0-9]*-[0-9]*||g;s|≤ [0-9]*|ignore|g;s|= [0-9]*|ignore|g;s|.*Mapped secondary digita[l function]\{1,10\}||;s|[()]||')
+                function_rows=$(echo "${function_row_data}" | wc -l)
+                if [ "${function_rows}" -gt 1 ]; then
+                    function_row_data=$(echo "${function_row_data}" | head -n1 | xargs)
+                    function_row_data2=$(echo "${function_row_data}" | tail -n1 | xargs)
+                    if [ "${function_row_data}" != "${function_row_data2}" ]; then
+                        err "mapping of secondary digital function ${pin}/${function_found} differ between IC packages"
+                    fi
+                else
+                    function_row_data=$(echo "${function_row_data}" | xargs)
+                fi
+                function_row_data_cnt=$(echo "${function_row_data}" | wc -w)
+                #grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "${pin}"
+                [ "${function_row_data_cnt}" -gt 0 ] && break;
+            done
+            if [ "${function_row_data_cnt}" == 0 ]; then
+                inf "concatenating mapped data with next row"
+                 for (( i=0;i<3;i++ )); do
+                    after_check="-A${i}"
+                    before_check="-B${i}"
+                    function_row_data=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "[ ]\{0,10\}${pin}" | grep -A1 "Mapped secondary digital" | sed 's|0; 1|ignore|g;s|.*Table [0-9]*-[0-9]*|             |g;s|≤ [0-9]*|ignore|g;s|= [0-9]*|ignore|g;s|.*[Mapped secondary d]igita[l function]\{1,10\}|                 |;s|[()]||' | cut -c41- | xargs)
+                    function_rows=$(echo "${function_row_data}" | wc -l)
+                    function_row_data=$(echo "${function_row_data}" | xargs)
+                    function_row_data_cnt=$(echo "${function_row_data}" | wc -w)
+                    #grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "${pin}"
+                    [ "${function_row_data_cnt}" -gt 0 ] && break;
+                done               
+            fi
+        elif [ "${function_row_data_cnt}" == 0 ]; then
+            # sometimes the data for the function is shifted one row lower due to limited tabular cell size
+            # data is likely missing from this row, concatenate with the next one
+            inf "concatenating data with next row"
             if [ -n "${filter_table_function}" ]; then
-                function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep -A1 "[ ]${function_found}[ ]" | grep -A1 "${filter_table_function}" | xargs)
+                function_row=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep -A1 "[ ]${function_found}[ ]" | grep -A1 "${filter_table_function}" | xargs)
             else
-                function_line=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep -A1 "[ ]${function_found}[ ]" | xargs )
+                function_row=$(grep -A50 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep -A1 "[ ]${function_found}[ ]" | xargs )
             fi
-            function_line_data=$(echo "${function_line}" | sed "s|.*${function_found}||g;s|.*${filter_table_function}||g" | xargs)
-            function_line_data_cnt=$(echo "${function_line_data}" | wc -w)
+            function_row_data=$(echo "${function_row}" | sed "s|.*${function_found}||g;s|.*${filter_table_function}||g" | xargs)
+            function_row_data_cnt=$(echo "${function_row_data}" | wc -w)
         fi
 
-        
+        column_diff=$(( columns_cnt - function_row_data_cnt ))
+        if [ "${column_diff}" == "1" ]; then
+            if [ "${column[$columns_cnt]}" == "ignore" ]; then
+                function_row_data="${function_row_data} padded"
+                function_row_data_cnt=$(echo "${function_row_data}" | wc -w)
+            fi
+        fi
 
+        function_row_data_display=$(echo "${function_row_data}" | sed "s|padded|${WARN}padded${NORMAL}|g;s|ignore|${WARN}ignore${NORMAL}|g")
         cat << EOF | column -t -s' '
-${table_header_line}
-${function_line_data}
+${table_header_row}
+${function_row_data_display}
 EOF
 
         # shellcheck disable=SC2129
-        if [ "${columns_cnt}" == "${function_line_data_cnt}" ]; then
+        if [ "${columns_cnt}" == "${function_row_data_cnt}" ]; then
             for ((i=1; i<=columns_cnt; i++)); do
-                value[$i]=$(echo "${function_line_data}" | awk "{ print \$${i} }");
+                value[$i]=$(echo "${function_row_data}" | awk "{ print \$${i} }");
                 unset tbit
                 if [[ ${bit_override[$i]} == ?(-)+([0-9]) ]]; then
                     tbit="${bit_override[$i]}"
@@ -359,7 +434,7 @@ EOF
                 out_code "${column[$i]}" "${tbit}" "${value[$i]}" >> "${output_dir}/${uc}_${output_suffix}.c"
             done
         else
-            err "${BAD}error: unknown column arrangement${NORMAL} col:${columns_cnt} data:${function_line_data_cnt}"
+            err "${BAD}error: unknown column arrangement${NORMAL} col:${columns_cnt} data:${function_row_data_cnt}"
         fi
         cat "${output_dir}/${uc}_${output_suffix}.c"
     done

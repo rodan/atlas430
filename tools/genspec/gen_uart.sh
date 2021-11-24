@@ -71,7 +71,7 @@ out_tail_MSP430F5xx_6xx()
 
     cat << EOF
 #else
-    #error "USE_UART${uart_id} was defined but pins not known in 'glue/MSP430FR5xx_6xx/uart${uart_id}_pin.c'"
+    #error "USE_UART${uart_id} was defined but pins not known in 'glue/MSP430F5xx_6xx/uart${uart_id}_pin.c'"
 #endif
 #endif
 }
@@ -144,11 +144,11 @@ gen_uart_MSP430F5xx_6xx()
     mkdir -p '/tmp/MSP430F5xx_6xx'
 
     rm -f ${output_dir}/*.c;
-    #bash get_specs.sh -f "${uart_name}RXD" -F 'MSP430F5xx_6xx' -s "uart${uart_id}" -d "${output_dir}"
-    #bash get_specs.sh -f "${uart_name}TXD" -F 'MSP430F5xx_6xx' -s "uart${uart_id}" -d "${output_dir}"
+    bash get_specs.sh -f "${uart_name}RXD" -F 'MSP430F5xx_6xx' -s "uart${uart_id}" -d "${output_dir}"
+    bash get_specs.sh -f "${uart_name}TXD" -F 'MSP430F5xx_6xx' -s "uart${uart_id}" -d "${output_dir}"
 
-    bash get_specs.sh -f "${uart_name}RXD" -T 'msp430f6720' -s "uart${uart_id}" -d "${output_dir}"
-    bash get_specs.sh -f "${uart_name}TXD" -T 'msp430f6720' -s "uart${uart_id}" -d "${output_dir}"
+    #bash get_specs.sh -f "${uart_name}RXD" -T 'msp430bt5190' -s "uart${uart_id}" -d "${output_dir}"
+    #bash get_specs.sh -f "${uart_name}TXD" -T 'msp430bt5190' -s "uart${uart_id}" -d "${output_dir}"
 
     for source_in in "${output_dir}"/*_uart"${uart_id}".c; do
         source_out=${source_in//_uart${uart_id}.c/_uart${uart_id}_comb.c}
@@ -161,14 +161,14 @@ gen_uart_MSP430F5xx_6xx()
     out_tail_MSP430F5xx_6xx "${uart_id}" "${uart_name}" >> "${output_file}"
 }
 
-#gen_uart_MSP430FR2xx_4xx '0' 'UCA0'
-#gen_uart_MSP430FR2xx_4xx '1' 'UCA1'
-#gen_uart_MSP430FR5xx_6xx '0' 'UCA0'
-#gen_uart_MSP430FR5xx_6xx '1' 'UCA1'
-#gen_uart_MSP430FR5xx_6xx '2' 'UCA2'
-#gen_uart_MSP430FR5xx_6xx '3' 'UCA3'
+gen_uart_MSP430FR2xx_4xx '0' 'UCA0'
+gen_uart_MSP430FR2xx_4xx '1' 'UCA1'
+gen_uart_MSP430FR5xx_6xx '0' 'UCA0'
+gen_uart_MSP430FR5xx_6xx '1' 'UCA1'
+gen_uart_MSP430FR5xx_6xx '2' 'UCA2'
+gen_uart_MSP430FR5xx_6xx '3' 'UCA3'
 gen_uart_MSP430F5xx_6xx '0' 'UCA0'
 gen_uart_MSP430F5xx_6xx '1' 'UCA1'
 gen_uart_MSP430F5xx_6xx '2' 'UCA2'
-#gen_uart_MSP430F5xx_6xx '3' 'UCA3'
+gen_uart_MSP430F5xx_6xx '3' 'UCA3'
 

@@ -8,6 +8,7 @@
 #include "clock_selection.h"
 #include "uart_config.h"
 #include "uart0.h"
+#include "uart0_pin.h"
 #include "lib_ringbuf.h"
 
 static uint8_t (*uart0_rx_irq_handler)(const uint8_t c);
@@ -153,11 +154,9 @@ void uart0_initb(const uint8_t baudrate)
     uart0_rx_err = 0;
 }
 
-// default port locations
 void uart0_port_init(void)
 {
-    //P2SEL0 &= ~(BIT0 | BIT1);
-    //P2SEL1 |= (BIT0 | BIT1);
+    uart0_pin_init();
 }
 
 void uart0_set_rx_irq_handler(uint8_t (*input)(const uint8_t c))

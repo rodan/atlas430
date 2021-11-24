@@ -8,6 +8,7 @@
 #include "clock_selection.h"
 #include "uart_config.h"
 #include "uart1.h"
+#include "uart1_pin.h"
 #include "lib_ringbuf.h"
 
 static uint8_t (*uart1_rx_irq_handler)(const uint8_t c);
@@ -156,9 +157,7 @@ void uart1_initb(const uint8_t baudrate)
 // default port locations
 void uart1_port_init(void)
 {
-#if defined (__MSP430F5510__) || defined (__MSP430F5529__)
-    P4SEL |= (BIT4 | BIT5);
-#endif
+    uart1_pin_init();
 }
 
 void uart1_set_rx_irq_handler(uint8_t (*input)(const uint8_t c))

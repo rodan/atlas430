@@ -136,7 +136,7 @@ pin_matches_header()
             echo "${line}"
             continue
         }
-        if echo "${line}" | grep -q '(P[0-9J]\.[0-7] to P[0-9J]\.[0-7])'; then
+        if echo "${line}" | grep -q '(P[0-9J]*\.[0-7] to P[0-9J]*\.[0-7])'; then
             # shellcheck disable=SC2001
             comparison_str=$(echo "${line}" | sed 's|.*(\(P[0-9J]*\.[0-7]\) to \(P[0-9J]*\.[0-7]\)).*|\1 to \2|')
             #inf "found this comparison: $comparison_str"
@@ -193,6 +193,9 @@ out_code()
             return 0
             ;;
         X)
+            return 0
+            ;;
+        ignore)
             return 0
             ;;
         0)

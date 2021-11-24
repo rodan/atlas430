@@ -2,6 +2,9 @@
 #define __GLUE_H__
 
 #include <msp430.h>
+
+#include "glue_fs.h"
+#if 0
 #include "clock_selection.h"
 #include "msp430_hal.h"
 #include "clock.h"
@@ -17,6 +20,7 @@
 #include "uart2_pin.h"
 #include "uart3.h"
 #include "uart3_pin.h"
+#endif
 #endif
 
 #include "lib_convert.h"
