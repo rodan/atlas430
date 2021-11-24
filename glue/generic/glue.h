@@ -4,24 +4,6 @@
 #include <msp430.h>
 
 #include "glue_fs.h"
-#if 0
-#include "clock_selection.h"
-#include "msp430_hal.h"
-#include "clock.h"
-#include "clock_pin.h"
-#include "uart_config.h"
-#include "uart0.h"
-#include "uart0_pin.h"
-#include "uart1.h"
-#include "uart1_pin.h"
-
-#ifdef __MSP430FR5XX_6XX_FAMILY__
-#include "uart2.h"
-#include "uart2_pin.h"
-#include "uart3.h"
-#include "uart3_pin.h"
-#endif
-#endif
 
 #include "lib_convert.h"
 #include "lib_math.h"
