@@ -10,15 +10,24 @@ extern "C" {
 #if defined(SMCLK_FREQ_1M)
     #define      SMCLK_FREQ  1000000
     #define CLK_FRAM_NWAITS  NWAITS_0
+#elif defined(SMCLK_FREQ_2M)
+    #define      SMCLK_FREQ  2000000
+    #define CLK_FRAM_NWAITS  NWAITS_0
 #elif defined(SMCLK_FREQ_4M)
     #define      SMCLK_FREQ  4000000
     #define CLK_FRAM_NWAITS  NWAITS_0
 #elif defined(SMCLK_FREQ_8M)
     #define      SMCLK_FREQ  8000000
     #define CLK_FRAM_NWAITS  NWAITS_0
+#elif defined(SMCLK_FREQ_12M)
+    #define      SMCLK_FREQ  12000000
+    #define CLK_FRAM_NWAITS  NWAITS_1
 #elif defined(SMCLK_FREQ_16M)
     #define      SMCLK_FREQ  16000000
     #define CLK_FRAM_NWAITS  NWAITS_1
+#elif defined(SMCLK_FREQ_20M)
+    #define      SMCLK_FREQ  20000000
+    #define CLK_FRAM_NWAITS  NWAITS_2
 #elif defined(SMCLK_FREQ_24M)
     #define      SMCLK_FREQ  24000000
     #define CLK_FRAM_NWAITS  NWAITS_2

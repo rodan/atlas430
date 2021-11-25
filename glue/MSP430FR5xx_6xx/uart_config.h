@@ -18,6 +18,7 @@ extern "C" {
 //                     UCBRSx - second modulation stage select - 8bit
 // UCBRFX - first modulation stage select - 4 bit | reserved - 3 bit | UCOS16 - 1 bit
 
+
 #if SMCLK_FREQ == 1000000
 
 #define             UC_CTLW0  UCSSEL__SMCLK
@@ -28,7 +29,7 @@ extern "C" {
 
 // err                        -0.8  0.96  -1.84  1.84
 #define       BRW_19200_BAUD  3
-#define     MCTLW_19200_BAUD  0x2041
+#define     MCTLW_19200_BAUD  0x0241
 
 // err                        0  1.76  0  3.44
 #define       BRW_38400_BAUD  1
@@ -93,6 +94,31 @@ extern "C" {
 #define    MCTLW_115200_BAUD  0x5551
 
 
+#elif SMCLK_FREQ == 12000000
+
+#define             UC_CTLW0  UCSSEL__SMCLK
+
+// err                        0 0 0 0.04
+#define        BRW_9600_BAUD  78
+#define      MCTLW_9600_BAUD  0x0021
+
+// err                        0 0 0 0.16
+#define       BRW_19200_BAUD  39
+#define     MCTLW_19200_BAUD  0x0011
+
+// err                        -0.16 0.16 -0.4 0.24
+#define       BRW_38400_BAUD  19
+#define     MCTLW_38400_BAUD  0x6581
+
+// err                        -0.16 0.32 -0.48 0.48
+#define       BRW_57600_BAUD  13
+#define     MCTLW_57600_BAUD  0x2501
+
+// err                        -0.48 0.64 -1.04 1.04
+#define      BRW_115200_BAUD  6
+#define    MCTLW_115200_BAUD  0x2081
+
+
 #elif SMCLK_FREQ == 16000000
 
 #define             UC_CTLW0  UCSSEL__SMCLK
@@ -117,15 +143,41 @@ extern "C" {
 #define      BRW_115200_BAUD  8
 #define    MCTLW_115200_BAUD  0xf7a1
 
+
+#elif SMCLK_FREQ == 20000000
+
+#define             UC_CTLW0  UCSSEL__SMCLK
+
+// err                        -0.02 0.03 0 0.07
+#define        BRW_9600_BAUD  130
+#define      MCTLW_9600_BAUD  0x2531
+
+// err                        -0.06 0.03 -0.1 0.1
+#define       BRW_19200_BAUD  65
+#define     MCTLW_19200_BAUD  0xd611
+
+// err                        -0.1 0.13 -0.27 0.14
+#define       BRW_38400_BAUD  32
+#define     MCTLW_38400_BAUD  0xee81
+
+// err                        -0.16 0.13 -0.16 0.38
+#define       BRW_57600_BAUD  21
+#define     MCTLW_57600_BAUD  0x22b1
+
+// err                        -0.29 0.26 -0.46 0.66
+#define      BRW_115200_BAUD  10
+#define    MCTLW_115200_BAUD  0xadd1
+
+
+#elif SMCLK_FREQ == 24000000
+    //FIXME
+    #error UART registers missing in MSP430FR5xx_6xx/uart_config.h
+
+
 #else
     #error SMCLK_FREQ is not defined or sourced from clock.h
 #endif
 
-#if defined USE_UART2 || USE_UART3
-    #if defined (__MSP430FR6989__)
-    #error "uart2/uart3 do not exist on this uC"
-    #endif
-#endif
 
 #ifdef __cplusplus
 }
