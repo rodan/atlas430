@@ -11,6 +11,10 @@
 #include "uart1_pin.h"
 #include "lib_ringbuf.h"
 
+#ifdef USE_SIG
+#include "sig.h"
+#endif
+
 static uint8_t (*uart1_rx_irq_handler)(const uint8_t c);
 static uint8_t (*uart1_tx_irq_handler)(void);
 
@@ -358,7 +362,8 @@ void __attribute__ ((interrupt(USCI_A1_VECTOR))) USCI_A1_ISR(void)
     //int16_t rb;
 #endif
 
-#ifdef LED_SYSTEM_STATES
+//#ifdef LED_SYSTEM_STATES
+#ifdef USE_SIG
     sig3_on;
 #endif
 
@@ -394,7 +399,8 @@ void __attribute__ ((interrupt(USCI_A1_VECTOR))) USCI_A1_ISR(void)
     }
     uart1_last_event |= ev;
 
-#ifdef LED_SYSTEM_STATES
+//#ifdef LED_SYSTEM_STATES
+#ifdef USE_SIG
     sig3_off;
 #endif
 }

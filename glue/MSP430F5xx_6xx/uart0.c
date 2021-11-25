@@ -11,6 +11,10 @@
 #include "uart0_pin.h"
 #include "lib_ringbuf.h"
 
+#ifdef USE_SIG
+#include "sig.h"
+#endif
+
 static uint8_t (*uart0_rx_irq_handler)(const uint8_t c);
 static uint8_t (*uart0_tx_irq_handler)(void);
 
@@ -38,7 +42,7 @@ volatile uint8_t uart0_last_event;
 
 void uart0_init(void)
 {
-    UCA0CTL1 = UCSWRST;        // put eUSCI state machine in reset
+    UCA0CTL1 |= UCSWRST;        // put eUSCI state machine in reset
 
 #if defined(UC_CTL1)
 
@@ -87,9 +91,6 @@ void uart0_init(void)
 #ifdef UART0_TX_USES_IRQ
     ringbuf_init(&uart0_rbtx, uart0_tx_buf, UART0_TXBUF_SZ);
     UCA0IE |= UCRXIE | UCTXIE;           // Enable USCI_A0 interrupts
-    //UCA0IE |= UCRXIE;           // Enable USCI_A0 RX interrupt
-    //UCA0IE |= UCTXIE;
-    //UCA0IFG &= ~UCTXIFG;
     uart0_tx_busy = 0;
 #else
     UCA0IE |= UCRXIE;           // Enable USCI_A0 RX interrupt
@@ -266,6 +267,9 @@ void uart0_tx_activate()
         if (ringbuf_get(&uart0_rbtx, &t)) {
             uart0_tx_busy = 1;
             UCA0TXBUF = t;
+        } else {
+            // nothing more to do
+            uart0_tx_busy = 0;
         }
     }
 }
@@ -275,6 +279,7 @@ void uart0_tx(const uint8_t byte)
     while (ringbuf_put(&uart0_rbtx, byte) == 0) {
         // wait for the ring buffer to clear
         uart0_tx_activate();
+        _BIS_SR(LPM3_bits + GIE);
     }
 
     uart0_tx_activate();
@@ -289,6 +294,7 @@ uint16_t uart0_tx_str(const char *str, const uint16_t size)
             p++;
             uart0_tx_activate();
         }
+        _BIS_SR(LPM3_bits + GIE);
     }
     return p;
 }
@@ -302,6 +308,7 @@ uint16_t uart0_print(const char *str)
             p++;
             uart0_tx_activate();
         }
+        _BIS_SR(LPM3_bits + GIE);
     }
     return p;
 }
@@ -357,7 +364,8 @@ void __attribute__ ((interrupt(USCI_A0_VECTOR))) USCI_A0_ISR(void)
     //int16_t rb;
 #endif
 
-#ifdef LED_SYSTEM_STATES
+//#ifdef LED_SYSTEM_STATES
+#ifdef USE_SIG
     sig3_on;
 #endif
 
@@ -386,6 +394,7 @@ void __attribute__ ((interrupt(USCI_A0_VECTOR))) USCI_A0_ISR(void)
             // nothing more to do
             uart0_tx_busy = 0;
         }
+        LPM3_EXIT;
 #endif
         break;
     default:
@@ -393,7 +402,8 @@ void __attribute__ ((interrupt(USCI_A0_VECTOR))) USCI_A0_ISR(void)
     }
     uart0_last_event |= ev;
 
-#ifdef LED_SYSTEM_STATES
+//#ifdef LED_SYSTEM_STATES
+#ifdef USE_SIG
     sig3_off;
 #endif
 }
