@@ -13,8 +13,14 @@
 #include "driverlib.h"
 #include "glue.h"
 #include "ui.h"
-
 #include "timer_a0.h"
+
+//#define TEST_TX_STR
+//#define TEST_PRINT
+//#define TEST_ITOA
+//#define TEST_SNPRINTF
+//#define TEST_UTOH
+//#define TEST_UTOB
 
 static void uart3_rx_irq(uint32_t msg)
 {
@@ -37,6 +43,10 @@ void check_events(void)
 
 int main(void)
 {
+#if defined TEST_ITOA || defined TEST_SNPRINTF || defined TEST_UTOH || defined TEST_UTOB
+    char buf[CONV_BASE_10_BUF_SZ];
+#endif
+
     // stop watchdog
     WDTCTL = WDTPW | WDTHOLD;
     msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
@@ -74,14 +84,7 @@ int main(void)
     eh_init();
     eh_register(&uart3_rx_irq, SYS_MSG_UART3_RX);
 
-//#define TEST_UART3_TX_STR
-//#define TEST_UART3_PRINT
-//#define TEST_ITOA
-//#define TEST_SNPRINTF
-//#define TEST_UTOH
-//#define TEST_UTOB
-
-#ifdef TEST_UART3_TX_STR
+#ifdef TEST_TX_STR
     uart3_tx_str("h1llo world\r\n", 13);
     uart3_tx_str("he2lo world\r\n", 13);
     uart3_tx_str("hel3o world\r\n", 13);
@@ -94,7 +97,7 @@ int main(void)
     uart3_tx_str("hello worl0\r\n", 13);
 #endif
 
-#ifdef TEST_UART3_PRINT
+#ifdef TEST_PRINT
     uart3_print("h1llo world\r\n");
     uart3_print("he2lo world\r\n");
     uart3_print("hel3o world\r\n");

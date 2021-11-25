@@ -13,7 +13,14 @@
 #include "driverlib.h"
 #include "glue.h"
 #include "ui.h"
-#include "timer_a0.h"
+//#include "timer_a0.h"
+
+//#define TEST_TX_STR
+//#define TEST_PRINT
+//#define TEST_ITOA
+//#define TEST_SNPRINTF
+//#define TEST_UTOH
+//#define TEST_UTOB
 
 static void uart1_rx_irq(uint32_t msg)
 {
@@ -36,6 +43,10 @@ void check_events(void)
 
 int main(void)
 {
+#if defined TEST_ITOA || defined TEST_SNPRINTF || defined TEST_UTOH || defined TEST_UTOB
+    char buf[CONV_BASE_10_BUF_SZ];
+#endif
+
     // stop watchdog
     WDTCTL = WDTPW | WDTHOLD;
     msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
@@ -56,7 +67,7 @@ int main(void)
     // an external high frequency crystal can't be woken up quickly enough
     // from LPM, so make sure that SMCLK never powers down
     // also the uart tx irq ain't working without this for some reason
-    timer_a0_init();
+    //timer_a0_init();
 #endif
 
     sig0_off;
@@ -72,14 +83,7 @@ int main(void)
     eh_init();
     eh_register(&uart1_rx_irq, SYS_MSG_UART1_RX);
 
-//#define TEST_UART1_TX_STR
-//#define TEST_UART1_PRINT
-//#define TEST_ITOA
-//#define TEST_SNPRINTF
-//#define TEST_UTOH
-//#define TEST_UTOB
-
-#ifdef TEST_UART1_TX_STR
+#ifdef TEST_TX_STR
     uart1_tx_str("h1llo world\r\n", 13);
     uart1_tx_str("he2lo world\r\n", 13);
     uart1_tx_str("hel3o world\r\n", 13);
@@ -92,7 +96,7 @@ int main(void)
     uart1_tx_str("hello worl0\r\n", 13);
 #endif
 
-#ifdef TEST_UART1_PRINT
+#ifdef TEST_PRINT
     uart1_print("h1llo world\r\n");
     uart1_print("he2lo world\r\n");
     uart1_print("hel3o world\r\n");
