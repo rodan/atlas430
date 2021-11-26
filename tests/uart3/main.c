@@ -67,7 +67,7 @@ int main(void)
         sig4_off;
 #endif
         // sleep
-        _BIS_SR(LPM3_bits + GIE);
+        _BIS_SR(LPM0_bits + GIE);
 #ifdef USE_SIG
         sig4_on;
 #endif

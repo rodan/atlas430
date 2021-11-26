@@ -7,7 +7,7 @@
 
 PROJ:=main
 REFLIB_ROOT:=/opt/reference_libs_msp430/
-MEMORY_MODEL=LARGE
+#MEMORY_MODEL=LARGE
 
 include $(REFLIB_ROOT)/Makefile.env
 
@@ -104,15 +104,15 @@ $(OBJ_DIR)/%.o: $(DRIVERLIB)/%.c
 	@echo -e " * [drv] $(@F)"
 	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/%.o: $(GLUELIB)/%.c
+$(OBJ_DIR)/%.o: $(GLUELIB)/%.c config.h
 	@echo -e " * [glue] $(@F)"
 	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/%.o: $(GLUELIB_HAL)/%.c
+$(OBJ_DIR)/%.o: $(GLUELIB_HAL)/%.c config.h
 	@echo -e " * [glue-hal] $(@F)"
 	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/%.o: %.c
+$(OBJ_DIR)/%.o: %.c config.h
 	@echo -e " * $(@F)"
 	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 

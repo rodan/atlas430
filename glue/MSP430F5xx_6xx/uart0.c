@@ -1,4 +1,8 @@
-
+/*
+  uart0 init functions
+  Author:          Petre Rodan <2b4eda@subdimension.ro>
+  Available from:  https://github.com/rodan/reference_libs_msp430
+*/
 
 #include <msp430.h>
 #include <inttypes.h>
@@ -35,10 +39,8 @@ volatile uint8_t uart0_tx_busy;
 
 volatile uint8_t uart0_last_event;
 
-
-
 // you'll have to initialize/map uart ports in main()
-// or use uart0_port_init() if no mapping is needed
+// or use uart0_pin_init() if no remapping is needed
 
 void uart0_init(void)
 {
@@ -103,8 +105,6 @@ void uart0_init(void)
 #ifdef UART0_RX_USES_RINGBUF
     ringbuf_init(&uart0_rbrx, uart0_rx_buf, UART0_RXBUF_SZ);
 #endif
-
-    //uart0_set_rx_irq_handler(uart0_rx_simple_handler);
 }
 
 void uart0_initb(const uint8_t baudrate)
@@ -148,11 +148,22 @@ void uart0_initb(const uint8_t baudrate)
     }
 
     UCA0CTL1 &= ~UCSWRST;      // Initialize eUSCI
-    UCA0IE |= UCRXIE;           // Enable USCI_A3 RX interrupt
+
+#ifdef UART0_TX_USES_IRQ
+    ringbuf_init(&uart0_rbtx, uart0_tx_buf, UART0_TXBUF_SZ);
+    UCA0IE |= UCRXIE | UCTXIE;           // Enable USCI_A0 interrupts
+    uart0_tx_busy = 0;
+#else
+    UCA0IE |= UCRXIE;           // Enable USCI_A0 RX interrupt
+#endif
 
     uart0_p = 0;
     uart0_rx_enable = 1;
     uart0_rx_err = 0;
+
+#ifdef UART0_RX_USES_RINGBUF
+    ringbuf_init(&uart0_rbrx, uart0_rx_buf, UART0_RXBUF_SZ);
+#endif
 }
 
 void uart0_port_init(void)
@@ -210,11 +221,6 @@ uint8_t uart0_rx_simple_handler(const uint8_t c)
             uart0_rx_enable = 1;
         }
     }
-    /*
-    if (rx == 'a') {
-        UCA0TXBUF = '_';
-    }
-    */
     //uart0_tx_str((const char *)&rx, 1);
     return 0;
 }
@@ -279,7 +285,9 @@ void uart0_tx(const uint8_t byte)
     while (ringbuf_put(&uart0_rbtx, byte) == 0) {
         // wait for the ring buffer to clear
         uart0_tx_activate();
-        _BIS_SR(LPM3_bits + GIE);
+#ifdef UART_TX_USES_LPM
+        _BIS_SR(LPM0_bits + GIE);
+#endif
     }
 
     uart0_tx_activate();
@@ -294,7 +302,9 @@ uint16_t uart0_tx_str(const char *str, const uint16_t size)
             p++;
             uart0_tx_activate();
         }
-        _BIS_SR(LPM3_bits + GIE);
+#ifdef UART_TX_USES_LPM
+        _BIS_SR(LPM0_bits + GIE);
+#endif
     }
     return p;
 }
@@ -308,7 +318,9 @@ uint16_t uart0_print(const char *str)
             p++;
             uart0_tx_activate();
         }
-        _BIS_SR(LPM3_bits + GIE);
+#ifdef UART_TX_USES_LPM
+        _BIS_SR(LPM0_bits + GIE);
+#endif
     }
     return p;
 }
@@ -361,10 +373,8 @@ void __attribute__ ((interrupt(USCI_A0_VECTOR))) USCI_A0_ISR(void)
     uint8_t ev = 0;
 #ifdef UART0_TX_USES_IRQ
     uint8_t t;
-    //int16_t rb;
 #endif
 
-//#ifdef LED_SYSTEM_STATES
 #ifdef USE_SIG
     sig3_on;
 #endif
@@ -402,7 +412,6 @@ void __attribute__ ((interrupt(USCI_A0_VECTOR))) USCI_A0_ISR(void)
     }
     uart0_last_event |= ev;
 
-//#ifdef LED_SYSTEM_STATES
 #ifdef USE_SIG
     sig3_off;
 #endif

@@ -90,7 +90,7 @@ extern "C" {
 #define        BR_38400_BAUD  416
 #define      MCTL_38400_BAUD  UCBRS_6
 
-#define        BR_57600_BAUD  208
+#define        BR_57600_BAUD  277
 #define      MCTL_57600_BAUD  UCBRS_7
 
 #define       BR_115200_BAUD  138
@@ -137,7 +137,6 @@ extern "C" {
 #else
     #error SMCLK_FREQ is not defined or sourced from clock.h
 #endif
-
 
 #ifdef __cplusplus
 }

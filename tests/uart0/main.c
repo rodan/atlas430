@@ -64,12 +64,13 @@ int main(void)
 
     while (1) {
 #ifdef USE_SIG
-        sig4_off;
+        //sig4_off;
 #endif
+        __no_operation();
         // sleep
-        _BIS_SR(LPM3_bits + GIE);
+        _BIS_SR(LPM0_bits + GIE);
 #ifdef USE_SIG
-        sig4_on;
+        //sig4_on;
 #endif
         __no_operation();
         check_events();
