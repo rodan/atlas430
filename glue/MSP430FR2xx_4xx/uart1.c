@@ -1,3 +1,8 @@
+/*
+  uart1 init functions
+  Author:          Petre Rodan <2b4eda@subdimension.ro>
+  Available from:  https://github.com/rodan/reference_libs_msp430
+*/
 
 #include <msp430.h>
 #include <inttypes.h>
@@ -9,6 +14,10 @@
 #include "uart1.h"
 #include "uart1_pin.h"
 #include "lib_ringbuf.h"
+
+#ifdef USE_SIG
+#include "sig.h"
+#endif
 
 static uint8_t (*uart1_rx_irq_handler)(const uint8_t c);
 static uint8_t (*uart1_tx_irq_handler)(void);
@@ -33,7 +42,7 @@ volatile uint8_t uart1_last_event;
 
 
 // you'll have to initialize/map uart ports in main()
-// or use uart1_port_init() if no mapping is needed
+// or use uart1_pin_init() if no remapping is needed
 
 void uart1_init(void)
 {
@@ -79,13 +88,10 @@ void uart1_init(void)
 
 #ifdef UART1_TX_USES_IRQ
     ringbuf_init(&uart1_rbtx, uart1_tx_buf, UART1_TXBUF_SZ);
-    UCA1IE |= UCRXIE | UCTXIE;           // Enable USCI_A0 interrupts
-    //UCA1IE |= UCRXIE;           // Enable USCI_A0 RX interrupt
-    //UCA1IE |= UCTXIE;
-    //UCA1IFG &= ~UCTXIFG;
+    UCA1IE |= UCRXIE | UCTXIE;   // Enable interrupts
     uart1_tx_busy = 0;
 #else
-    UCA1IE |= UCRXIE;           // Enable USCI_A0 RX interrupt
+    UCA1IE |= UCRXIE;            // Enable RX interrupt
 #endif
 
     uart1_p = 0;
@@ -95,16 +101,11 @@ void uart1_init(void)
 #ifdef UART1_RX_USES_RINGBUF
     ringbuf_init(&uart1_rbrx, uart1_rx_buf, UART1_RXBUF_SZ);
 #endif
-
-    //uart1_set_rx_irq_handler(uart1_rx_simple_handler);
 }
 
 void uart1_initb(const uint8_t baudrate)
 {
     UCA1CTLW0 = UCSWRST;        // put eUSCI state machine in reset
-
-    // consult 'Recommended Settings for Typical Crystals and Baud Rates' in slau367o
-    // for some reason any baud >= 115200 ends up with a non-working RX channel
 
     switch (baudrate) {
         case BAUDRATE_9600:
@@ -135,11 +136,22 @@ void uart1_initb(const uint8_t baudrate)
     }
 
     UCA1CTLW0 &= ~UCSWRST;      // Initialize eUSCI
-    UCA1IE |= UCRXIE;           // Enable USCI_A1 RX interrupt
+
+#ifdef UART1_TX_USES_IRQ
+    ringbuf_init(&uart1_rbtx, uart1_tx_buf, UART1_TXBUF_SZ);
+    UCA1IE |= UCRXIE | UCTXIE;   // Enable interrupts
+    uart1_tx_busy = 0;
+#else
+    UCA1IE |= UCRXIE;            // Enable RX interrupt
+#endif
 
     uart1_p = 0;
     uart1_rx_enable = 1;
     uart1_rx_err = 0;
+
+#ifdef UART1_RX_USES_RINGBUF
+    ringbuf_init(&uart1_rbrx, uart1_rx_buf, UART1_RXBUF_SZ);
+#endif
 }
 
 // default port locations
@@ -198,11 +210,6 @@ uint8_t uart1_rx_simple_handler(const uint8_t c)
             uart1_rx_enable = 1;
         }
     }
-    /*
-    if (rx == 'a') {
-        UCA1TXBUF = '_';
-    }
-    */
     //uart1_tx_str((const char *)&rx, 1);
     return 0;
 }
@@ -255,6 +262,9 @@ void uart1_tx_activate()
         if (ringbuf_get(&uart1_rbtx, &t)) {
             uart1_tx_busy = 1;
             UCA1TXBUF = t;
+        } else {
+            // nothing more to do
+            uart1_tx_busy = 0;
         }
     }
 }
@@ -264,6 +274,9 @@ void uart1_tx(const uint8_t byte)
     while (ringbuf_put(&uart1_rbtx, byte) == 0) {
         // wait for the ring buffer to clear
         uart1_tx_activate();
+#ifdef UART_TX_USES_LPM
+        _BIS_SR(LPM0_bits + GIE);
+#endif
     }
 
     uart1_tx_activate();
@@ -278,6 +291,9 @@ uint16_t uart1_tx_str(const char *str, const uint16_t size)
             p++;
             uart1_tx_activate();
         }
+#ifdef UART_TX_USES_LPM
+        _BIS_SR(LPM0_bits + GIE);
+#endif
     }
     return p;
 }
@@ -291,6 +307,9 @@ uint16_t uart1_print(const char *str)
             p++;
             uart1_tx_activate();
         }
+#ifdef UART_TX_USES_LPM
+        _BIS_SR(LPM0_bits + GIE);
+#endif
     }
     return p;
 }
@@ -299,7 +318,7 @@ uint16_t uart1_print(const char *str)
 void uart1_tx(const uint8_t byte)
 {
     while (!(UCA1IFG & UCTXIFG)) {
-    }                       // USCI_A0 TX buffer ready?
+    }                       // USCI_A1 TX buffer ready?
     UCA1TXBUF = byte;
 }
 
@@ -308,7 +327,7 @@ uint16_t uart1_tx_str(const char *str, const uint16_t size)
     uint16_t p = 0;
     while (p < size) {
         while (!(UCA1IFG & UCTXIFG)) {
-        }                       // USCI_A0 TX buffer ready?
+        }                       // USCI_A1 TX buffer ready?
         UCA1TXBUF = str[p];
         p++;
     }
@@ -321,7 +340,7 @@ uint16_t uart1_print(const char *str)
     size_t size = strlen(str);
     while (p < size) {
         while (!(UCA1IFG & UCTXIFG)) {
-        }                       // USCI_A0 TX buffer ready?
+        }                       // USCI_A1 TX buffer ready?
         UCA1TXBUF = str[p];
         p++;
     }
@@ -362,10 +381,9 @@ void __attribute__ ((interrupt(USCI_A1_VECTOR))) USCI_A1_ISR(void)
     uint8_t ev = 0;
 #ifdef UART1_TX_USES_IRQ
     uint8_t t;
-    //int16_t rb;
 #endif
 
-#ifdef LED_SYSTEM_STATES
+#ifdef USE_SIG
     sig3_on;
 #endif
 
@@ -394,6 +412,7 @@ void __attribute__ ((interrupt(USCI_A1_VECTOR))) USCI_A1_ISR(void)
             // nothing more to do
             uart1_tx_busy = 0;
         }
+        LPM3_EXIT;
 #endif
         break;
     default:
@@ -401,7 +420,7 @@ void __attribute__ ((interrupt(USCI_A1_VECTOR))) USCI_A1_ISR(void)
     }
     uart1_last_event |= ev;
 
-#ifdef LED_SYSTEM_STATES
+#ifdef USE_SIG
     sig3_off;
 #endif
 }
