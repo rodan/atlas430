@@ -127,9 +127,9 @@ MSP430FR2355    | [TI MSP-EXP430FR2355](https://www.ti.com/tool/MSP-EXP430FR2355
 MSP430FR2433    | [TI MSP-EXP430FR2433](https://www.ti.com/tool/MSP-EXP430FR2433)                         | MSP430FR2xx_4xx | pass |   | [ ]  | [ ] | [ ]
 MSP430FR2476    | [TI LP-MSP430FR2476](https://www.ti.com/tool/LP-MSP430FR2476)                           | MSP430FR2xx_4xx | pass |   | [ ]  | [ ] | [ ]
 MSP430FR4133    | [TI MSP-EXP430FR4133](https://www.ti.com/tool/MSP-EXP430FR4133)                         | MSP430FR2xx_4xx | pass |   | [ ]  | [ ] | [ ]
-MSP430FR5969    | [TI MSP-EXP430FR5969](https://www.ti.com/tool/MSP-EXP430FR5969)                         | MSP430FR5xx_6xx | pass |   | [ ]  | [ ] | [ ]
-MSP430FR5994    | [TI MSP-EXP430FR5994](https://www.ti.com/tool/MSP-EXP430FR5994) / [MSP-TS430PN80B](https://www.ti.com/tool/MSP-TS430PN80B) | MSP430FR5xx_6xx |  | pass | pass | pass | [ ]
-MSP430FR6989    | [TI MSP-EXP430FR6989](https://www.ti.com/tool/MSP-EXP430FR6989)                         | MSP430FR5xx_6xx | pass |  | [ ]  | [ ] | [ ]
+MSP430FR5969    | [TI MSP-EXP430FR5969](https://www.ti.com/tool/MSP-EXP430FR5969)                         | MSP430FR5xx_6xx | pass | pass | [ ]  | [ ] | [ ]
+MSP430FR5994    | [TI MSP-EXP430FR5994](https://www.ti.com/tool/MSP-EXP430FR5994) / [MSP-TS430PN80B](https://www.ti.com/tool/MSP-TS430PN80B) | MSP430FR5xx_6xx | pass | pass | pass | pass | [ ]
+MSP430FR6989    | [TI MSP-EXP430FR6989](https://www.ti.com/tool/MSP-EXP430FR6989)                         | MSP430FR5xx_6xx | pass | pass | [ ]  | [ ] | [ ]
 
 
 ### references 

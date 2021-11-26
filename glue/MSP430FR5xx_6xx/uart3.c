@@ -1,3 +1,8 @@
+/*
+  uart3 init functions
+  Author:          Petre Rodan <2b4eda@subdimension.ro>
+  Available from:  https://github.com/rodan/reference_libs_msp430
+*/
 
 #include <msp430.h>
 #include <inttypes.h>
@@ -9,6 +14,10 @@
 #include "uart3.h"
 #include "uart3_pin.h"
 #include "lib_ringbuf.h"
+
+#ifdef USE_SIG
+#include "sig.h"
+#endif
 
 static uint8_t (*uart3_rx_irq_handler)(const uint8_t c);
 static uint8_t (*uart3_tx_irq_handler)(void);
@@ -33,7 +42,7 @@ volatile uint8_t uart3_last_event;
 
 
 // you'll have to initialize/map uart ports in main()
-// or use uart3_port_init() if no mapping is needed
+// or use uart3_pin_init() if no remapping is needed
 
 void uart3_init(void)
 {
@@ -79,13 +88,10 @@ void uart3_init(void)
 
 #ifdef UART3_TX_USES_IRQ
     ringbuf_init(&uart3_rbtx, uart3_tx_buf, UART3_TXBUF_SZ);
-    UCA3IE |= UCRXIE | UCTXIE;           // Enable USCI_A0 interrupts
-    //UCA3IE |= UCRXIE;           // Enable USCI_A0 RX interrupt
-    //UCA3IE |= UCTXIE;
-    //UCA3IFG &= ~UCTXIFG;
+    UCA3IE |= UCRXIE | UCTXIE;   // Enable interrupts
     uart3_tx_busy = 0;
 #else
-    UCA3IE |= UCRXIE;           // Enable USCI_A0 RX interrupt
+    UCA3IE |= UCRXIE;            // Enable RX interrupt
 #endif
 
     uart3_p = 0;
@@ -95,16 +101,11 @@ void uart3_init(void)
 #ifdef UART3_RX_USES_RINGBUF
     ringbuf_init(&uart3_rbrx, uart3_rx_buf, UART3_RXBUF_SZ);
 #endif
-
-    //uart3_set_rx_irq_handler(uart3_rx_simple_handler);
 }
 
 void uart3_initb(const uint8_t baudrate)
 {
     UCA3CTLW0 = UCSWRST;        // put eUSCI state machine in reset
-
-    // consult 'Recommended Settings for Typical Crystals and Baud Rates' in slau367o
-    // for some reason any baud >= 115200 ends up with a non-working RX channel
 
     switch (baudrate) {
         case BAUDRATE_9600:
@@ -135,11 +136,22 @@ void uart3_initb(const uint8_t baudrate)
     }
 
     UCA3CTLW0 &= ~UCSWRST;      // Initialize eUSCI
-    UCA3IE |= UCRXIE;           // Enable USCI_A3 RX interrupt
+
+#ifdef UART3_TX_USES_IRQ
+    ringbuf_init(&uart3_rbtx, uart3_tx_buf, UART3_TXBUF_SZ);
+    UCA3IE |= UCRXIE | UCTXIE;   // Enable interrupts
+    uart3_tx_busy = 0;
+#else
+    UCA3IE |= UCRXIE;            // Enable RX interrupt
+#endif
 
     uart3_p = 0;
     uart3_rx_enable = 1;
     uart3_rx_err = 0;
+
+#ifdef UART3_RX_USES_RINGBUF
+    ringbuf_init(&uart3_rbrx, uart3_rx_buf, UART3_RXBUF_SZ);
+#endif
 }
 
 // default port locations
@@ -198,11 +210,6 @@ uint8_t uart3_rx_simple_handler(const uint8_t c)
             uart3_rx_enable = 1;
         }
     }
-    /*
-    if (rx == 'a') {
-        UCA3TXBUF = '_';
-    }
-    */
     //uart3_tx_str((const char *)&rx, 1);
     return 0;
 }
@@ -255,6 +262,9 @@ void uart3_tx_activate()
         if (ringbuf_get(&uart3_rbtx, &t)) {
             uart3_tx_busy = 1;
             UCA3TXBUF = t;
+        } else {
+            // nothing more to do
+            uart3_tx_busy = 0;
         }
     }
 }
@@ -264,6 +274,9 @@ void uart3_tx(const uint8_t byte)
     while (ringbuf_put(&uart3_rbtx, byte) == 0) {
         // wait for the ring buffer to clear
         uart3_tx_activate();
+#ifdef UART_TX_USES_LPM
+        _BIS_SR(LPM0_bits + GIE);
+#endif
     }
 
     uart3_tx_activate();
@@ -278,6 +291,9 @@ uint16_t uart3_tx_str(const char *str, const uint16_t size)
             p++;
             uart3_tx_activate();
         }
+#ifdef UART_TX_USES_LPM
+        _BIS_SR(LPM0_bits + GIE);
+#endif
     }
     return p;
 }
@@ -291,6 +307,9 @@ uint16_t uart3_print(const char *str)
             p++;
             uart3_tx_activate();
         }
+#ifdef UART_TX_USES_LPM
+        _BIS_SR(LPM0_bits + GIE);
+#endif
     }
     return p;
 }
@@ -299,7 +318,7 @@ uint16_t uart3_print(const char *str)
 void uart3_tx(const uint8_t byte)
 {
     while (!(UCA3IFG & UCTXIFG)) {
-    }                       // USCI_A0 TX buffer ready?
+    }                       // USCI_A3 TX buffer ready?
     UCA3TXBUF = byte;
 }
 
@@ -308,7 +327,7 @@ uint16_t uart3_tx_str(const char *str, const uint16_t size)
     uint16_t p = 0;
     while (p < size) {
         while (!(UCA3IFG & UCTXIFG)) {
-        }                       // USCI_A0 TX buffer ready?
+        }                       // USCI_A3 TX buffer ready?
         UCA3TXBUF = str[p];
         p++;
     }
@@ -321,13 +340,16 @@ uint16_t uart3_print(const char *str)
     size_t size = strlen(str);
     while (p < size) {
         while (!(UCA3IFG & UCTXIFG)) {
-        }                       // USCI_A0 TX buffer ready?
+        }                       // USCI_A3 TX buffer ready?
         UCA3TXBUF = str[p];
         p++;
     }
     return p;
 }
 #endif
+
+// sometimes EUSCI-capable uCs define the interrupt vector as USCI_Ax_VECTOR instead of EUSCI_Ax_VECTOR
+#if defined (EUSCI_A3_VECTOR)
 
 #if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
 #pragma vector=EUSCI_A3_VECTOR
@@ -337,16 +359,31 @@ void __attribute__ ((interrupt(EUSCI_A3_VECTOR))) USCI_A3_ISR(void)
 #else
 #error Compiler not supported!
 #endif
+
+#elif defined (USCI_A3_VECTOR)
+
+#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
+#pragma vector=USCI_A3_VECTOR
+__interrupt void USCI_A3_ISR(void)
+#elif defined(__GNUC__)
+void __attribute__ ((interrupt(USCI_A3_VECTOR))) USCI_A3_ISR(void)
+#else
+#error Compiler not supported!
+#endif
+
+#else
+    #error "can't find interrupt vector for USCI_A3"
+#endif
+
 {
     uint16_t iv = UCA3IV;
     register char r;
     uint8_t ev = 0;
 #ifdef UART3_TX_USES_IRQ
     uint8_t t;
-    //int16_t rb;
 #endif
 
-#ifdef LED_SYSTEM_STATES
+#ifdef USE_SIG
     sig3_on;
 #endif
 
@@ -375,6 +412,7 @@ void __attribute__ ((interrupt(EUSCI_A3_VECTOR))) USCI_A3_ISR(void)
             // nothing more to do
             uart3_tx_busy = 0;
         }
+        LPM3_EXIT;
 #endif
         break;
     default:
@@ -382,7 +420,7 @@ void __attribute__ ((interrupt(EUSCI_A3_VECTOR))) USCI_A3_ISR(void)
     }
     uart3_last_event |= ev;
 
-#ifdef LED_SYSTEM_STATES
+#ifdef USE_SIG
     sig3_off;
 #endif
 }
