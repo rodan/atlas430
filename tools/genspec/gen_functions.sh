@@ -18,17 +18,40 @@ export NORMAL=$'\e[0m'
 
 err()
 {
-    >&2 echo "${BAD} !ERR ${NORMAL} $*"; 
+    if [ "${DO_LOG}" == "true" ]; then
+        >&2 echo " !ERR $*"
+    else
+        >&2 echo "${BAD} !ERR ${NORMAL} $*";
+    fi
 }
 
 warn()
 {
-    >&2 echo "${WARN} WARN ${NORMAL} $*"; 
+    if [ "${DO_LOG}" == "true" ]; then
+        >&2 echo " WARN $*";
+    else
+        >&2 echo "${WARN} WARN ${NORMAL} $*";
+    fi
 }
 
 inf()
 {
-    >&2 echo "${HILITE} .... ${NORMAL} $*"; 
+    if [ "${DO_LOG}" == "true" ]; then
+        >&2 echo "      $*"
+    else
+        >&2 echo "${HILITE} .... ${NORMAL} $*";
+    fi
+}
+
+proc_err()
+{
+    >&2 echo " [${BAD}err${NORMAL}] $*"
+}
+
+# get list of ucs
+list_ucs()
+{
+    grep 'ifeq.*430' ../../Makefile.identify-target | sed 's|.*,\(.*\))|\1|'  | tr '[:upper:]' '[:lower:]'
 }
 
 # convert 'msp430f5510' to '__MSP430F5510__'
@@ -356,6 +379,8 @@ ifdef_comb()
 export -f err
 export -f warn
 export -f inf
+export -f proc_err
+export -f list_ucs
 export -f convert_name_to_target
 export -f convert_target_to_name
 export -f guess_family_from_target

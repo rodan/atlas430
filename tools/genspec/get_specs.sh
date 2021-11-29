@@ -26,19 +26,30 @@ EOF
     exit
 }
 
+# error levels:
+#  0 - all ok
+#  1 - error
+#  2 - uc skipped
+#  3 - datasheet missing
+#  4 - bad column arrangement
+#  5 - table parsing error
+#  6 - table title not found
+#  7 - pin mapping error
+#  8 - function not found
 process_uc()
 {
     uc="$1"
+    ret=1
 
     [ -n "${filter_target_regexp}" ] && {
-        echo "${uc}" | grep -q "${filter_target_regexp}" || return
+        echo "${uc}" | grep -q "${filter_target_regexp}" || return 2
     }
 
     # try to guess the family
     FAMILY=$(guess_family_from_name "${uc}")
 
     [ -n "${filter_family}" ] && {
-        echo "${FAMILY}" | grep -q "${filter_family}" || return
+        echo "${FAMILY}" | grep -q "${filter_family}" || return 2
     }
 
     datasheet_pdf="${DATASHEET_PATH}/${uc}.pdf"
@@ -46,12 +57,12 @@ process_uc()
 
     [ ! -e "${datasheet_txt}" ] && {
         err "err ${datasheet_txt} not found"
-        return
+        return 3
     }
 
     [ ! -e "${datasheet_pdf}" ] && {
         err "err ${datasheet_pdf} not found"
-        return
+        return 3
     }
 
     ###############################
@@ -61,7 +72,7 @@ process_uc()
     unset pdftotext_arg_first
     unset pdftotext_arg_last
 
-    echo -e "${GOOD}${uc}${NORMAL}  ${HILITE}${FAMILY}${NORMAL}"
+    [ "${DO_LOG}" != "true" ] && echo -e "${GOOD}${uc}${NORMAL}  ${HILITE}${FAMILY}${NORMAL}"
     parse_chapters=('Input/Output Diagrams' 'Input/Output Schematics' 'Peripherals')
 
     for chapter in "${parse_chapters[@]}"; do
@@ -86,7 +97,7 @@ process_uc()
         }
 
         [ -n "${start_page}" ] && [ -n "${end_page}" ] && [ "${end_page}" -lt "${start_page}" ] && {
-            err "${BAD}end page still reversed for ${uc}${NORMAL}"
+            warn "end page still reversed"
             unset end_page
         }
 
@@ -130,6 +141,7 @@ process_uc()
             # remove the head -n1 to parse all pins having this function
             pins=$(echo "${pin_str}" | grep -o 'P[0-9J]\{1,2\}\.[0-7]' | head -n1 | sort -u)
             pin_found=true
+            inf "${filter_function} pin_type SH"
         else
             # seach dedicated pins, ignore port mapped ones
             dedicated_pin_str=$(grep -E -A65 '(Terminal Functions)|(Signal Descriptions)' "${datasheet_txt}" | grep "${filter_function}" | grep -v "PM_${filter_function}")
@@ -152,10 +164,12 @@ process_uc()
                     function_is_port_mapped=true
                     function_found="${filter_function}"
                     function_type="default PM "
+                    inf "${filter_function} pin_type PM"
                     break
                 elif [ "${pin_str_lines}" -gt 1 ]; then
                     err "multiple pins found with the same distance from filter_function"
                     unset pin_str
+                    ret=5
                     break
                 fi
             done
@@ -164,12 +178,15 @@ process_uc()
 
     if [ -z "${pin_str}" ]; then
         if [ -z "${dedicated_pin_str}" ]; then
-            warn "no dedicated, shared or port-mapped pins with those functions have been found"
+            warn "no dedicated, shared or port-mapped pins found for ${filter_function}"
+            inf "${filter_function} pin_type NA"
+            ret=8
         else
-            warn "only a dedicated pin with '${filter_functions}' function(s) was found"
+            inf "${filter_function} pin_type DE"
             # shellcheck disable=SC2001
             echo "${dedicated_pin_str}" | sed 's/ \+ /\t/g'
             echo "    // dedicated pin found, no setup needed, but need to dodge the catch-all #else below" > "${output_dir}/${uc}_${output_suffix}.c"
+            ret=0
         fi
     else
         ${verbose} && echo "${pin_str}"
@@ -189,6 +206,7 @@ process_uc()
         inf "table title: '${table_title}'"
         [ -z "${table_title}" ] && {
             err "table_title is NULL"
+            ret=6
             continue
         }
 
@@ -324,6 +342,7 @@ process_uc()
                     function_row_data2=$(echo "${function_row_data}" | tail -n1 | xargs)
                     if [ "${function_row_data}" != "${function_row_data2}" ]; then
                         err "mapping of secondary digital function ${pin}/${function_found} differ between IC packages"
+                        ret=7
                     fi
                 else
                     function_row_data=$(echo "${function_row_data}" | xargs)
@@ -386,12 +405,59 @@ EOF
             done
         else
             err "${BAD}error: unknown column arrangement${NORMAL} col:${columns_cnt} data:${function_row_data_cnt}"
+            return 4
         fi
-        cat "${output_dir}/${uc}_${output_suffix}.c"
+        cat "${output_dir}/${uc}_${output_suffix}.c" && ret=0
     done
+
+    return "${ret}"
+}
+
+redirect_process()
+{
+    uc="$1"
+    log_file="${output_dir}/${uc}_${output_suffix}.log"
+
+    process_uc "${uc}" >> "${log_file}_" 2>&1
+    case $? in
+        1)
+            proc_err "${uc}(${filter_functions}): unknown error encountered"
+            ;;
+        2)
+            rm -f "${log_file}_"
+            ;;
+        3)
+            proc_err "${uc}(${filter_functions}): datasheet is missing"
+            ;;
+        4)
+            proc_err "${uc}(${filter_functions}): bad column arrangement"
+            cat "${log_file}_"
+            ;;
+        5)
+            proc_err "${uc}(${filter_functions}): table parsing error"
+            cat "${log_file}_"
+            ;;
+        6)
+            proc_err "${uc}(${filter_functions}): table title not found"
+            cat "${log_file}_"
+            ;;
+        7)
+            proc_err "${uc}(${filter_functions}): pin mapping error"
+            cat "${log_file}_"
+            ;;
+        8)
+            proc_err "${uc}(${filter_functions}): function not found"
+            ;;
+    esac
+
+    [ -e "${log_file}_" ] && {
+        cat "${log_file}_" >> "${log_file}"
+        rm -f "${log_file}_"
+    }
 }
 
 export -f process_uc
+export -f redirect_process
 
 verbose=false
 while (( "$#" )); do
@@ -452,16 +518,17 @@ export verbose
 if [ -n "${filter_target}" ]; then
     ucs="${filter_target}"
 else
-    ucs=$(grep 'ifeq.*430' ../..//Makefile.identify-target | sed 's|.*,\(.*\))|\1|'  | tr '[:upper:]' '[:lower:]')
+    ucs="$(list_ucs)"
 fi
 
-USE_PARALLEL='false'
+USE_PARALLEL='true'
 
 if [ "${USE_PARALLEL}" == "true" ]; then
-    echo "${ucs}" | parallel -j+0 process_uc
+    export DO_LOG='true'
+    echo "${ucs}" | parallel -j+0 redirect_process
 else
     for i in ${ucs}; do
-        process_uc "$i"
+        redirect_process "$i"
     done
 fi
 
