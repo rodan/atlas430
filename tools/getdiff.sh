@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# script that compares project sources against the reference libraries
+# script that compares project sources against the atlas430 libraries
 
 myhome="$(basename `pwd`)"
 
@@ -8,7 +8,7 @@ usage()
 {
 cat << EOF
     Usage: $0 [] [-r NAME] [-d NAME] [-h]
-       -r NAME   filters for NAME in the reference libraries
+       -r NAME   filters for NAME in the atlas430 libraries
        -d NAME   filters for NAME in the external code
 EOF
 exit

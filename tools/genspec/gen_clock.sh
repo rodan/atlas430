@@ -4,7 +4,7 @@
 #  collection of functions that extracts pin information from pdf datasheets
 #  and generates C code used to initialize the control bits for selected pins
 #  Author:          Petre Rodan <2b4eda@subdimension.ro>
-#  Available from:  https://github.com/rodan/reference_libs_msp430
+#  Available from:  https://github.com/rodan/atlas430
 
 . gen_functions.sh
 
@@ -18,7 +18,7 @@ out_head()
   pin setup for crystal-based clocks. 
   this file is generated automatically based on the device datasheets
   Author:          Petre Rodan <2b4eda@subdimension.ro>
-  Available from:  https://github.com/rodan/reference_libs_msp430
+  Available from:  https://github.com/rodan/atlas430
 
   generated on $(date -u)
 */

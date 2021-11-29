@@ -9,7 +9,7 @@
    - read of the temperature register, and of any address from the chip.
 
   Author:          Petre Rodan <2b4eda@subdimension.ro>
-  Available from:  https://github.com/rodan/reference_libs_msp430fr5x
+  Available from:  https://github.com/rodan/atlas430fr5x
   license:         BSD
 
   The DS3231 is a low-cost, extremely accurate I2C real-time clock 

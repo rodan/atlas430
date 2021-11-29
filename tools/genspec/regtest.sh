@@ -2,7 +2,7 @@
 
 #  regression test for the msp430 datasheet parser functions
 #  Author:          Petre Rodan <2b4eda@subdimension.ro>
-#  Available from:  https://github.com/rodan/reference_libs_msp430
+#  Available from:  https://github.com/rodan/atlas430
 
 . gen_functions.sh
 

@@ -1,16 +1,16 @@
 
-## reference libraries for msp430
+## atlas430
 
 /\/\/\/\/\/\/\/\/\/\/\/ UNDER DEVELOPMENT /\/\/\/\/\/\/\/\/\/\/\/
 
-this library provides a glue layer between the upstream [Texas Instruments mspdriverlib](https://www.ti.com/tool/MSPDRIVERLIB) and projects that need quick prototyping while also allowing easier code migration from one msp430 microcontroller to another. on one hand it has a number of generic functions and configurable compile-time defines that will set up the hardware abstraction layer allowing the user to focus on the higher level code and on the other hand it can be out-of-the-way and allow direct access to the registers or to the TI driverlib.
+collection of HAL functions that provide a glue layer between the upstream [Texas Instruments mspdriverlib](https://www.ti.com/tool/MSPDRIVERLIB) and projects that need quick prototyping while also allowing easier code migration from one msp430 microcontroller to another. on one hand it has a number of generic functions and configurable compile-time defines that will set up the hardware abstraction layer allowing the user to focus on the higher level code and on the other hand it can be out-of-the-way and allow direct access to the registers or to the TI driverlib. strives to also provide limited device-specific pin initialization for about 350 microcontrollers from the F5xx, F6xx, FR2xx, FR4xx, FR5xx and FR6xx families via automated datasheet parsing.
 
 
 ![Lib Logo](./doc/img/target_devboard.png)
 
 
 ```
- source:    https://github.com/rodan/reference_libs_msp430
+ source:    https://github.com/rodan/atlas430
  author:    Petre Rodan <2b4eda@subdimension.ro>
  license:   BSD
 ```
@@ -46,7 +46,7 @@ while none of those are a requirement to making the library part of any msp430 p
 
 #### via a special project makefile (in a linux environment)
 
-see [this Makefile](https://github.com/rodan/sigdup/blob/master/firmware/Makefile) for the perfect example. **REFLIB_ROOT** defines the path to where this reference library has been cloned, **TARGET** represents the target microcontroller and [config.h](https://github.com/rodan/sigdup/blob/master/firmware/config.h) will be automatically expanded into compilation macros (-DFOO arguments to be sent to gcc). if **TARGET** is not hardcoded in the Makefile, then the user needs to provide it as an argument to make:
+see [this Makefile](https://github.com/rodan/sigdup/blob/master/firmware/Makefile) for the perfect example. **REFLIB_ROOT** defines the path to where this atlas430 repository has been cloned, **TARGET** represents the target microcontroller and [config.h](https://github.com/rodan/sigdup/blob/master/firmware/config.h) will be automatically expanded into compilation macros (-DFOO arguments to be sent to gcc). if **TARGET** is not hardcoded in the Makefile, then the user needs to provide it as an argument to make:
 
 ```
 make TARGET=MSP430FXXXX
@@ -76,7 +76,7 @@ make TARGET=MSP430FXXXX scan-build  # needs sys-devel/clang +static-analyzer
 in order to use gdb to debug the project make sure to enable the **CONFIG_DEBUG** macro in config.h and run in a terminal
 
 ```
-LD_PRELOAD='/opt/reference_libs_msp430/lib/libmsp430.so' mspdebug --allow-fw-update tilib gdb
+LD_PRELOAD='/opt/atlas430/lib/libmsp430.so' mspdebug --allow-fw-update tilib gdb
 ```
 
 and then start gdb from within the project directory:
@@ -100,13 +100,13 @@ continue
 tui enable
 ```
 
-the included [Makefile.env](https://github.com/rodan/reference_libs_msp430/blob/master/Makefile.env) contains the paths for the excelent [TI msp430 toolchain](https://www.ti.com/tool/MSP430-GCC-OPENSOURCE) which is a requirement in this scenario. a [shell script](./tools/check_setup.sh) for checking the build environment can be run on a non-priviledged account and will provide pointers of what packages are needed for building using this library. it also helps in installing the TI toolchain and support files.
+the included [Makefile.env](https://github.com/rodan/atlas430/blob/master/Makefile.env) contains the paths for the excelent [TI msp430 toolchain](https://www.ti.com/tool/MSP430-GCC-OPENSOURCE) which is a requirement in this scenario. a [shell script](./tools/check_setup.sh) for checking the build environment can be run on a non-priviledged account and will provide pointers of what packages are needed for building using this library. it also helps in installing the TI toolchain and support files.
 
-all the [unit tests](https://github.com/rodan/reference_libs_msp430/tree/master/tests) can be compiled with this method.
+all the [unit tests](https://github.com/rodan/atlas430/tree/master/tests) can be compiled with this method.
 
 #### via *Code Composer Studio for Linux*
 
-import [this project](https://github.com/rodan/sigdup/tree/master/firmware) as an example. the reference library is expected to be symlinked or cloned into */opt/reference_libs_msp430/* while the compilation macros, the memory model, compile includes are all baked into the project's xml files - one needs to tweak them via *project properties* since this scenario is not using any of the provided Makefiles or scripts. compiling and debug is done via CCS.
+import [this project](https://github.com/rodan/sigdup/tree/master/firmware) as an example. the atlas430 repo is expected to be symlinked or cloned into */opt/atlas430/* while the compilation macros, the memory model, compile includes are all baked into the project's xml files - one needs to tweak them via *project properties* since this scenario is not using any of the provided Makefiles or scripts. compiling and debug is done via CCS.
 
 #### via *Code Composer Studio for Windows*
 

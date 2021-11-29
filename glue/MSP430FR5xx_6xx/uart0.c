@@ -1,7 +1,7 @@
 /*
   uart0 init functions
   Author:          Petre Rodan <2b4eda@subdimension.ro>
-  Available from:  https://github.com/rodan/reference_libs_msp430
+  Available from:  https://github.com/rodan/atlas430
 */
 
 #include <msp430.h>

@@ -1,6 +1,6 @@
 
 //  author:          Petre Rodan <2b4eda@subdimension.ro>
-//  available from:  https://github.com/rodan/reference_libs_msp430fr5x
+//  available from:  https://github.com/rodan/atlas430fr5x
 //  license:         GNU GPLv3
 
 /**

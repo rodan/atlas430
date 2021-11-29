@@ -16,28 +16,28 @@ do
     fi
 done
 
-if [ ! -e /opt/reference_libs_msp430 ]; then
+if [ ! -e /opt/atlas430 ]; then
     echo ''
-    echo ' ! "/opt/reference_libs_msp430" must point to a cloned copy'
-    echo '      of the https://github.com/rodan/reference_libs_msp430 repository'
+    echo ' ! "/opt/atlas430" must point to a cloned copy'
+    echo '      of the https://github.com/rodan/atlas430 repository'
     echo ''
     echo '     pick a location (replace "sources" with any other non-temporary path) '
     echo '     for the source files and follow these steps:'
     echo ''
     echo '      $ mkdir ~/sources'
     echo '      $ cd ~/sources'
-    echo '      $ git clone https://github.com/rodan/reference_libs_msp430.git'
+    echo '      $ git clone https://github.com/rodan/atlas430.git'
     echo ''
     echo '     and now, as root:'
     echo ''
     echo '      # mkdir -p /opt'
-    echo '      # ln -s /home/you/sources/reference_libs_msp430 /opt/reference_libs_msp430'
+    echo '      # ln -s /home/you/sources/atlas430 /opt/atlas430'
     echo ''
     echo "     now re-run $(basename "${0}"), and this warning should go away"
     echo ''
     error=true
 else
-    echo '   reference_libs_msp430 - found'
+    echo '   atlas430 - found'
 fi
 
 if [ ! -e /opt/msp430/bin/msp430-elf-gcc ]; then

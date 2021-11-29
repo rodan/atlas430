@@ -6,7 +6,7 @@
 
 
   Author:          Petre Rodan <2b4eda@subdimension.ro>
-  Available from:  https://github.com/rodan/reference_libs_msp430fr5x
+  Available from:  https://github.com/rodan/atlas430fr5x
  
   The AD7789 is a low power, low noise, analog front end for low frequency
   measurement applications. It contains a low noise 24bit sigma-delta ADC 

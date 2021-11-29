@@ -4,7 +4,7 @@
 #  collection of functions that extracts pin information from pdf datasheets
 #  and generates C code used to initialize the control bits for selected pins
 #  Author:          Petre Rodan <2b4eda@subdimension.ro>
-#  Available from:  https://github.com/rodan/reference_libs_msp430
+#  Available from:  https://github.com/rodan/atlas430
 
 export DATASHEET_PATH='/local/datasheets/msp430/'
 export GCC_EXTRA_INC_DIR='/opt/msp430-gcc-support-files/include'

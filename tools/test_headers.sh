@@ -3,7 +3,7 @@
 # script that checks all fram-enabled uCs for __MSP430_HAS_FRAM__
 # and reports headers that failed this criteria
 #
-# source:    https://github.com/rodan/reference_libs_msp430
+# source:    https://github.com/rodan/atlas430
 # author:    Petre Rodan <2b4eda@subdimension.ro>
 # license:   BSD
 

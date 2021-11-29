@@ -2,7 +2,7 @@
   pin setup for crystal-based clocks. 
   this file is generated automatically based on the device datasheets
   Author:          Petre Rodan <2b4eda@subdimension.ro>
-  Available from:  https://github.com/rodan/reference_libs_msp430
+  Available from:  https://github.com/rodan/atlas430
 
   generated on Wed Nov 24 13:17:33 UTC 2021
 */
