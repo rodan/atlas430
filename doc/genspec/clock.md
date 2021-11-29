@@ -15,8 +15,8 @@ ns   | microcontroller not supported
 
 *Table: pin detection map*
 
-uc         | xin | xout | xt2in | xt2out
----------- | --- | ---  | ---   | ---
+uc         | xin/lfxin | xout/lfxout | xt2in/hfxin | xt2out/hfxout
+---------- | --------- | ----------- | ----------- | -------------
 cc430f5123 | sh | sh | - | -
 cc430f5125 | sh | sh | - | -
 cc430f5133 | sh | sh | - | -
