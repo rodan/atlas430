@@ -93,7 +93,7 @@ out_head_clock_md()
 {
     cat << EOF
 
-## pin detection map
+## clock signal pin detection map
 
 the automated device-specific datasheet parser has detected the following pins
 
@@ -102,12 +102,12 @@ Legend
 code | description
 ---- | -------
 \-   | pin not available or not detected during parsing
-sh   | pin is part of the P1-11,J ports and it shares multiple functions  
-pm   | primary port-mapped function
+sh   | pin belongs to the P1-11,J ports and it shares multiple functions
+pm   | default port-mapped function
 de   | dedicated pin
 ns   | microcontroller not supported
 
-*Table: pin detection map*
+*Table: clock signal pin detection map*
 
 uc         | xin/lfxin | xout/lfxout | xt2in/hfxin | xt2out/hfxout
 ---------- | --------- | ----------- | ----------- | -------------

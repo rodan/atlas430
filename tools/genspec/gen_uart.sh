@@ -49,6 +49,32 @@ out_tail()
 EOF
 }
 
+out_head_uart_md()
+{
+    cat << EOF
+
+## UART pin detection map
+
+the automated device-specific datasheet parser has detected the following pins
+
+Legend
+
+code | description
+---- | -------
+\-   | pin not available or not detected during parsing
+sh   | pin belongs to the P1-11,J ports and it shares multiple functions
+pm   | default port-mapped function
+de   | dedicated pin
+ns   | microcontroller not supported
+
+*Table: UART pin detection map*
+
+uc         | uart0 | uart1 | uart2 | uart3
+---------- | ----- | ----- | ----- | -----
+EOF
+}
+
+
 gen_uart()
 {
     family="$1"
@@ -62,8 +88,10 @@ gen_uart()
     bash get_specs.sh -f "UCA${uart_id}RXD" -F "${family}" -s "uart${uart_id}" -d "${output_dir}"
     bash get_specs.sh -f "UCA${uart_id}TXD" -F "${family}" -s "uart${uart_id}" -d "${output_dir}"
 
-    #bash get_specs.sh -f "UCA${uart_id}RXD" -T 'msp430bt5190' -s "uart${uart_id}" -d "${output_dir}"
-    #bash get_specs.sh -f "UCA${uart_id}TXD" -T 'msp430bt5190' -s "uart${uart_id}" -d "${output_dir}"
+    #bash get_specs.sh -f "UCA${uart_id}RXD" -T 'cc430f5123' -s "uart${uart_id}" -d "${output_dir}"
+    #bash get_specs.sh -f "UCA${uart_id}TXD" -T 'cc430f5123' -s "uart${uart_id}" -d "${output_dir}"
+    #bash get_specs.sh -f "UCA${uart_id}RXD" -T 'cc430f5133' -s "uart${uart_id}" -d "${output_dir}"
+    #bash get_specs.sh -f "UCA${uart_id}TXD" -T 'cc430f5133' -s "uart${uart_id}" -d "${output_dir}"
 
     for source_in in "${output_dir}"/*_uart"${uart_id}".c; do
         source_out=${source_in//_uart${uart_id}.c/_uart${uart_id}_comb.c}
@@ -84,23 +112,77 @@ cleanup()
     sync
 }
 
-cleanup
+gen_code()
+{
+	rm -f "${output_dir}"/*_uart[0-3].log
+	cleanup
 
-gen_uart 'MSP430FR2xx_4xx' '0'
-gen_uart 'MSP430FR2xx_4xx' '1'
-cleanup
+	gen_uart 'MSP430FR2xx_4xx' '0'
+	gen_uart 'MSP430FR2xx_4xx' '1'
+	cleanup
 
-gen_uart 'MSP430FR5xx_6xx' '0'
-gen_uart 'MSP430FR5xx_6xx' '1'
-gen_uart 'MSP430FR5xx_6xx' '2'
-gen_uart 'MSP430FR5xx_6xx' '3'
-cleanup
+	gen_uart 'MSP430FR5xx_6xx' '0'
+	gen_uart 'MSP430FR5xx_6xx' '1'
+	gen_uart 'MSP430FR5xx_6xx' '2'
+	gen_uart 'MSP430FR5xx_6xx' '3'
+	cleanup
 
-gen_uart 'MSP430F5xx_6xx' '0'
-gen_uart 'MSP430F5xx_6xx' '1'
-gen_uart 'MSP430F5xx_6xx' '2'
-gen_uart 'MSP430F5xx_6xx' '3'
-cleanup
+	gen_uart 'MSP430F5xx_6xx' '0'
+	gen_uart 'MSP430F5xx_6xx' '1'
+	gen_uart 'MSP430F5xx_6xx' '2'
+	gen_uart 'MSP430F5xx_6xx' '3'
+	cleanup
+}
+
+get_table_elem()
+{
+	uc="$1"
+	elem="$2"
+	ret="-"
+
+	case "${elem}" in
+		0)
+			ret=$(grep 'UCA0.XD pin_type' | awk '{print $NF}' | sort -u)
+			;;
+		1)
+			ret=$(grep 'UCA1.XD pin_type' | awk '{print $NF}' | sort -u)
+			;;
+		2)
+			ret=$(grep 'UCA2.XD pin_type' | awk '{print $NF}' | sort -u)
+			;;
+		3)
+			ret=$(grep 'UCA3.XD pin_type' | awk '{print $NF}' | sort -u)
+			;;
+	esac
+
+    [ -z "${ret}" ] && ret='-'
+
+	echo "${ret}"
+}
+
+gen_table()
+{
+    ucs="$(list_ucs)"
+	table="${output_dir}/uart.md"
+
+    out_head_uart_md > "${output_dir}/uart.md"
+
+	for uc in ${ucs}; do
+		echo -n "${uc}" >> "${output_dir}/uart.md"
+		for i in 0 1 2 3; do
+			if [ -e "${output_dir}/${uc}_uart${i}.log" ]; then
+				elem=$(get_table_elem "${uc}" "$i" < "${output_dir}/${uc}_uart${i}.log")
+				echo -n " | ${elem}" >> "${output_dir}/uart.md"
+			else
+				echo -n ' | -' >> "${output_dir}/uart.md"
+			fi
+		done
+		echo '' >> "${output_dir}/uart.md"
+	done
+}
+
+gen_code
+gen_table
 
 # without USE_PARALLEL
 # 534.40user 69.58system 8:25.61elapsed 119%CPU (0avgtext+0avgdata 15352maxresident)k

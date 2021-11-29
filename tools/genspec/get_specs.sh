@@ -112,6 +112,8 @@ process_uc()
     unset pin_str
     unset pins
     unset function_found
+    unset function_is_port_mapped
+    unset function_type
 
     uc_spec_dump="${output_dir}/${uc}.txt"
     # shellcheck disable=SC2086
@@ -522,13 +524,18 @@ else
 fi
 
 USE_PARALLEL='true'
+DO_LOG='false'
 
 if [ "${USE_PARALLEL}" == "true" ]; then
     export DO_LOG='true'
     echo "${ucs}" | parallel -j+0 redirect_process
 else
     for i in ${ucs}; do
-        redirect_process "$i"
+        if [ "${DO_LOG}" == "true" ]; then
+            redirect_process "$i"
+        else
+            process_uc "$i"
+        fi
     done
 fi
 
