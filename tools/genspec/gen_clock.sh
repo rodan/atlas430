@@ -101,10 +101,11 @@ Legend
 
 code | description
 ---- | -------
-NA   | pin not available or not detected during parsing
-SH   | pin is part of the P1-11,J ports and it shares multiple functions  
-PM   | primary port-mapped function
-DE   | dedicated pin
+-    | pin not available or not detected during parsing
+sh   | pin is part of the P1-11,J ports and it shares multiple functions  
+pm   | primary port-mapped function
+de   | dedicated pin
+ns   | microcontroller not supported
 
 *Table: pin detection map*
 
@@ -245,7 +246,7 @@ get_table_elem()
 {
 	uc="$1"
 	elem="$2"
-	ret="UNK"
+	ret="-"
 
 	case "${elem}" in
 		1)
@@ -261,6 +262,8 @@ get_table_elem()
 			ret=$(grep -E '([ ]HFXOUT)|([ ]XT2OUT)[ ]pin_type' | awk '{print $NF}')
 			;;
 	esac
+
+    [ -z "${ret}" ] && ret='-'
 
 	echo "${ret}"
 }
@@ -281,12 +284,12 @@ gen_table()
 			done
 			echo '' >> "${output_dir}/clock.md"
 		else
-			echo ' | NS | NS | NS | NS' >> "${output_dir}/clock.md"
+			echo ' | ns | ns | ns | ns' >> "${output_dir}/clock.md"
 		fi
 	done
 }
 
-#gen_code
+gen_code
 gen_table
 
 # without USE_PARALLEL

@@ -141,7 +141,7 @@ process_uc()
             # remove the head -n1 to parse all pins having this function
             pins=$(echo "${pin_str}" | grep -o 'P[0-9J]\{1,2\}\.[0-7]' | head -n1 | sort -u)
             pin_found=true
-            inf "${filter_function} pin_type SH"
+            inf "${filter_function} pin_type sh"
         else
             # seach dedicated pins, ignore port mapped ones
             dedicated_pin_str=$(grep -E -A65 '(Terminal Functions)|(Signal Descriptions)' "${datasheet_txt}" | grep "${filter_function}" | grep -v "PM_${filter_function}")
@@ -164,7 +164,7 @@ process_uc()
                     function_is_port_mapped=true
                     function_found="${filter_function}"
                     function_type="default PM "
-                    inf "${filter_function} pin_type PM"
+                    inf "${filter_function} pin_type pm"
                     break
                 elif [ "${pin_str_lines}" -gt 1 ]; then
                     err "multiple pins found with the same distance from filter_function"
@@ -179,10 +179,10 @@ process_uc()
     if [ -z "${pin_str}" ]; then
         if [ -z "${dedicated_pin_str}" ]; then
             warn "no dedicated, shared or port-mapped pins found for ${filter_function}"
-            inf "${filter_function} pin_type NA"
+            inf "${filter_function} pin_type -"
             ret=8
         else
-            inf "${filter_function} pin_type DE"
+            inf "${filter_function} pin_type de"
             # shellcheck disable=SC2001
             echo "${dedicated_pin_str}" | sed 's/ \+ /\t/g'
             echo "    // dedicated pin found, no setup needed, but need to dodge the catch-all #else below" > "${output_dir}/${uc}_${output_suffix}.c"
