@@ -101,7 +101,7 @@ Legend
 
 code | description
 ---- | -------
--    | pin not available or not detected during parsing
+\-   | pin not available or not detected during parsing
 sh   | pin is part of the P1-11,J ports and it shares multiple functions  
 pm   | primary port-mapped function
 de   | dedicated pin
@@ -109,8 +109,8 @@ ns   | microcontroller not supported
 
 *Table: pin detection map*
 
-uc         | xin | xout | xt2in | xt2out
----------- | --- | ---  | ---   | ---
+uc         | xin/lfxin | xout/lfxout | xt2in/hfxin | xt2out/hfxout
+---------- | --------- | ----------- | ----------- | -------------
 EOF
 }
 
