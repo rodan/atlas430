@@ -168,16 +168,16 @@ gen_table()
     out_head_uart_md > "${output_dir}/uart.md"
 
 	for uc in ${ucs}; do
-		echo -n "${uc}" >> "${output_dir}/uart.md"
+		echo -n "${uc}" >> "${table}"
 		for i in 0 1 2 3; do
 			if [ -e "${output_dir}/${uc}_uart${i}.log" ]; then
 				elem=$(get_table_elem "${uc}" "$i" < "${output_dir}/${uc}_uart${i}.log")
-				echo -n " | ${elem}" >> "${output_dir}/uart.md"
+				echo -n " | ${elem}" >> "${table}"
 			else
-				echo -n ' | -' >> "${output_dir}/uart.md"
+				echo -n ' | -' >> "${table}"
 			fi
 		done
-		echo '' >> "${output_dir}/uart.md"
+		echo '' >> "${table}"
 	done
 }
 

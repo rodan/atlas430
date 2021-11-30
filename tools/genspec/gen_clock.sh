@@ -152,7 +152,8 @@ gen_clock_MSP430FR5xx_6xx()
     bash get_specs.sh -f 'LFXIN' -tf 'crystal[ ]*mode' -F "${family}" -s clock -d "${output_dir}"
     bash get_specs.sh -f 'LFXOUT' -tf 'crystal[ ]*mode' -F "${family}" -s clock -d "${output_dir}"
 
-    #bash get_specs.sh -f 'LFXIN' -tf 'crystal[ ]*mode' -T 'msp430fr5887' -s clock -d "${output_dir}"
+    #bash get_specs.sh -f 'LFXIN' -tf 'crystal[ ]*mode' -T 'msp430fr5870' -s clock -d "${output_dir}"
+    #bash get_specs.sh -f 'LFXOUT' -tf 'crystal[ ]*mode' -T 'msp430fr5870' -s clock -d "${output_dir}"
 
     for source_in in "${output_dir}"/*_clock.c; do
         source_out=${source_in//_clock.c/_clock_comb.c}
@@ -168,6 +169,9 @@ gen_clock_MSP430FR5xx_6xx()
     bash get_specs.sh -f 'HFXIN' -tf 'crystal[ ]*mode' -F "${family}" -s clock -d "${output_dir}"
     bash get_specs.sh -f 'HFXOUT' -tf 'crystal[ ]*mode' -F "${family}" -s clock -d "${output_dir}"
 
+    #bash get_specs.sh -f 'HFXIN' -tf 'crystal[ ]*mode' -T 'msp430fr5870' -s clock -d "${output_dir}"
+    #bash get_specs.sh -f 'HFXOUT' -tf 'crystal[ ]*mode' -T 'msp430fr5870' -s clock -d "${output_dir}"
+    
     for source_in in "${output_dir}"/*_clock.c; do
         source_out=${source_in//_clock.c/_clock_comb.c}
         bitwise_comb "${source_in}" "${source_out}"
@@ -273,18 +277,18 @@ gen_table()
     ucs="$(list_ucs)"
 	table="${output_dir}/clock.md"
 
-    out_head_clock_md > "${output_dir}/clock.md"
+    out_head_clock_md > "${table}"
 
 	for uc in ${ucs}; do
-		echo -n "${uc}" >> "${output_dir}/clock.md"
+		echo -n "${uc}" >> "${table}"
 		if [ -e "${output_dir}/${uc}_clock.log" ]; then
 			for i in 1 2 3 4; do
 				elem=$(get_table_elem "${uc}" "$i" < "${output_dir}/${uc}_clock.log")
-				echo -n " | ${elem}" >> "${output_dir}/clock.md"
+				echo -n " | ${elem}" >> "${table}"
 			done
-			echo '' >> "${output_dir}/clock.md"
+			echo '' >> "${table}"
 		else
-			echo ' | ns | ns | ns | ns' >> "${output_dir}/clock.md"
+			echo ' | ns | ns | ns | ns' >> "${table}"
 		fi
 	done
 }
