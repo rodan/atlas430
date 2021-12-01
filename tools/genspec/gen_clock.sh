@@ -32,22 +32,12 @@ void clock_pin_init(void)
 EOF
 }
 
-out_tail_MSP430FR2xx_4xx()
+out_xt1_xt2()
 {
+    family="$1"
     cat << EOF
 #else
-    #error "USE_XT1 was defined but pins not known in 'glue/MSP430FR2xx_4xx/clock_pin.c'"
-#endif
-#endif
-}
-EOF
-}
-
-out_xt1_xt2_MSP430FR5xx_6xx()
-{
-    cat << EOF
-#else
-    #error "USE_XT1 was defined but pins not known in 'glue/MSP430FR5xx_6xx/clock_pin.c'"
+    #error "USE_XT1 was defined but pins not known in 'glue/${family}/clock_pin.c'"
 #endif
 #endif
 
@@ -55,34 +45,12 @@ out_xt1_xt2_MSP430FR5xx_6xx()
 EOF
 }
 
-out_tail_MSP430FR5xx_6xx()
+out_tail()
 {
+    family="$1"
     cat << EOF
 #else
-    #error "USE_XT2 was defined but pins not known in 'glue/MSP430FR5xx_6xx/clock_pin.c'"
-#endif
-#endif
-}
-EOF
-}
-
-out_xt1_xt2_MSP430F5xx_6xx()
-{
-    cat << EOF
-#else
-    #error "USE_XT1 was defined but pins not known in 'glue/MSP430F5xx_6xx/clock_pin.c'"
-#endif
-#endif
-
-#ifdef USE_XT2
-EOF
-}
-
-out_tail_MSP430F5xx_6xx()
-{
-    cat << EOF
-#else
-    #error "USE_XT2 was defined but pins not known in 'glue/MSP430F5xx_6xx/clock_pin.c'"
+    #error "USE_XT2 was defined but pins not known in 'glue/${family}/clock_pin.c'"
 #endif
 #endif
 }
@@ -137,7 +105,23 @@ gen_clock_MSP430FR2xx_4xx()
     out_head > "${output_file}"
     sha256sum ${output_dir}/*_clock_comb.c > "${output_dir}/clocks.hash"
     ifdef_comb "${output_dir}/clocks.hash" >> "${output_file}"
-    out_tail_MSP430FR2xx_4xx >> "${output_file}"
+    out_xt1_xt2 'MSP430FR2xx_4xx' >> "${output_file}"
+
+    rm -f ${output_dir}/*.c; 
+    bash get_specs.sh -f 'HFXIN' -tf 'crystal[ ]*mode' -F "${family}" -s clock -d "${output_dir}"
+    bash get_specs.sh -f 'HFXOUT' -tf 'crystal[ ]*mode' -F "${family}" -s clock -d "${output_dir}"
+
+    #bash get_specs.sh -f 'HFXIN' -tf 'crystal[ ]*mode' -T 'msp430fr5870' -s clock -d "${output_dir}"
+    #bash get_specs.sh -f 'HFXOUT' -tf 'crystal[ ]*mode' -T 'msp430fr5870' -s clock -d "${output_dir}"
+    
+    for source_in in "${output_dir}"/*_clock.c; do
+        source_out=${source_in//_clock.c/_clock_comb.c}
+        bitwise_comb "${source_in}" "${source_out}"
+    done
+
+    sha256sum ${output_dir}/*_clock_comb.c > "${output_dir}/clocks.hash"
+    ifdef_comb "${output_dir}/clocks.hash" >> "${output_file}"
+    out_tail 'MSP430FR2xx_4xx' >> "${output_file}"
 }
 
 gen_clock_MSP430FR5xx_6xx()
@@ -163,7 +147,7 @@ gen_clock_MSP430FR5xx_6xx()
     out_head > "${output_file}"
     sha256sum ${output_dir}/*_clock_comb.c > "${output_dir}/clocks.hash"
     ifdef_comb "${output_dir}/clocks.hash" >> "${output_file}"
-    out_xt1_xt2_MSP430FR5xx_6xx >> "${output_file}"
+    out_xt1_xt2 'MSP430FR5xx_6xx' >> "${output_file}"
 
     rm -f ${output_dir}/*.c; 
     bash get_specs.sh -f 'HFXIN' -tf 'crystal[ ]*mode' -F "${family}" -s clock -d "${output_dir}"
@@ -179,7 +163,7 @@ gen_clock_MSP430FR5xx_6xx()
 
     sha256sum ${output_dir}/*_clock_comb.c > "${output_dir}/clocks.hash"
     ifdef_comb "${output_dir}/clocks.hash" >> "${output_file}"
-    out_tail_MSP430FR5xx_6xx >> "${output_file}"
+    out_tail 'MSP430FR5xx_6xx' >> "${output_file}"
 }
 
 gen_clock_MSP430F5xx_6xx()
@@ -207,7 +191,7 @@ gen_clock_MSP430F5xx_6xx()
     out_head > "${output_file}"
     sha256sum ${output_dir}/*_clock_comb.c > "${output_dir}/clocks.hash"
     ifdef_comb "${output_dir}/clocks.hash" >> "${output_file}"
-    out_xt1_xt2_MSP430F5xx_6xx >> "${output_file}"
+    out_xt1_xt2 'MSP430F5xx_6xx' >> "${output_file}"
 
     rm -f ${output_dir}/*.c;
     bash get_specs.sh -f 'XT2IN' -tf 'crystal[ ]*mode' -F "${family}" -s clock -d "${output_dir}"
@@ -220,7 +204,7 @@ gen_clock_MSP430F5xx_6xx()
 
     sha256sum ${output_dir}/*_clock_comb.c > "${output_dir}/clock.hash"
     ifdef_comb "${output_dir}/clock.hash" >> "${output_file}"
-    out_tail_MSP430F5xx_6xx >> "${output_file}"
+    out_tail 'MSP430F5xx_6xx' >> "${output_file}"
 }
 
 cleanup()

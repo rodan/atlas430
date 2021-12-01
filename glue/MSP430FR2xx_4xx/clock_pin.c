@@ -4,7 +4,7 @@
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/atlas430
 
-  generated on Wed Nov 24 13:17:33 UTC 2021
+  generated on Wed Dec  1 09:21:19 UTC 2021
 */
 
 #include <msp430.h>
@@ -46,6 +46,31 @@ void clock_pin_init(void)
 
 #else
     #error "USE_XT1 was defined but pins not known in 'glue/MSP430FR2xx_4xx/clock_pin.c'"
+#endif
+#endif
+
+#ifdef USE_XT2
+#if defined (__MSP430FR2000__) || defined (__MSP430FR2032__) \
+ || defined (__MSP430FR2033__) || defined (__MSP430FR2100__) \
+ || defined (__MSP430FR2110__) || defined (__MSP430FR2111__) \
+ || defined (__MSP430FR2153__) || defined (__MSP430FR2155__) \
+ || defined (__MSP430FR2310__) || defined (__MSP430FR2311__) \
+ || defined (__MSP430FR2353__) || defined (__MSP430FR2355__) \
+ || defined (__MSP430FR2422__) || defined (__MSP430FR2433__) \
+ || defined (__MSP430FR2475__) || defined (__MSP430FR2476__) \
+ || defined (__MSP430FR2512__) || defined (__MSP430FR2522__) \
+ || defined (__MSP430FR2532__) || defined (__MSP430FR2533__) \
+ || defined (__MSP430FR2632__) || defined (__MSP430FR2633__) \
+ || defined (__MSP430FR2672__) || defined (__MSP430FR2673__) \
+ || defined (__MSP430FR2675__) || defined (__MSP430FR2676__) \
+ || defined (__MSP430FR4131__) || defined (__MSP430FR4132__) \
+ || defined (__MSP430FR4133__)
+
+#error function HFXIN not found for this uC
+#error function HFXOUT not found for this uC
+
+#else
+    #error "USE_XT2 was defined but pins not known in 'glue/MSP430FR2xx_4xx/clock_pin.c'"
 #endif
 #endif
 }

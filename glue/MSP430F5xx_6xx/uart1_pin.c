@@ -4,7 +4,7 @@
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/atlas430
 
-  generated on Wed Nov 24 06:53:42 UTC 2021
+  generated on Wed Dec  1 09:26:27 UTC 2021
 */
 
 #include <msp430.h>
@@ -46,6 +46,20 @@ void uart1_pin_init(void)
  || defined (__MSP430F5528__) || defined (__MSP430F5529__)
 
     P4SEL |= BIT4 | BIT5;
+
+#elif defined (__CC430F5123__) || defined (__CC430F5125__) \
+ || defined (__CC430F5133__) || defined (__CC430F5135__) \
+ || defined (__CC430F5137__) || defined (__CC430F5143__) \
+ || defined (__CC430F5145__) || defined (__CC430F5147__) \
+ || defined (__CC430F6125__) || defined (__CC430F6126__) \
+ || defined (__CC430F6127__) || defined (__CC430F6135__) \
+ || defined (__CC430F6137__) || defined (__CC430F6147__) \
+ || defined (__MSP430F5131__) || defined (__MSP430F5132__) \
+ || defined (__MSP430F5151__) || defined (__MSP430F5152__) \
+ || defined (__MSP430F5171__) || defined (__MSP430F5172__)
+
+#error function UCA1RXD not found for this uC
+#error function UCA1TXD not found for this uC
 
 #elif defined (__MSP430F6720__) || defined (__MSP430F6720A__) \
  || defined (__MSP430F6721__) || defined (__MSP430F6721A__) \

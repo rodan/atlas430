@@ -182,12 +182,13 @@ process_uc()
         if [ -z "${dedicated_pin_str}" ]; then
             warn "no dedicated, shared or port-mapped pins found for ${filter_function}"
             inf "${filter_function} pin_type -"
+            echo "    #error function ${filter_function} not found for this uC" >> "${output_dir}/${uc}_${output_suffix}.c"
             ret=8
         else
             inf "${filter_function} pin_type de"
             # shellcheck disable=SC2001
             echo "${dedicated_pin_str}" | sed 's/ \+ /\t/g'
-            echo "    // dedicated pin found, no setup needed, but need to dodge the catch-all #else below" > "${output_dir}/${uc}_${output_suffix}.c"
+            echo "    // dedicated pin found, no setup needed, but need to dodge the catch-all #else below" >> "${output_dir}/${uc}_${output_suffix}.c"
             ret=0
         fi
     else
