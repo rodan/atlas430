@@ -4,7 +4,7 @@
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/atlas430
 
-  generated on Wed Dec  1 09:25:55 UTC 2021
+  generated on Wed Dec  1 15:38:18 UTC 2021
 */
 
 #include <msp430.h>
@@ -65,6 +65,10 @@ void uart3_pin_init(void)
 
     P2SEL0 &= ~(BIT0 | BIT1);
     P2SEL1 |= BIT0 | BIT1;
+    P4SEL0 |= BIT1 | BIT2;
+    P4SEL1 |= BIT1 | BIT2;
+#error multiple pins found for the UCA3RXD function, you must initialize them manually
+#error multiple pins found for the UCA3TXD function, you must initialize them manually
 
 #elif defined (__MSP430FR6005__) || defined (__MSP430FR6007__) \
  || defined (__MSP430FR6035__) || defined (__MSP430FR60371__) \

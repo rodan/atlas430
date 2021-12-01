@@ -88,8 +88,8 @@ gen_i2c()
     bash get_specs.sh -f "UCB${ucb_id}SDA" -F "${family}" -s "i2c_ucb${ucb_id}" -d "${output_dir}"
     bash get_specs.sh -f "UCB${ucb_id}SCL" -F "${family}" -s "i2c_ucb${ucb_id}" -d "${output_dir}"
 
-    #bash get_specs.sh -f "UCB${ucb_id}SDA" -T 'msp430fr6041' -s "i2c_ucb${ucb_id}" -d "${output_dir}"
-    #bash get_specs.sh -f "UCB${ucb_id}SCL" -T 'msp430fr6041' -s "i2c_ucb${ucb_id}" -d "${output_dir}"
+    #bash get_specs.sh -f "UCB${ucb_id}SDA" -T 'msp430fr6005' -s "i2c_ucb${ucb_id}" -d "${output_dir}"
+    #bash get_specs.sh -f "UCB${ucb_id}SCL" -T 'msp430fr6005' -s "i2c_ucb${ucb_id}" -d "${output_dir}"
     #bash get_specs.sh -f "UCB${ucb_id}SDA" -T 'cc430f5133' -s "i2c_ucb${ucb_id}" -d "${output_dir}"
     #bash get_specs.sh -f "UCB${ucb_id}SCL" -T 'cc430f5133' -s "i2c_ucb${ucb_id}" -d "${output_dir}"
 

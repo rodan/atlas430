@@ -88,10 +88,10 @@ gen_uart()
     bash get_specs.sh -f "UCA${uart_id}RXD" -F "${family}" -s "uart${uart_id}" -d "${output_dir}"
     bash get_specs.sh -f "UCA${uart_id}TXD" -F "${family}" -s "uart${uart_id}" -d "${output_dir}"
 
-    #bash get_specs.sh -f "UCA${uart_id}RXD" -T 'cc430f5123' -s "uart${uart_id}" -d "${output_dir}"
-    #bash get_specs.sh -f "UCA${uart_id}TXD" -T 'cc430f5123' -s "uart${uart_id}" -d "${output_dir}"
-    #bash get_specs.sh -f "UCA${uart_id}RXD" -T 'cc430f5133' -s "uart${uart_id}" -d "${output_dir}"
-    #bash get_specs.sh -f "UCA${uart_id}TXD" -T 'cc430f5133' -s "uart${uart_id}" -d "${output_dir}"
+    #bash get_specs.sh -f "UCA${uart_id}RXD" -T 'msp430fr5041' -s "uart${uart_id}" -d "${output_dir}"
+    #bash get_specs.sh -f "UCA${uart_id}TXD" -T 'msp430fr5041' -s "uart${uart_id}" -d "${output_dir}"
+    #bash get_specs.sh -f "UCA${uart_id}RXD" -T 'msp430fr2633' -s "uart${uart_id}" -d "${output_dir}"
+    #bash get_specs.sh -f "UCA${uart_id}TXD" -T 'msp430fr2633' -s "uart${uart_id}" -d "${output_dir}"
 
     for source_in in "${output_dir}"/*_uart"${uart_id}".c; do
         source_out=${source_in//_uart${uart_id}.c/_uart${uart_id}_comb.c}

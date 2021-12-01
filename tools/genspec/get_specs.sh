@@ -124,25 +124,26 @@ process_uc()
         function_type=''
         ${pin_found} && continue
         function_is_port_mapped=false
-        pin_str=$(grep "^[ ]\{0,3\}P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_]*${filter_function}[a-zA-Z0-9\./]*" "${uc_spec_dump}")
+        pin_str=$(grep "P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_\-\+]*${filter_function}" "${uc_spec_dump}")
+        err ${pin_str}
 
-        # usually the pin name is the first word on a table row
-        [ -z "${pin_str}" ] && pin_str=$(grep "^[ ]*P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_]*${filter_function}[a-zA-Z0-9\./]*" "${uc_spec_dump}")
+        # extract pin from Port table
+        [ -z "${pin_str}" ] && pin_str=$(grep -A60 'Table.*Pin Functions' "${uc_spec_dump}" | cut -c1-30 | grep '^[ ]\{0,2\}[A-Z]' | sed 's|([0-9]*)||g;s|[ ][0-9]*[ ]||g;s|[][0-9]*$||;s|[ ]||g' | sed ':x; /\/$/ { N; s|/\n|/|; tx }' | grep "^P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_\-\+]*${filter_function}")
+        err ${pin_str}
 
-        # when the pin name is not the first word on a table row
-        [ -z "${pin_str}" ] && pin_str=$(grep "[ ]*P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_]*${filter_function}[a-zA-Z0-9\./]*" "${uc_spec_dump}")
-
-        # when the pin name (first column data) is on multiple rows
-        [ -z "${pin_str}" ] && pin_str=$(grep '^[ ]\{0,2\}[A-Z]' "${uc_spec_dump}" | awk '{ print $1 }' | sed ':x; /\/$/ { N; s|/\n|/|; tx }' | grep "^P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_]*${filter_function}")
         if [ -n "${pin_str}" ]; then
             if echo "${pin_str}" | grep -q "PM_${filter_function}"; then
                 function_is_port_mapped=true
                 function_type="PM_"
             fi
             function_found="${filter_function}"
-            # remove the head -n1 to parse all pins having this function
-            pins=$(echo "${pin_str}" | grep -o 'P[0-9J]\{1,2\}\.[0-7]' | head -n1 | sort -u)
+            pins=$(echo "${pin_str}" | sed 's|CAP|CAp|g' | grep -o "P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_\-\+]*${filter_function}" | grep -o 'P[0-9J]\{1,2\}\.[0-7]' | sort -u | xargs)
             pin_found=true
+            pin_cnt=$(echo ${pins} | wc -w)
+            [ "${pin_cnt}" -gt 1 ] && {
+                echo "#error multiple pins found for the ${filter_function} function, you must initialize them manually" >> "${output_dir}/${uc}_${output_suffix}.c"
+                warn "multiple pins have been found for ${filter_function}: ${pins}"
+            }
             inf "${filter_function} pin_type sh"
         else
             # seach dedicated pins, ignore port mapped ones
@@ -256,6 +257,13 @@ process_uc()
         fi
 
         if [ "${FAMILY}" == "MSP430FR5xx_6xx" ]; then
+            if echo "${table_header_row}" | grep -q 'CEPDx'; then
+                : # did not happen yet
+            else
+                if grep -A4 "${table_title}" "${uc_spec_dump}" | grep -q 'CEPDx'; then
+                    table_header_row="${table_header_row} CEPDx"
+                fi
+            fi
             if echo "${table_header_row}" | grep -Eq '(64)|(RGC)'; then
                 table_header_row=$(echo "${table_header_row}" | sed 's|RGC||;s|64||' | xargs)
             fi
@@ -537,8 +545,12 @@ else
     ucs="$(list_ucs)"
 fi
 
-USE_PARALLEL='true'
-DO_LOG='false'
+if [ "${DEBUG}" == "true" ]; then
+    USE_PARALLEL='false'
+    DO_LOG='false'
+else
+    USE_PARALLEL='true'
+fi
 
 if [ "${USE_PARALLEL}" == "true" ]; then
     export DO_LOG='true'
