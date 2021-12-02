@@ -17,6 +17,7 @@
 #define UART0_RX_USES_RINGBUF
 #define UART0_TXBUF_SZ 32
 #define UART0_TX_USES_IRQ
+#define UART_TX_USES_LPM
 
 //#define USE_WATCHDOG
 #define HARDWARE_I2C
@@ -26,11 +27,7 @@
 //#define CONFIG_FM24CL64B
 #define CONFIG_FM24V10
 
-// only a few of the F-RAM chips have explicit sleep mode option
-//#ifdef CONFIG_FM24V10
-//    #define FM24_HAS_SLEEP_MODE
-//#endif
-
+//#define USE_SIG
 //#define CONFIG_DEBUG
 
 #endif

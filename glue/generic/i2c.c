@@ -1,5 +1,8 @@
 
 #include "driverlib.h"
+#ifdef USE_SIG
+#include "sig.h"
+#endif
 #include "i2c.h"
 
 typedef enum {
@@ -56,6 +59,9 @@ void i2c_transfer_start(const uint16_t base_addr, const i2c_package_t * pkg,
         I2C_SA = pkg->slave_addr;
         I2C_CTL1 |= UCTR;           // set to transmitter mode
         I2C_CTL1 |= UCTXSTT;        // start condition (send slave address)
+#ifdef USE_SIG
+        sig4_off;
+#endif
         __bis_SR_register(LPM0_bits + GIE);
     }  else if (pkg->data_len != 0) {
 
@@ -75,6 +81,9 @@ void i2c_transfer_start(const uint16_t base_addr, const i2c_package_t * pkg,
             }
             // update next state
             transfer.next_state = SM_READ_DATA;
+#ifdef USE_SIG
+            sig4_off;
+#endif
             __bis_SR_register(LPM0_bits + GIE);
         } else if (pkg->options & I2C_WRITE) {
             transfer.next_state = SM_WRITE_DATA;
@@ -83,6 +92,9 @@ void i2c_transfer_start(const uint16_t base_addr, const i2c_package_t * pkg,
             I2C_SA = pkg->slave_addr;
             I2C_CTL1 |= UCTR;           // set to transmitter mode
             I2C_CTL1 |= UCTXSTT;        // start condition (send slave address)
+#ifdef USE_SIG
+            sig4_off;
+#endif
             __bis_SR_register(LPM0_bits + GIE);
         }
         
@@ -106,7 +118,9 @@ i2c_status_t i2c_transfer_status(void)
 __attribute__ ((interrupt(I2C_ISR_VECTOR)))
 void USCI_BX_ISR(void)
 {
-
+#ifdef USE_SIG
+    sig5_on;
+#endif
 #if defined __MSP430_HAS_EUSCI_Bx__
     switch (HWREG16(EUSCI_BASE_ADDR + OFS_UCBxIV)) {
 #elif defined __MSP430_HAS_USCI_Bx__
@@ -240,6 +254,10 @@ void USCI_BX_ISR(void)
         __bic_SR_register_on_exit(LPM0_bits);
         break;
     }
+
+#ifdef USE_SIG
+    sig5_off;
+#endif
 }
 
 #else

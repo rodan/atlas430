@@ -35,7 +35,9 @@ int main(void)
     // stop watchdog
     WDTCTL = WDTPW | WDTHOLD;
     msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
+#ifdef USE_SIG
     sig0_on;
+#endif
 
 #ifdef HARDWARE_I2C
     i2c_ucb2_pin_init();
@@ -70,11 +72,14 @@ int main(void)
     #endif
 #endif
 
+#ifdef USE_SIG
     sig0_off;
     sig1_off;
     sig2_off;
     sig3_off;
     sig4_off;
+    sig5_off;
+#endif
 
     eh_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
     _BIS_SR(GIE);
@@ -83,10 +88,13 @@ int main(void)
 
     while (1) {
         // sleep
-        //sig4_off;
-        _BIS_SR(LPM3_bits + GIE);
-        //sig4_on;
-
+#ifdef USE_SIG
+        sig4_off;
+#endif
+        _BIS_SR(LPM0_bits + GIE);
+#ifdef USE_SIG
+        sig4_on;
+#endif
         __no_operation();
 //#ifdef USE_WATCHDOG
 //        WDTCTL = (WDTCTL & 0xff) | WDTPW | WDTCNTCL;

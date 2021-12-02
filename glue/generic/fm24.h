@@ -49,6 +49,8 @@ extern "C" {
 // FM24V10 has 131072 addressable bytes, so uint16_t is not enough
 
 #if defined(CONFIG_FM24V10)
+
+#define FM24_HAS_SLEEP_MODE
 #define FM_LA        0x1FFFFl    // last addressable byte
 #define MAX_SEG      12
 
