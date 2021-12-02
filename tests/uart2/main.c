@@ -38,6 +38,8 @@ int main(void)
 #ifdef USE_SIG
     sig0_on;
 #endif
+
+    clock_pin_init();
     clock_init();
     uart2_pin_init();
     uart2_init();

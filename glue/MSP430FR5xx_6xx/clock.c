@@ -9,8 +9,6 @@
 
 void clock_init(void)
 {
-    clock_pin_init();
-
     // set FRAM wait states before configuring MCLK
     FRAMCtl_configureWaitStateControl(CLK_FRAM_NWAITS);
 

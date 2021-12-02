@@ -15,6 +15,7 @@ int main(void)
 #endif
     sig0_on;
 
+    clock_pin_init();
     clock_init();
 
     // output SMCLK on a pin

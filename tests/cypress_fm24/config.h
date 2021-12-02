@@ -18,7 +18,7 @@
 #define UART0_TXBUF_SZ 32
 #define UART0_TX_USES_IRQ
 
-//#define I2C_USES_IRQ
+#define I2C_USES_IRQ
 //#define I2C_USES_BITBANGING
 
 #define CONFIG_CYPRESS_FM24

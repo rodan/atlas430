@@ -1,32 +1,58 @@
 
 #include <inttypes.h>
+#include <string.h>
+#include <stdlib.h>
 #include "glue.h"
 #include "rtca_now.h"
 #include "version.h"
-#include "qa.h"
+#include "ui.h"
 
-//#define STR_LEN 64
+
+static const char menu_str[]="\
+ available commands:\r\n\r\n\
+ \e[33;1m?\e[0m - show menu\r\n\
+ \e[33;1mr\e[0m  - read current time\r\n\
+ \e[33;1mw\e[0m  - write current time\r\n\
+ \e[33;1mt\e[0m  - read temperature\r\n";
 
 void display_menu(void)
 {
-    char sconv[CONV_BASE_10_BUF_SZ];
-    
-    uart0_print("\r\n Maxim DS3231 test suite v");
-    uart0_print(_utoa(sconv, COMMIT));
-    uart0_print(".");
-    uart0_print(_utoa(sconv, BUILD));
-    uart0_print(" test suite\r\n");
-    uart0_print(" --- available commands:\r\n\r\n");
-    uart0_print(" \e[33;1m?\e[0m  - show menu\r\n");
-    uart0_print(" \e[33;1mi\e[0m  - display i2c registers\r\n");
-    uart0_print(" \e[33;1mr\e[0m  - read current time\r\n");
-    uart0_print(" \e[33;1mw\e[0m  - write current time\r\n");
-    uart0_print(" \e[33;1mt\e[0m  - read temperature\r\n");
+    display_version();
+    uart0_print(menu_str);
 }
+
+void display_version(void)
+{
+    char sconv[CONV_BASE_10_BUF_SZ];
+
+    uart0_print("ds3231 b");
+    uart0_print(_utoa(sconv, BUILD));
+    uart0_print("\r\n");
+}
+
+#define PARSER_CNT 16
 
 void parse_user_input(void)
 {
+
+#ifdef UART0_RX_USES_RINGBUF
+    struct ringbuf *rbr = uart0_get_rx_ringbuf();
+    uint8_t rx;
+    uint8_t c = 0;
+    char input[PARSER_CNT];
+
+    memset(input, 0, PARSER_CNT);
+
+    // read the entire ringbuffer
+    while (ringbuf_get(rbr, &rx)) {
+        if (c < PARSER_CNT-1) {
+            input[c] = rx;
+        }
+        c++;
+    }
+#else
     char *input = uart0_get_rx_buf();
+#endif
     char f = input[0];
     struct ts t;
     char sconv[CONV_BASE_10_BUF_SZ];
@@ -68,7 +94,9 @@ void parse_user_input(void)
         t.yday = 0;
         t.isdst = 0;
         t.year_s = 0;
+#ifdef CONFIG_UNIXTIME
         t.unixtime = 0;
+#endif
         DS3231_set(EUSCI_BASE_ADDR, t);
     } else if (f == 't') {
         //DS3231_get_treg();
@@ -82,44 +110,6 @@ void parse_user_input(void)
         uart0_print(_utoa(sconv, abs(temperature_i16/10)));
         uart0_print(".");
         uart0_print(_utoa(sconv, abs(temperature_i16%10)));
-        uart0_print("\r\n");
-
-    } else if (f == 'i') {
-        uart0_print("P7SEL0 ");
-        uart0_print(_utoh(sconv, P7SEL0));
-        uart0_print(" P7SEL1 ");
-        uart0_print(_utoh(sconv, P7SEL1));
-        uart0_print("\r\nUCB2CTLW0 ");
-        uart0_print(_utoh(sconv, UCB2CTLW0));
-        uart0_print(" UCB2CTLW1 ");
-        uart0_print(_utoh(sconv, UCB2CTLW1));
-        uart0_print("\r\nUCB2BRW ");
-        uart0_print(_utoh(sconv, UCB2BRW));
-        uart0_print(" UCB2STATW ");
-        uart0_print(_utoh(sconv, UCB2STATW));
-        uart0_print("\r\nUCB2TBCNT ");
-        uart0_print(_utoh(sconv, UCB2TBCNT));
-        uart0_print("\r\nUCB2RXBUF ");
-        uart0_print(_utoh(sconv, UCB2RXBUF));
-        uart0_print(" UCB2TXBUF ");
-        uart0_print(_utoh(sconv, UCB2TXBUF));
-        uart0_print("\r\nUCB2I2COA0 ");
-        uart0_print(_utoh(sconv, UCB2I2COA0));
-        uart0_print(" UCB2ADDRX ");
-        uart0_print(_utoh(sconv, UCB2ADDRX));
-        uart0_print("\r\nUCB2ADDMASK ");
-        uart0_print(_utoh(sconv, UCB2ADDMASK));
-        uart0_print(" UCB2I2CSA ");
-        uart0_print(_utoh(sconv, UCB2I2CSA));
-        uart0_print("\r\nUCB2IE ");
-        uart0_print(_utoh(sconv, UCB2IE));
-        uart0_print(" UCB2IFG ");
-        uart0_print(_utoh(sconv, UCB2IFG));
-        uart0_print("\r\nUCB2IV ");
-        uart0_print(_utoh(sconv, UCB2IV));
-        uart0_print("\r\n");
-     
-    } else {
         uart0_print("\r\n");
     }
 }

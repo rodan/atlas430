@@ -15,12 +15,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "hsc_ssc.h"
-
-#ifdef I2C_USES_BITBANGING
-#include "serial_bitbang.h"
-#else
 #include "i2c.h"
-#endif
 
 /* you must define the slave address. you can find it based on the part number:
 
@@ -56,15 +51,7 @@ uint8_t HSC_SSC_read(const uint16_t usci_base_addr, const uint8_t slave_addr, st
     pkg.data_len = 4;
     pkg.options = I2C_READ | I2C_LAST_NAK | I2C_REPEAT_SA_ON_READ;
 
-#ifdef I2C_USES_BITBANGING
-    rv = i2cm_transfer(&pkg);
-
-    if (rv != I2C_ACK) {
-        return rv;
-    }
-#else
     i2c_transfer_start(usci_base_addr, &pkg, NULL);
-#endif
 
     raw->status = (val[0] & 0xc0) >> 6; // first 2 bits from first byte
     raw->bridge_data = ((val[0] & 0x3f) << 8) + val[1];

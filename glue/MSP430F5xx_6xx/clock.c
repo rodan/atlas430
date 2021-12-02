@@ -15,8 +15,6 @@
 void clock_init(void)
 {
 
-    clock_pin_init();
-
 #ifdef USE_XT1
     #ifdef USE_XT2
         UCS_setExternalClockSource(ACLK_FREQ, SMCLK_FREQ);

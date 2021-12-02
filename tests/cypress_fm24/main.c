@@ -6,10 +6,8 @@
 #include "proj.h"
 #include "driverlib.h"
 #include "glue.h"
-#include "timer_a0.h"
 #include "ui.h"
 #include "sig.h"
-//#include "i2c_config.h"
 
 static void uart0_rx_irq(uint32_t msg)
 {
@@ -39,18 +37,11 @@ int main(void)
     sig0_on;
 #endif
 
-#ifndef I2C_USES_BITBANGING
-    i2c_ucb2_pin_init();
-#endif
-
     clock_pin_init();
     clock_init();
 
-    timer_a0_init();
-
     uart0_pin_init();
     uart0_init();
-
 #ifdef UART0_RX_USES_RINGBUF
     uart0_set_rx_irq_handler(uart0_rx_ringbuf_handler);
 #else
@@ -58,6 +49,8 @@ int main(void)
 #endif
 
 #ifndef I2C_USES_BITBANGING
+    i2c_ucb2_pin_init();
+
     EUSCI_B_I2C_initMasterParam param = {0};
 
     param.selectClockSource = EUSCI_B_I2C_CLOCKSOURCE_SMCLK;
