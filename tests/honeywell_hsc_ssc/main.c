@@ -55,7 +55,7 @@ int main(void)
     // previously configured port settings
     PM5CTL0 &= ~LOCKLPM5;
 
-#ifdef HARDWARE_I2C
+#ifndef I2C_USES_BITBANGING
     P7SEL0 |= (BIT0 | BIT1);
     P7SEL1 &= ~(BIT0 | BIT1);
 

@@ -18,13 +18,12 @@
 //#define UART0_TXBUF_SZ 32
 //#define UART0_TX_USES_IRQ
 
+#define I2C_USES_IRQ
+//#define I2C_USES_BITBANGING
+
 //#define USE_WATCHDOG
 
-//#define USE_ITOA_LUT
 //#define CONFIG_DEBUG
-
-#define HARDWARE_I2C
-#define I2C_USES_IRQ
 
 #define CONFIG_TCA6408
 

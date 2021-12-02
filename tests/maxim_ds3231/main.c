@@ -39,7 +39,7 @@ int main(void)
     msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
     sig0_on;
 
-#ifdef HARDWARE_I2C
+#ifndef I2C_USES_BITBANGING
     P7SEL0 |= (BIT0 | BIT1);
     P7SEL1 &= ~(BIT0 | BIT1);
 #endif
@@ -65,7 +65,7 @@ int main(void)
     // previously configured port settings
     PM5CTL0 &= ~LOCKLPM5;
 
-#ifdef HARDWARE_I2C
+#ifndef I2C_USES_BITBANGING
     EUSCI_B_I2C_initMasterParam param = {0};
 
     param.selectClockSource = EUSCI_B_I2C_CLOCKSOURCE_SMCLK;

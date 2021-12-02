@@ -76,7 +76,7 @@ void main_init(void)
     //P6IES &= ~GT9XX_IRQ;  // IRQ triggers on rising edge
     P6IFG &= ~GT9XX_IRQ;  // reset IRQ flags
 
-#ifdef HARDWARE_I2C
+#ifndef I2C_USES_BITBANGING
     P7SEL0 |= (BIT0 | BIT1);
     P7SEL1 &= ~(BIT0 | BIT1);
 #endif
@@ -282,7 +282,7 @@ int main(void)
     // previously configured port settings
     PM5CTL0 &= ~LOCKLPM5;
 
-#ifdef HARDWARE_I2C 
+#ifndef I2C_USES_BITBANGING
     EUSCI_B_I2C_initMasterParam param = {0};
 
     param.selectClockSource = EUSCI_B_I2C_CLOCKSOURCE_SMCLK;

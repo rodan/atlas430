@@ -15,7 +15,6 @@
 #define UART1_RXBUF_SZ 16
 #define UART1_TX_USES_IRQ
 #define UART1_TXBUF_SZ 16
-#define UART_TX_USES_LPM
 
 //#define USE_SIG
 //#define CONFIG_DEBUG

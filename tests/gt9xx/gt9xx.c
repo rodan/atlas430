@@ -22,10 +22,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef HARDWARE_I2C
-#include "i2c.h"
-#else
+#ifdef I2C_USES_BITBANGING
 #include "serial_bitbang.h"
+#else
+#include "i2c.h"
 #endif
 
 //#include "helper.h"

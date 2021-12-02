@@ -18,15 +18,16 @@
 //#define UART0_TXBUF_SZ 32
 //#define UART0_TX_USES_IRQ
 
-//#define USE_ITOA_LUT
+#define I2C_USES_IRQ
+
+// not working with bitbanging i2c  20190901
+//#define I2C_USES_BITBANGING
+
 //#define CONFIG_DEBUG
 
 //#define USE_WATCHDOG
 
-// not working with bitbanging i2c  20190901
 
-#define HARDWARE_I2C
-#define I2C_USES_IRQ
 
 #define CONFIG_HSC_SSC
 

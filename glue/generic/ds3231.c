@@ -26,22 +26,10 @@
 #include "glue.h"
 #include "ds3231.h"
 
-#ifdef HARDWARE_I2C
-#include "i2c.h"
-#else
+#ifdef I2C_USES_BITBANGING
 #include "serial_bitbang.h"
-#endif
-
-#ifdef __AVR__
-#include <avr/pgmspace.h>
- // Workaround for http://gcc.gnu.org/bugzilla/show_bug.cgi?id=34734
-#ifdef PROGMEM
-#undef PROGMEM
-#define PROGMEM __attribute__((section(".progmem.data")))
-#endif
 #else
-#define PROGMEM
-#define pgm_read_byte(addr) (*(const uint8_t *)(addr))
+#include "i2c.h"
 #endif
 
 /* control register 0Eh/8Eh
@@ -91,12 +79,12 @@ t.year_s };
     pkg.data_len = 8;
     pkg.options = I2C_WRITE;
 
-#ifdef HARDWARE_I2C
-    i2c_transfer_start(usci_base_addr, &pkg, NULL);
-#else
+#ifdef I2C_USES_BITBANGING
     if (i2cm_transfer(&pkg) != I2C_ACK) {
         return EXIT_FAILURE;
     }
+#else
+    i2c_transfer_start(usci_base_addr, &pkg, NULL);
 #endif
 
     return EXIT_SUCCESS;
@@ -119,14 +107,14 @@ uint8_t DS3231_get(const uint16_t usci_base_addr, struct ts * t)
     pkg.data_len = 7;
     pkg.options = I2C_READ | I2C_LAST_NAK | I2C_REPEAT_SA_ON_READ;
 
-#ifdef HARDWARE_I2C
-    i2c_transfer_start(usci_base_addr, &pkg, NULL);
-#else
+#ifdef I2C_USES_BITBANGING
     uint8_t rv = 255;
     rv = i2cm_transfer(&pkg);
     if (rv != I2C_ACK) {
         return EXIT_FAILURE;
     }
+#else
+    i2c_transfer_start(usci_base_addr, &pkg, NULL);
 #endif
 
     for (i = 0; i <= 6; i++) {
@@ -170,12 +158,12 @@ uint8_t DS3231_set_addr(const uint16_t usci_base_addr, const uint8_t addr, const
     pkg.data_len = 2;
     pkg.options = I2C_WRITE;
 
-#ifdef HARDWARE_I2C
-    i2c_transfer_start(usci_base_addr, &pkg, NULL);
-#else
+#ifdef I2C_USES_BITBANGING
     if (i2cm_transfer(&pkg) != I2C_ACK) {
         return EXIT_FAILURE;
     }
+#else
+    i2c_transfer_start(usci_base_addr, &pkg, NULL);
 #endif
 
     return EXIT_SUCCESS;
@@ -193,14 +181,14 @@ uint8_t DS3231_get_addr(const uint16_t usci_base_addr, const uint8_t addr, uint8
     pkg.data_len = 1;
     pkg.options = I2C_READ | I2C_LAST_NAK | I2C_REPEAT_SA_ON_READ;
 
-#ifdef HARDWARE_I2C
-    i2c_transfer_start(usci_base_addr, &pkg, NULL);
-#else
+#ifdef I2C_USES_BITBANGING
     uint8_t rv;
     rv = i2cm_transfer(&pkg);
     if (rv != I2C_ACK) {
         return EXIT_FAILURE;
     }
+#else
+    i2c_transfer_start(usci_base_addr, &pkg, NULL);
 #endif
 
     return EXIT_SUCCESS;
@@ -279,14 +267,14 @@ uint8_t DS3231_get_treg(const uint16_t usci_base_addr, float *temp)
     pkg.data_len = 2;
     pkg.options = I2C_READ | I2C_LAST_NAK | I2C_REPEAT_SA_ON_READ;
 
-#ifdef HARDWARE_I2C
-    i2c_transfer_start(usci_base_addr, &pkg, NULL);
-#else
+#ifdef I2C_USES_BITBANGING
     uint8_t rv;
     rv = i2cm_transfer(&pkg);
     if (rv != I2C_ACK) {
         return EXIT_FAILURE;
     }
+#else
+    i2c_transfer_start(usci_base_addr, &pkg, NULL);
 #endif
 
     temp_msb = i2c_buff[0];
@@ -333,12 +321,12 @@ uint8_t DS3231_set_a1(const uint16_t usci_base_addr,
     pkg.data_len = 5;
     pkg.options = I2C_WRITE;
 
-#ifdef HARDWARE_I2C
-    i2c_transfer_start(usci_base_addr, &pkg, NULL);
-#else
+#ifdef I2C_USES_BITBANGING
     if (i2cm_transfer(&pkg) != I2C_ACK) {
         return EXIT_FAILURE;
     }
+#else
+    i2c_transfer_start(usci_base_addr, &pkg, NULL);
 #endif
 
     return EXIT_SUCCESS;
@@ -360,14 +348,14 @@ uint8_t DS3231_get_a1(const uint16_t usci_base_addr, char *buf, const uint8_t le
     pkg.data_len = 4;
     pkg.options = I2C_READ | I2C_LAST_NAK | I2C_REPEAT_SA_ON_READ;
 
-#ifdef HARDWARE_I2C
-    i2c_transfer_start(usci_base_addr, &pkg, NULL);
-#else
+#ifdef I2C_USES_BITBANGING
     uint8_t rv;
     rv = i2cm_transfer(&pkg);
     if (rv != I2C_ACK) {
         return EXIT_FAILURE;
     }
+#else
+    i2c_transfer_start(usci_base_addr, &pkg, NULL);
 #endif
 
     for (i = 0; i <= 3; i++) {
@@ -442,12 +430,12 @@ uint8_t DS3231_set_a2(const uint16_t usci_base_addr,
     pkg.data_len = 4;
     pkg.options = I2C_WRITE;
 
-#ifdef HARDWARE_I2C
-    i2c_transfer_start(usci_base_addr, &pkg, NULL);
-#else
+#ifdef I2C_USES_BITBANGING
     if (i2cm_transfer(&pkg) != I2C_ACK) {
         return EXIT_FAILURE;
     }
+#else
+    i2c_transfer_start(usci_base_addr, &pkg, NULL);
 #endif
 
     return EXIT_SUCCESS;
@@ -469,14 +457,14 @@ uint8_t DS3231_get_a2(const uint16_t usci_base_addr, char *buf, const uint8_t le
     pkg.data_len = 3;
     pkg.options = I2C_READ | I2C_LAST_NAK | I2C_REPEAT_SA_ON_READ;
 
-#ifdef HARDWARE_I2C
-    i2c_transfer_start(usci_base_addr, &pkg, NULL);
-#else
+#ifdef I2C_USES_BITBANGING
     uint8_t rv;
     rv = i2cm_transfer(&pkg);
     if (rv != I2C_ACK) {
         return EXIT_FAILURE;
     }
+#else
+    i2c_transfer_start(usci_base_addr, &pkg, NULL);
 #endif
 
     for (i = 0; i <= 2; i++) {

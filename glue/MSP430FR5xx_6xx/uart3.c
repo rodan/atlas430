@@ -274,9 +274,7 @@ void uart3_tx(const uint8_t byte)
     while (ringbuf_put(&uart3_rbtx, byte) == 0) {
         // wait for the ring buffer to clear
         uart3_tx_activate();
-#ifdef UART_TX_USES_LPM
         _BIS_SR(LPM0_bits + GIE);
-#endif
     }
 
     uart3_tx_activate();
@@ -291,9 +289,7 @@ uint16_t uart3_tx_str(const char *str, const uint16_t size)
             p++;
             uart3_tx_activate();
         }
-#ifdef UART_TX_USES_LPM
         _BIS_SR(LPM0_bits + GIE);
-#endif
     }
     return p;
 }
@@ -307,9 +303,7 @@ uint16_t uart3_print(const char *str)
             p++;
             uart3_tx_activate();
         }
-#ifdef UART_TX_USES_LPM
         _BIS_SR(LPM0_bits + GIE);
-#endif
     }
     return p;
 }

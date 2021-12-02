@@ -18,14 +18,13 @@
 //#define UART0_TXBUF_SZ 32
 //#define UART0_TX_USES_IRQ
 
-//#define USE_ITOA_LUT
-//#define CONFIG_DEBUG
-
-//#define USE_WATCHDOG
-#define HARDWARE_I2C
 //#define I2C_USES_IRQ
+//#define I2C_USES_BITBANGING
 
 #define CONFIG_DS3231
 #define CONFIG_UNIXTIME
+
+//#define USE_WATCHDOG
+//#define CONFIG_DEBUG
 
 #endif

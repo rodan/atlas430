@@ -285,9 +285,7 @@ void uart2_tx(const uint8_t byte)
     while (ringbuf_put(&uart2_rbtx, byte) == 0) {
         // wait for the ring buffer to clear
         uart2_tx_activate();
-#ifdef UART_TX_USES_LPM
         _BIS_SR(LPM0_bits + GIE);
-#endif
     }
 
     uart2_tx_activate();
@@ -302,9 +300,7 @@ uint16_t uart2_tx_str(const char *str, const uint16_t size)
             p++;
             uart2_tx_activate();
         }
-#ifdef UART_TX_USES_LPM
         _BIS_SR(LPM0_bits + GIE);
-#endif
     }
     return p;
 }
@@ -318,9 +314,7 @@ uint16_t uart2_print(const char *str)
             p++;
             uart2_tx_activate();
         }
-#ifdef UART_TX_USES_LPM
         _BIS_SR(LPM0_bits + GIE);
-#endif
     }
     return p;
 }

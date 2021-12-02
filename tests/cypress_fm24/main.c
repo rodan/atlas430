@@ -39,7 +39,7 @@ int main(void)
     sig0_on;
 #endif
 
-#ifdef HARDWARE_I2C
+#ifndef I2C_USES_BITBANGING
     i2c_ucb2_pin_init();
 #endif
 
@@ -57,7 +57,7 @@ int main(void)
     uart0_set_rx_irq_handler(uart0_rx_simple_handler);
 #endif
 
-#ifdef HARDWARE_I2C 
+#ifndef I2C_USES_BITBANGING
     EUSCI_B_I2C_initMasterParam param = {0};
 
     param.selectClockSource = EUSCI_B_I2C_CLOCKSOURCE_SMCLK;

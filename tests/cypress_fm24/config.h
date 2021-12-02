@@ -17,17 +17,17 @@
 #define UART0_RX_USES_RINGBUF
 #define UART0_TXBUF_SZ 32
 #define UART0_TX_USES_IRQ
-#define UART_TX_USES_LPM
 
-//#define USE_WATCHDOG
-#define HARDWARE_I2C
-#define I2C_USES_IRQ
+//#define I2C_USES_IRQ
+//#define I2C_USES_BITBANGING
 
 #define CONFIG_CYPRESS_FM24
 //#define CONFIG_FM24CL64B
 #define CONFIG_FM24V10
 
-//#define USE_SIG
+//#define USE_WATCHDOG
+
+#define USE_SIG
 //#define CONFIG_DEBUG
 
 #endif
