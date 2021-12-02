@@ -4,15 +4,13 @@
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/atlas430
 
-  generated on Wed Dec  1 15:41:27 UTC 2021
+  generated on Thu Dec  2 05:13:38 UTC 2021
 */
 
 #include <msp430.h>
 
 void i2c_ucb1_pin_init(void)
 {
-
-#ifdef USE_I2C_UCB1
 
 #if defined (__MSP430F5212__) || defined (__MSP430F5214__) \
  || defined (__MSP430F5217__) || defined (__MSP430F5219__) \
@@ -143,6 +141,5 @@ void i2c_ucb1_pin_init(void)
 
 #else
     #error "USE_I2C_UCB1 was defined but pins not known in 'glue/MSP430F5xx_6xx/i2c_ucb1_pin.c'"
-#endif
 #endif
 }

@@ -26,7 +26,7 @@
 // not working with bitbanging i2c  20190901
 
 #define HARDWARE_I2C
-#define IRQ_I2C
+#define I2C_USES_IRQ
 
 #define CONFIG_HSC_SSC
 

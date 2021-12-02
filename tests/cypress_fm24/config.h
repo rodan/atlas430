@@ -14,26 +14,23 @@
 #define USE_UART0
 #define UART0_BAUD 57600
 #define UART0_RXBUF_SZ 16
-//#define UART0_RX_USES_RINGBUF
-//#define UART0_TXBUF_SZ 32
-//#define UART0_TX_USES_IRQ
-
-//#define LED_SYSTEM_STATES
+#define UART0_RX_USES_RINGBUF
+#define UART0_TXBUF_SZ 32
+#define UART0_TX_USES_IRQ
 
 //#define USE_WATCHDOG
 #define HARDWARE_I2C
-#define IRQ_I2C
+#define I2C_USES_IRQ
 
 #define CONFIG_CYPRESS_FM24
-#define CONFIG_FM24CL64B
-//#define CONFIG_FM24V10
+//#define CONFIG_FM24CL64B
+#define CONFIG_FM24V10
 
 // only a few of the F-RAM chips have explicit sleep mode option
 //#ifdef CONFIG_FM24V10
 //    #define FM24_HAS_SLEEP_MODE
 //#endif
 
-//#define USE_ITOA_LUT
 //#define CONFIG_DEBUG
 
 #endif

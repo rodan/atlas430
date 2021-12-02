@@ -24,7 +24,7 @@
 //#define CONFIG_DEBUG
 
 #define HARDWARE_I2C
-#define IRQ_I2C
+#define I2C_USES_IRQ
 
 #define CONFIG_TCA6408
 

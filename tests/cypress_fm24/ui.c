@@ -1,8 +1,8 @@
 
 #include <stdio.h>
 #include <string.h>
-
 #include "glue.h"
+#include "version.h"
 #include "ui.h"
 
 #define STR_LEN 64
@@ -77,17 +77,26 @@ void print_buf_fram(const uint32_t address, const uint32_t size)
 
 
 static const char menu_str[]="\
-\r\n \r\n cypress FM24 test suite v%d.%d --- available commands:\r\n\r\n\
- \e[33;1m?\e[0m             - show menu\r\n\
- \e[33;1mi\e[0m             - display i2c registers\r\n\
- \e[33;1mt\e[0m             - memtest\r\n\
- \e[33;1mr\e[0m             - tiny read test\r\n\
- \e[33;1mw\e[0m             - tiny write test\r\n\
- \e[33;1mh\e[0m             - hex dump read of all FRAM\r\n";
+ available commands:\r\n\r\n\
+ \e[33;1m?\e[0m - show menu\r\n\
+ \e[33;1mt\e[0m - memtest\r\n\
+ \e[33;1mr\e[0m - tiny read test\r\n\
+ \e[33;1mw\e[0m - tiny write test\r\n\
+ \e[33;1mh\e[0m - hex dump of FRAM segment\r\n";
 
 void display_menu(void)
 {
+    display_version();
     uart0_print(menu_str);
+}
+
+void display_version(void)
+{
+    char sconv[CONV_BASE_10_BUF_SZ];
+
+    uart0_print("fm24 b");
+    uart0_print(_utoa(sconv, BUILD));
+    uart0_print("\r\n");
 }
 
 #define PARSER_CNT 16

@@ -23,7 +23,7 @@
 
 //#define USE_WATCHDOG
 #define HARDWARE_I2C
-//#define IRQ_I2C
+//#define I2C_USES_IRQ
 
 #define CONFIG_DS3231
 #define CONFIG_UNIXTIME

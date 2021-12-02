@@ -18,7 +18,7 @@ volatile static struct {
     i2c_state_t next_state;
 } transfer;
 
-#ifdef IRQ_I2C
+#ifdef I2C_USES_IRQ
 #include "i2c_internal.h"
 
 //////////////////////////////////////////////////

@@ -72,7 +72,7 @@ int main(void)
     param.autoSTOPGeneration = EUSCI_B_I2C_NO_AUTO_STOP;
     EUSCI_B_I2C_initMaster(EUSCI_BASE_ADDR, &param);
 
-    #ifdef IRQ_I2C
+    #ifdef I2C_USES_IRQ
         i2c_irq_init(EUSCI_BASE_ADDR);
     #endif
 #endif

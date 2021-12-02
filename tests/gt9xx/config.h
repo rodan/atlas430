@@ -23,7 +23,7 @@
 
 //#define USE_WATCHDOG
 #define HARDWARE_I2C
-#define IRQ_I2C
+#define I2C_USES_IRQ
 
 #define  GT9XX_SA 0x5d
 //#define  GT9XX_SA 0x14
