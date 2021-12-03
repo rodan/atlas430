@@ -4,13 +4,15 @@
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/atlas430
 
-  generated on Thu Dec  2 05:13:46 UTC 2021
+  generated on Fri Dec  3 09:03:31 UTC 2021
 */
 
 #include <msp430.h>
 
 void i2c_ucb2_pin_init(void)
 {
+
+#ifdef I2C_USES_UCB2
 
 #if defined (__MSP430F5252__) || defined (__MSP430F5253__) \
  || defined (__MSP430F5254__) || defined (__MSP430F5255__) \
@@ -136,6 +138,8 @@ void i2c_ucb2_pin_init(void)
     P9SEL |= BIT5 | BIT6;
 
 #else
-    #error "USE_I2C_UCB2 was defined but pins not known in 'glue/MSP430F5xx_6xx/i2c_ucb2_pin.c'"
+    #error "I2C_USES_UCB2 was defined but pins not known in 'glue/MSP430F5xx_6xx/i2c_ucb2_pin.c'"
+#endif
+
 #endif
 }

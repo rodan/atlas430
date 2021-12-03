@@ -30,6 +30,8 @@ out_head()
 void i2c_ucb${ucb_id}_pin_init(void)
 {
 
+#ifdef I2C_USES_UCB${ucb_id}
+
 EOF
 }
 
@@ -40,7 +42,9 @@ out_tail()
 
     cat << EOF
 #else
-    #error "USE_I2C_UCB${ucb_id} was defined but pins not known in 'glue/${family}/i2c_ucb${ucb_id}_pin.c'"
+    #error "I2C_USES_UCB${ucb_id} was defined but pins not known in 'glue/${family}/i2c_ucb${ucb_id}_pin.c'"
+#endif
+
 #endif
 }
 EOF

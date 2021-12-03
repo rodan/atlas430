@@ -75,7 +75,7 @@ all: mkdir_od config.h driverlib $(EXOUTPUT)
 else
 # Append specific CFLAGS/LDFLAGS
 DEBUG := $(shell grep "^\#define CONFIG_DEBUG" config.h)
-MACROS := $(shell $(REFLIB_ROOT)/tools/extract_macros.sh config.h i2c_config.h) -D __I2C_CONFIG_H__
+MACROS := $(shell $(REFLIB_ROOT)/tools/extract_macros.sh -t $(TARGET) -f config.h -f i2c_config.h) -D __I2C_CONFIG_H__
 CFLAGS += $(MACROS)
 ifeq ($(DEBUG),)
 CTARGET	:= RELEASE

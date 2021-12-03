@@ -51,7 +51,7 @@ void print_buf_fram(const uint32_t address, const uint32_t size)
         uart0_print(_utoh32(itoa_buf, bytes_printed));
         uart0_print(": ");
 
-        FM24_read(EUSCI_BASE_ADDR, FM24_SLAVE_ADDR, row, address + bytes_printed, bytes_to_be_printed);
+        FM24_read(I2C_BASE_ADDR, FM24_SLAVE_ADDR, row, address + bytes_printed, bytes_to_be_printed);
         read_ptr = &row[0];
 
         for (i = 0; i < bytes_to_be_printed; i++) {
@@ -128,23 +128,23 @@ void parse_user_input(void)
     if (f == '?') {
         display_menu();
     } else if (f == 'w') {
-        FM24_write(EUSCI_BASE_ADDR, FM24_SLAVE_ADDR, foo, FM_LA-20, 8);
+        FM24_write(I2C_BASE_ADDR, FM24_SLAVE_ADDR, foo, FM_LA-20, 8);
     } else if (f == 'b') {
-        FM24_write(EUSCI_BASE_ADDR, FM24_SLAVE_ADDR, bar, 0x90, 8);
+        FM24_write(I2C_BASE_ADDR, FM24_SLAVE_ADDR, bar, 0x90, 8);
     } else if (f == 'r') {
-        FM24_read(EUSCI_BASE_ADDR, FM24_SLAVE_ADDR, data_r, FM_LA-20, 8);
+        FM24_read(I2C_BASE_ADDR, FM24_SLAVE_ADDR, data_r, FM_LA-20, 8);
     } else if (f == 't') {
-        //display_memtest(EUSCI_BASE_ADDR, 0xffe0, FM_LA, TEST_00);
-        //display_memtest(EUSCI_BASE_ADDR, 0xffe0, FM_LA, TEST_00);
-        //display_memtest(EUSCI_BASE_ADDR, 0x10, 0xb0, TEST_AA);
-        //display_memtest(EUSCI_BASE_ADDR, 0x40, 0x60, TEST_FF);
-        //display_memtest(EUSCI_BASE_ADDR, 0x60, 0x80, TEST_AA);
-        //display_memtest(EUSCI_BASE_ADDR, 0x90, 0x98, TEST_00);
-        display_memtest(EUSCI_BASE_ADDR, FM24_SLAVE_ADDR, 0, FM_LA, TEST_00);
-        display_memtest(EUSCI_BASE_ADDR, FM24_SLAVE_ADDR, 0, FM_LA, TEST_FF);
-        display_memtest(EUSCI_BASE_ADDR, FM24_SLAVE_ADDR, 0, FM_LA, TEST_AA);
+        //display_memtest(I2C_BASE_ADDR, 0xffe0, FM_LA, TEST_00);
+        //display_memtest(I2C_BASE_ADDR, 0xffe0, FM_LA, TEST_00);
+        //display_memtest(I2C_BASE_ADDR, 0x10, 0xb0, TEST_AA);
+        //display_memtest(I2C_BASE_ADDR, 0x40, 0x60, TEST_FF);
+        //display_memtest(I2C_BASE_ADDR, 0x60, 0x80, TEST_AA);
+        //display_memtest(I2C_BASE_ADDR, 0x90, 0x98, TEST_00);
+        display_memtest(I2C_BASE_ADDR, FM24_SLAVE_ADDR, 0, FM_LA, TEST_00);
+        display_memtest(I2C_BASE_ADDR, FM24_SLAVE_ADDR, 0, FM_LA, TEST_FF);
+        display_memtest(I2C_BASE_ADDR, FM24_SLAVE_ADDR, 0, FM_LA, TEST_AA);
         uart0_print(" * roll over test\r\n");
-        display_memtest(EUSCI_BASE_ADDR, FM24_SLAVE_ADDR, FM_LA - 3, FM_LA + 5, TEST_FF);
+        display_memtest(I2C_BASE_ADDR, FM24_SLAVE_ADDR, FM_LA - 3, FM_LA + 5, TEST_FF);
     } else if (f == 'h') {
         print_buf_fram(FM_LA - 63, 128);
     } 

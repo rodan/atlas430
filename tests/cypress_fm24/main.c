@@ -28,6 +28,37 @@ void check_events(void)
     eh_exec(msg);
 }
 
+void i2c_init(void)
+{
+#ifndef I2C_USES_BITBANGING
+    i2c_pin_init();
+
+#if I2C_USE_DEV > 3
+    // enhanced USCI capable microcontroller
+    EUSCI_B_I2C_initMasterParam param = {0};
+
+    param.selectClockSource = EUSCI_B_I2C_CLOCKSOURCE_SMCLK;
+    param.i2cClk = SMCLK_FREQ;// CS_getSMCLK();
+    param.dataRate = EUSCI_B_I2C_SET_DATA_RATE_400KBPS;
+    param.byteCounterThreshold = 0;
+    param.autoSTOPGeneration = EUSCI_B_I2C_NO_AUTO_STOP;
+    EUSCI_B_I2C_initMaster(I2C_BASE_ADDR, &param);
+#elif I2C_USE_DEV < 4
+    // USCI capable microcontroller
+    USCI_B_I2C_initMasterParam param = {0};
+
+    param.selectClockSource = USCI_B_I2C_CLOCKSOURCE_SMCLK;
+    param.i2cClk = SMCLK_FREQ;
+    param.dataRate = USCI_B_I2C_SET_DATA_RATE_400KBPS;
+    USCI_B_I2C_initMaster(I2C_BASE_ADDR, &param);
+#endif
+
+    #ifdef I2C_USES_IRQ
+        i2c_irq_init(I2C_BASE_ADDR);
+    #endif
+#endif
+}
+
 int main(void)
 {
     // stop watchdog
@@ -48,22 +79,7 @@ int main(void)
     uart0_set_rx_irq_handler(uart0_rx_simple_handler);
 #endif
 
-#ifndef I2C_USES_BITBANGING
-    i2c_ucb2_pin_init();
-
-    EUSCI_B_I2C_initMasterParam param = {0};
-
-    param.selectClockSource = EUSCI_B_I2C_CLOCKSOURCE_SMCLK;
-    param.i2cClk = CS_getSMCLK();
-    param.dataRate = EUSCI_B_I2C_SET_DATA_RATE_400KBPS;
-    param.byteCounterThreshold = 0;
-    param.autoSTOPGeneration = EUSCI_B_I2C_NO_AUTO_STOP;
-    EUSCI_B_I2C_initMaster(EUSCI_BASE_ADDR, &param);
-
-    #ifdef I2C_USES_IRQ
-        i2c_irq_init(EUSCI_BASE_ADDR);
-    #endif
-#endif
+    i2c_init();
 
 #ifdef USE_SIG
     sig0_off;

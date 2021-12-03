@@ -121,17 +121,8 @@ void USCI_BX_ISR(void)
 #ifdef USE_SIG
     sig5_on;
 #endif
-#if defined __MSP430_HAS_EUSCI_Bx__
-    switch (HWREG16(EUSCI_BASE_ADDR + OFS_UCBxIV)) {
-#elif defined __MSP430_HAS_USCI_Bx__
-    switch (HWREG16(USCI_BASE_ADDR + OFS_UCBxIV)) {
-#endif
+    switch (HWREG16(I2C_BASE_ADDR + OFS_UCBxIV)) {
 
-    case USCI_NONE:
-        break;
-    case USCI_I2C_UCALIFG:
-        // Arbitration lost interrupt
-        break;                  // Vector 2: ALIFG
     case USCI_I2C_UCNACKIFG:   // Vector 4: NACKIFG
         I2C_IFG = 0;
         I2C_IE = 0;
@@ -143,6 +134,12 @@ void USCI_BX_ISR(void)
         __bic_SR_register_on_exit(LPM0_bits);
         return;
         //break;
+#if 0
+    case USCI_NONE:
+        break;
+    case USCI_I2C_UCALIFG:
+        // Arbitration lost interrupt
+        break;                  // Vector 2: ALIFG
     case USCI_I2C_UCSTTIFG:
         // START condition detected interrupt, own address detected on the bus
         break;
@@ -182,6 +179,7 @@ void USCI_BX_ISR(void)
     case USCI_I2C_UCBIT9IFG:
         // interrupt forthe ninth clock cycle of a byte of data
         break;
+#endif
     default:
         break;
     }
@@ -414,7 +412,6 @@ void i2c_transfer_start(const uint16_t base_addr, const i2c_package_t * pkg,
     }
 }
 #endif
-
 #endif
 
 ///\}

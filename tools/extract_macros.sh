@@ -6,8 +6,25 @@ extract_defs()
 }
 
 while (( "$#" )); do
-    [ -e "${1}" ] && EXTR_STR="$(extract_defs "${1}") ${EXTR_STR}"
-    shift;
+    if [ "$1" = "-t" ]; then
+        target="${2}"
+        shift; shift;
+    elif [ "$1" = "-f" ]; then
+        file_list="${file_list} ${2}"
+        shift; shift;
+    else
+        file_list="${file_list} ${1}"
+        shift;
+    fi
+done
+
+for file in ${file_list}; do
+    targeted_file="${file//.h/}_${target}.h"
+    if [ -e "${targeted_file}" ]; then
+        EXTR_STR="$(extract_defs "${targeted_file}") ${EXTR_STR}"
+    elif [ -e "${file}" ]; then
+        EXTR_STR="$(extract_defs "${file}") ${EXTR_STR}"
+    fi
 done
 
 echo "${EXTR_STR}"

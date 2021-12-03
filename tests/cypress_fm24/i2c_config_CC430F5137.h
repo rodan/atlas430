@@ -23,7 +23,7 @@
 //  ===================================================
 
 /// Select which USCI module to use
-#define I2C_USE_DEV      6    ///< \hideinitializer
+#define I2C_USE_DEV      0    ///< \hideinitializer
 /**<    0 = USCIB0 \n
 *         1 = USCIB1 \n
 *         2 = USCIB2 \n
@@ -34,7 +34,7 @@
 *         7 = EUSCIB3 \n
 **/
 
-#define I2C_USES_UCB2
+#define I2C_USES_UCB0
 
 /// Select which clock source to use
 #define I2C_CLK_SRC     2    ///< \hideinitializer
@@ -59,8 +59,8 @@
 //#define I2C_MASTER_SDA      BIT0
 
 // eUSCI
-#define I2C_BASE_ADDR       EUSCI_B2_BASE
-#define I2C_ISR_VECTOR      EUSCI_B2_VECTOR
+#define I2C_BASE_ADDR     USCI_B0_BASE
+#define I2C_ISR_VECTOR      USCI_B0_VECTOR
 
 
 #endif

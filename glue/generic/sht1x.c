@@ -5,6 +5,7 @@
 //  license:         BSD
 
 #ifdef __I2C_CONFIG_H__
+#ifdef I2C_USES_BITBANGING
 
 #include <msp430.h>
 #include <stdlib.h>
@@ -77,4 +78,4 @@ void SHT1X_i2csens_reset(void)
 }
 
 #endif // __I2C_CONFIG_H__
-
+#endif

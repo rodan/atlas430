@@ -18,5 +18,6 @@
 #include "i2c_ucb1_pin.h"
 #include "i2c_ucb2_pin.h"
 #include "i2c_ucb3_pin.h"
+#include "i2c_pin.h"
 
 #endif

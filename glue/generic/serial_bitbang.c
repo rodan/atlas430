@@ -7,6 +7,7 @@
 //  license:         BSD
 
 #ifdef __I2C_CONFIG_H__
+#ifdef I2C_USES_BITBANGING
 
 #include <msp430.h>
 
@@ -263,4 +264,5 @@ uint8_t i2cm_transfer(const i2c_package_t * pkg)
     i2cm_stop(pkg->options);
     return rv;
 }
+#endif
 #endif

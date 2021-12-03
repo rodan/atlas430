@@ -14,5 +14,10 @@
 #include "uart2_pin.h"
 #include "uart3.h"
 #include "uart3_pin.h"
+#include "i2c_ucb0_pin.h"
+#include "i2c_ucb1_pin.h"
+#include "i2c_ucb2_pin.h"
+#include "i2c_ucb3_pin.h"
+#include "i2c_pin.h"
 
 #endif
