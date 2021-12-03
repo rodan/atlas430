@@ -6,6 +6,7 @@
 #include "proj.h"
 #include "driverlib.h"
 #include "timer_a0.h"
+#include "sig.h"
 #include "ir_send.h"
 #include "ir_common.h"
 

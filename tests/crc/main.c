@@ -1,6 +1,7 @@
 
 /*
-    program that tests the functionality of the EUSCI A0 UART 
+    program that tests the functionality of the hardware CRC function
+    to be run on the MSP430FR5994
 */
 
 #include <msp430.h>
@@ -10,6 +11,7 @@
 #include "proj.h"
 #include "driverlib.h"
 #include "glue.h"
+#include "sig.h"
 #include "ui.h"
 
 static void uart0_rx_irq(uint32_t msg)
@@ -33,18 +35,18 @@ void check_events(void)
 
 int main(void)
 {
-    //char buf[CONV_BASE_2_BUF_SZ];
-
     // stop watchdog
     WDTCTL = WDTPW | WDTHOLD;
 
     msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
+#ifdef USE_SIG
     sig0_on;
+#endif
 
-    clock_port_init();
+    clock_pin_init();
     clock_init();
 
-    uart0_port_init();
+    uart0_pin_init();
     uart0_init();
 
 #ifdef UART0_RX_USES_RINGBUF
@@ -53,27 +55,27 @@ int main(void)
     uart0_set_rx_irq_handler(uart0_rx_simple_handler);
 #endif
 
-    // Disable the GPIO power-on default high-impedance mode to activate
-    // previously configured port settings
-    PM5CTL0 &= ~LOCKLPM5;
-
+#ifdef USE_SIG
     sig0_off;
     sig1_off;
     sig2_off;
     sig3_off;
     sig4_off;
+#endif
 
+    eh_init();
     eh_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
+    _BIS_SR(GIE);
 
-    display_menu();
+    display_version();
 
     while (1) {
         // sleep
-#ifdef LED_SYSTEM_STATES
+#ifdef USE_SIG
         sig4_off;
 #endif
         _BIS_SR(LPM3_bits + GIE);
-#ifdef LED_SYSTEM_STATES
+#ifdef USE_SIG
         sig4_on;
 #endif
         __no_operation();

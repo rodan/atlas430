@@ -3,22 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "eusci_b_spi.h"
-//#include "helper.h"
 #include "glue.h"
 #include "spi_d.h"
 #include "hi_stirrer.h"
 #include "proj.h"
-
-/* control register 0Eh/8Eh
-bit7 EOSC   Enable Oscillator (1 if oscillator must be stopped when on battery)
-bit6 BBSQW  Battery Backed Square Wave
-bit5 CONV   Convert temperature (1 forces a conversion NOW)
-bit4 RS2    Rate select - frequency of square wave output
-bit3 RS1    Rate select
-bit2 INTCN  Interrupt control (1 for use of the alarms and to disable square wave)
-bit1 A2IE   Alarm2 interrupt enable (1 to enable)
-bit0 A1IE   Alarm1 interrupt enable (1 to enable)
-*/
 
 void hist_init(const uint16_t baseAddress)
 {

@@ -7,8 +7,8 @@
 #define false               0
 
 /*!
-	\brief List of possible message types for the message bus.
-	\sa sys_messagebus_register()
+	\brief List of possible message types for the event handler.
+	\sa eh_register()
 */
 
 #define           SYS_MSG_NULL 0
@@ -20,13 +20,9 @@
 // see hsc_ssc.h for a description of these values
 // these defaults are valid for the HSCMRNN030PA2A3 chip
 #define SLAVE_ADDR 0x28
-//#define OUTPUT_MIN 0
-//#define OUTPUT_MAX 0x3fff       // 2^14 - 1
-//#define PRESSURE_MIN 0.0        // min is 0 for sensors that give absolute values
-//#define PRESSURE_MAX 206842.7   // 30psi (and we want results in pascals)
 
 #define OUTPUT_MIN 0x666
-#define OUTPUT_MAX 0x399A       // 2^14 - 1
+#define OUTPUT_MAX 0x399a
 #define PRESSURE_MIN 0.0        // min is 0 for sensors that give absolute values
 #define PRESSURE_MAX 206842.7   // 30psi (and we want results in pascals)
 

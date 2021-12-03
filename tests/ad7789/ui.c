@@ -3,18 +3,29 @@
 #include <string.h>
 
 #include "glue.h"
+#include "version.h"
 #include "ui.h"
 
 extern spi_descriptor spid_ad7789;
 static const char menu_str[]= "\
-\r\n ad7789 module test suite --- available commands:\r\n\r\n\
+ available commands:\r\n\r\n\
 \e[33;1m?\e[0m  - show menu\r\n\
 \e[33;1mi\e[0m  - get reg settings\r\n\
 \e[33;1mc\e[0m  - get conversion\r\n";
 
 void display_menu(void)
 {
+    display_version();
     uart0_print(menu_str);
+}
+
+void display_version(void)
+{
+    char sconv[CONV_BASE_10_BUF_SZ];
+
+    uart0_print("ad7789 b");
+    uart0_print(_utoa(sconv, BUILD));
+    uart0_print("\r\n");
 }
 
 #define PARSER_CNT 16

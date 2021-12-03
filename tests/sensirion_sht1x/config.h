@@ -14,13 +14,15 @@
 #define USE_UART0
 #define UART0_BAUD 57600
 #define UART0_RXBUF_SZ 16
-//#define UART0_RX_USES_RINGBUF
-//#define UART0_TXBUF_SZ 32
-//#define UART0_TX_USES_IRQ
+#define UART0_RX_USES_RINGBUF
+#define UART0_TXBUF_SZ 32
+#define UART0_TX_USES_IRQ
+
+#define I2C_USES_BITBANGING
 
 //#define USE_WATCHDOG
 
-//#define USE_ITOA_LUT
+#define USE_SIG
 //#define CONFIG_DEBUG
 
 #endif

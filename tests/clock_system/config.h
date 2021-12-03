@@ -10,6 +10,7 @@
 //#define SMCLK_FREQ_16M
 //#define SMCLK_FREQ_24M
 
+#define USE_SIG
 //#define CONFIG_DEBUG
 
 #endif

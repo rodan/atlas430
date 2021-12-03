@@ -3,11 +3,13 @@
 #include <string.h>
 
 #include "glue.h"
+#include "version.h"
 #include "ui.h"
 
-static const char menu_str[]="\r\n fexec test module --- available commands:\r\n\r\n\
+static const char menu_str[]="\
+ available commands:\r\n\r\n\
 \e[33;1m?\e[0m  - show menu\r\n\
-\e[33;1mr\e[0m  - run fct\r\n";
+\e[33;1mt\e[0m  - test fct\r\n";
 
 #define STR_LEN 80
 
@@ -28,7 +30,17 @@ uint8_t f_int(void)
 
 void display_menu(void)
 {
+    display_version();
     uart0_print(menu_str);
+}
+
+void display_version(void)
+{
+    char sconv[CONV_BASE_10_BUF_SZ];
+
+    uart0_print("fexec b");
+    uart0_print(_utoa(sconv, BUILD));
+    uart0_print("\r\n");
 }
 
 // same as above, but asume writable memory can be executed and no mmap is needed
@@ -73,7 +85,7 @@ void parse_user_input(void)
 
     if (f == '?') {
         display_menu();
-    } else if (f == 'r') {
+    } else if (f == 't') {
         ap = (uint8_t *)&f_int;
 
         memcpy(current_opcode, ap, OPCODE_LEN);

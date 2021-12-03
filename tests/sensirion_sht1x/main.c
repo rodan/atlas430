@@ -1,4 +1,10 @@
 
+/*
+    program that tests the functionality of a sensirion SHT1x sensor
+    - currently not working -
+    to be run on the MSP430FR5994
+*/
+
 #include <msp430.h>
 #include <stdio.h>
 #include <string.h>
@@ -6,9 +12,10 @@
 #include "proj.h"
 #include "driverlib.h"
 #include "glue.h"
-#include "qa.h"
+#include "sig.h"
+#include "ui.h"
 
-static void uart0_rx_irq(const uint32_t msg)
+static void uart0_rx_irq(uint32_t msg)
 {
     parse_user_input();
     uart0_set_eol();
@@ -31,18 +38,16 @@ int main(void)
 {
     // stop watchdog
     WDTCTL = WDTPW | WDTHOLD;
-    msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
-    sig0_on;
 
-    clock_port_init();
+    msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
+#ifdef USE_SIG
+    sig0_on;
+#endif
+
+    clock_pin_init();
     clock_init();
 
-    // output SMCLK on P3.4
-    P3OUT &= ~BIT4;
-    P3DIR |= BIT4;
-    P3SEL1 |= BIT4;
-
-    uart0_port_init();
+    uart0_pin_init();
     uart0_init();
 
 #ifdef UART0_RX_USES_RINGBUF
@@ -51,29 +56,27 @@ int main(void)
     uart0_set_rx_irq_handler(uart0_rx_simple_handler);
 #endif
 
-    // Disable the GPIO power-on default high-impedance mode to activate
-    // previously configured port settings
-    PM5CTL0 &= ~LOCKLPM5;
-
+#ifdef USE_SIG
     sig0_off;
     sig1_off;
     sig2_off;
     sig3_off;
-#ifdef LED_SYSTEM_STATES
-    sig4_on;
-#else
     sig4_off;
 #endif
 
+    eh_init();
     eh_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
+    _BIS_SR(GIE);
+
+    display_version();
 
     while (1) {
         // sleep
-#ifdef LED_SYSTEM_STATES
+#ifdef USE_SIG
         sig4_off;
 #endif
         _BIS_SR(LPM3_bits + GIE);
-#ifdef LED_SYSTEM_STATES
+#ifdef USE_SIG
         sig4_on;
 #endif
         __no_operation();
@@ -82,6 +85,4 @@ int main(void)
 //#endif
         check_events();
     }
-
 }
-

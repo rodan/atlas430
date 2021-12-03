@@ -1,6 +1,7 @@
 
 /*
     program that tests the functionality of the AD7789 IC
+    to be run on MSP430FR5994
 
     tweak the baud rate in config.h
 */
@@ -12,6 +13,7 @@
 #include "proj.h"
 #include "driverlib.h"
 #include "glue.h"
+#include "sig.h"
 #include "ui.h"
 
 spi_descriptor spid_ad7789;
@@ -108,12 +110,14 @@ int main(void)
     // stop watchdog
     WDTCTL = WDTPW | WDTHOLD;
     msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
+#ifdef USE_SIG
     sig0_on;
+#endif
 
-    clock_port_init();
+    clock_pin_init();
     clock_init();
 
-    uart0_port_init();
+    uart0_pin_init();
     uart0_init();
 
 #ifdef UART0_RX_USES_RINGBUF
@@ -131,19 +135,19 @@ int main(void)
 
     AD7789_init(&spid_ad7789);
 
-    // Disable the GPIO power-on default high-impedance mode to activate
-    // previously configured port settings
-    PM5CTL0 &= ~LOCKLPM5;
-
+#ifdef USE_SIG
     sig0_off;
     sig1_off;
     sig2_off;
     sig3_off;
     sig4_off;
+#endif
 
     eh_init();
     eh_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
-    display_menu();
+    _BIS_SR(GIE);
+
+    display_version();
 
     while (1) {
         // sleep

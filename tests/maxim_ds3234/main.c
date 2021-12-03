@@ -147,6 +147,7 @@ int main(void)
     sig4_off;
 #endif
 
+    eh_init();
     eh_register(&uart0_rx_handler, SYS_MSG_UART0_RX);
     eh_register(&ds3234_irq_handler, SYS_MSG_P53_INT);
     display_menu();

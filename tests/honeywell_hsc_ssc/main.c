@@ -72,6 +72,7 @@ int main(void)
     sig4_off;
 #endif
 
+    eh_init();
     eh_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
     _BIS_SR(GIE);
 

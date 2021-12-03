@@ -1,7 +1,11 @@
 
+// timer_a1 jitter test, to be used only on MSP430FR5994
+// all pins from P3 become a counter with a 40kHz clock
+
 #include <msp430.h>
 #include <stdint.h>
 #include "driverlib.h"
+#include "glue.h"
 
 #define       ACLK_FREQ  32768
 #define  CLK_LFXT_DRIVE  CS_LFXT_DRIVE_0

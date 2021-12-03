@@ -3,6 +3,7 @@
 #include "proj.h"
 #include "driverlib.h"
 #include "glue.h"
+#include "sig.h"
 
 int main(void)
 {
@@ -10,10 +11,9 @@ int main(void)
     WDTCTL = WDTPW | WDTHOLD;
 
     msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
-#if defined (__MSP430_HAS_FRAM__)
-    PMM_unlockLPM5();
-#endif
+#ifdef USE_SIG
     sig0_on;
+#endif
 
     clock_pin_init();
     clock_init();
@@ -46,15 +46,19 @@ int main(void)
     P2SEL |= BIT2;
 #endif
 
+#ifdef USE_SIG
     sig0_off;
     sig1_off;
     sig2_off;
     sig3_off;
     sig4_off;
+#endif
 
     while (1) {
         __no_operation();
         __delay_cycles(SMCLK_FREQ / 2);
+#ifdef USE_SIG
         sig0_switch;
+#endif
     }
 }

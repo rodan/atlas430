@@ -6,6 +6,7 @@
 #include "proj.h"
 #include "driverlib.h"
 #include "timer_a0.h"
+#include "sig.h"
 #include "ir_acquire.h"
 
 // sigrok-cli -d fx2lafw --config samplerate=100000 --channels D0,D1 --time 100 --triggers D0=f --protocol-decoders timing:data=D1

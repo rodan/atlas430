@@ -19,7 +19,7 @@
 #define CONFIG_AD7789
 #define EUSCI_SPI_BASE_ADDR EUSCI_B1_BASE
 
-//#define USE_ITOA_LUT
+#define USE_SIG
 //#define CONFIG_DEBUG
 
 #endif

@@ -3,7 +3,8 @@
 #include <string.h>
 
 #include "glue.h"
-#include "qa.h"
+#include "version.h"
+#include "ui.h"
 #include "ir_acquire.h"
 #include "ir_send.h"
 
@@ -11,13 +12,25 @@
 
 struct ir_tome temp_command;
 
+static const char menu_str[]="\
+ available commands:\r\n\r\n\
+ \e[33;1m?\e[0m  - show menu\r\n\
+ \e[33;1ms\e[0m  - start IR acquisition\r\n\
+ \e[33;1mr\e[0m  - replay signal\r\n";
+
 void display_menu(void)
 {
-    uart0_print("\r\n vishay TSOP aquisition module test suite --- available commands:\r\n\r\n");
-    uart0_print(" \e[33;1m?\e[0m  - show menu\r\n");
-    uart0_print(" \e[33;1ms\e[0m  - start IR acquisition\r\n" );
-    uart0_print(" \e[33;1mr\e[0m  - replay signal\r\n" );
-    
+    display_version();
+    uart0_print(menu_str);
+}
+
+void display_version(void)
+{
+    char sconv[CONV_BASE_10_BUF_SZ];
+
+    uart0_print("tsop b");
+    uart0_print(_utoa(sconv, BUILD));
+    uart0_print("\r\n");
 }
 
 void qa_acquisition_end(void)
@@ -47,32 +60,38 @@ void qa_acquisition_end(void)
     // save acquired command to the ir_tome
 }
 
+#define PARSER_CNT 16
+
 void parse_user_input(void)
 {
+#ifdef UART0_RX_USES_RINGBUF
+    struct ringbuf *rbr = uart0_get_rx_ringbuf();
+    uint8_t rx;
+    uint8_t c = 0;
+    char input[PARSER_CNT];
+
+    memset(input, 0, PARSER_CNT);
+
+    // read the entire ringbuffer
+    while (ringbuf_get(rbr, &rx)) {
+        if (c < PARSER_CNT - 1) {
+            input[c] = rx;
+        }
+        c++;
+    }
+#else
     char *input = uart0_get_rx_buf();
+#endif
     char f = input[0];
-    char itoa_buf[18];
 
     if (f == '?') {
         display_menu();
-    } else if (f == 'i') {
-        uart0_print("P1IN ");
-        uart0_print(_utob(itoa_buf, P1IN));
-        uart0_print("\r\n P1IE");
-        uart0_print(_utob(itoa_buf, P1IE));
-        uart0_print("\r\n P1IES");
-        uart0_print(_utob(itoa_buf, P1IES));
-        uart0_print("\r\n P1IFG");
-        uart0_print(_utob(itoa_buf, P1IFG));
-        uart0_print("\r\n");
     } else if (f == 's') {
         ir_acquire_start();
         uart0_print("go\r\n");
     } else if (f == 'r') {
         ir_send_start(&temp_command);
-        uart0_print("sig sent");
-    } else {
-        uart0_print("\r\n");
+        uart0_print("sig sent\r\n");
     }
 }
 

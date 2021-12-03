@@ -7,8 +7,8 @@
 #define false               0
 
 /*!
-	\brief List of possible message types for the message bus.
-	\sa sys_messagebus_register()
+	\brief List of possible message types for the event handler.
+	\sa eh_register()
 */
 #define           SYS_MSG_NULL 0
 #define    SYS_MSG_TIMER0_CRR1 0x1   // timer_a0_delay_noblk_ccr1

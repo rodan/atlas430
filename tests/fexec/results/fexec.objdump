@@ -5434,9 +5434,9 @@ struct sys_messagebus * sys_messagebus_getp(void)
     5a42:	1c 42 64 1d 	mov	&0x1d64,r12	;0x1d64
     5a46:	30 41       	ret			
 
-00005a48 <sys_messagebus_register>:
+00005a48 <eh_register>:
 
-void sys_messagebus_register(void (*callback) (const uint16_t sys_message),
+void eh_register(void (*callback) (const uint16_t sys_message),
                              const uint16_t listens)
 {
     5a48:	2a 15       	pushm	#3,	r10	;16-bit words
@@ -6137,7 +6137,7 @@ int main(void)
     5d58:	d2 c3 02 02 	bic.b	#1,	&0x0202	;r3 As==01
 
 00005d5c <.Loc.82.1>:
-    sys_messagebus_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
+    eh_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
     5d5c:	7d 42       	mov.b	#8,	r13	;r2 As==11
     5d5e:	3c 40 ae 5c 	mov	#23726,	r12	;#0x5cae
     5d62:	b0 12 48 5a 	call	#23112		;#0x5a48
