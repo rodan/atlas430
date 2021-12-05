@@ -446,15 +446,15 @@ uint8_t USCI_B_I2C_masterReceiveMultiByteFinish (uint16_t baseAddress)
     //Send stop condition.
     HWREG8(baseAddress + OFS_UCBxCTL1) |= UCTXSTP;
 
-    //Capture data from receive buffer after setting stop bit due to
-    //MSP430 I2C critical timing.
-    receiveData = HWREG8(baseAddress + OFS_UCBxRXBUF);
-
     //Wait for Stop to finish
     while (HWREG8(baseAddress + OFS_UCBxCTL1) & UCTXSTP);
 
     //Wait for RX buffer
     while (!(HWREG8(baseAddress + OFS_UCBxIFG) & UCRXIFG));
+
+    //Capture data from receive buffer after setting stop bit due to
+    //MSP430 I2C critical timing.
+    receiveData = HWREG8(baseAddress + OFS_UCBxRXBUF);
 
     return receiveData;
 }

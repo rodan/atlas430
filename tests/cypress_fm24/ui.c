@@ -140,11 +140,16 @@ void parse_user_input(void)
         //display_memtest(I2C_BASE_ADDR, 0x40, 0x60, TEST_FF);
         //display_memtest(I2C_BASE_ADDR, 0x60, 0x80, TEST_AA);
         //display_memtest(I2C_BASE_ADDR, 0x90, 0x98, TEST_00);
+
         display_memtest(I2C_BASE_ADDR, FM24_SLAVE_ADDR, 0, FM_LA, TEST_00);
         display_memtest(I2C_BASE_ADDR, FM24_SLAVE_ADDR, 0, FM_LA, TEST_FF);
         display_memtest(I2C_BASE_ADDR, FM24_SLAVE_ADDR, 0, FM_LA, TEST_AA);
         uart0_print(" * roll over test\r\n");
-        display_memtest(I2C_BASE_ADDR, FM24_SLAVE_ADDR, FM_LA - 3, FM_LA + 5, TEST_FF);
+        display_memtest(I2C_BASE_ADDR, FM24_SLAVE_ADDR, FM_LA - 3, FM_LA + 5, TEST_CNT);
+    } else if (f == '1') {
+        FM24_read(I2C_BASE_ADDR, FM24_SLAVE_ADDR, data_r, FM_LA-3, 8);
+    } else if (f == '2') {
+        display_memtest(I2C_BASE_ADDR, FM24_SLAVE_ADDR, FM_LA - 3, FM_LA + 5, TEST_CNT);
     } else if (f == 'h') {
         print_buf_fram(FM_LA - 63, 128);
     } 

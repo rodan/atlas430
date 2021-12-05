@@ -12,6 +12,7 @@
 #include <inttypes.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 #include "fm24.h"
 
 #ifdef I2C_USES_BITBANGING
@@ -49,6 +50,7 @@ uint32_t FM24_read(const uint16_t usci_base_addr, const uint8_t slave_addr, uint
     i2c_buff[0] = (c_addr & 0xff00) >> 8;
     i2c_buff[1] = c_addr & 0xff;
 
+    memset(&pkg, 0, sizeof(i2c_package_t));
     pkg.slave_addr = slave_addr | (c_addr >> 16);
     pkg.addr = NULL;
     pkg.addr_len = 0;
@@ -67,6 +69,8 @@ uint32_t FM24_read(const uint16_t usci_base_addr, const uint8_t slave_addr, uint
 #endif
 
     // * and now do the actual read
+    memset(&pkg, 0, sizeof(i2c_package_t));
+    pkg.slave_addr = slave_addr | (c_addr >> 16);
     pkg.data = data;
     pkg.data_len = data_len;
     pkg.options = I2C_READ | I2C_LAST_NAK;
@@ -105,7 +109,8 @@ uint32_t FM24_write(const uint16_t usci_base_addr, const uint8_t slave_addr, uin
 
     i2c_buff[0] = (c_addr & 0xff00) >> 8;
     i2c_buff[1] = c_addr & 0xff;
-
+    
+    memset(&pkg, 0, sizeof(i2c_package_t));
     pkg.slave_addr = slave_addr | (c_addr >> 16);
     pkg.addr = i2c_buff;
     pkg.addr_len = 2;
@@ -140,6 +145,8 @@ uint8_t FM24_sleep(const uint16_t usci_base_addr, const uint8_t slave_addr)
     uint8_t i2c_data[1] = { FM24_SLEEP };
 
     i2c_package_t pkg;
+
+    memset(&pkg, 0, sizeof(i2c_package_t));
     pkg.slave_addr = FM24_RSVD;
     pkg.addr = i2c_buff;
     pkg.addr_len = 1;
