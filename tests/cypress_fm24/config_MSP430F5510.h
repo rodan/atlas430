@@ -18,7 +18,7 @@
 #define UART1_TXBUF_SZ 32
 #define UART1_TX_USES_IRQ
 
-#define I2C_USES_IRQ
+//#define I2C_USES_IRQ
 
 #define CONFIG_CYPRESS_FM24
 //#define CONFIG_FM24CL64B
