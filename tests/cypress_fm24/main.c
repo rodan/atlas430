@@ -8,11 +8,12 @@
 #include "glue.h"
 #include "ui.h"
 #include "sig.h"
+#include "uart_mapping.h"
 
-static void uart0_rx_irq(uint32_t msg)
+static void uart_bcl_rx_irq(uint32_t msg)
 {
     parse_user_input();
-    uart0_set_eol();
+    uart_bcl_set_eol();
 }
 
 void check_events(void)
@@ -20,9 +21,9 @@ void check_events(void)
     uint16_t msg = SYS_MSG_NULL;
 
     // uart RX
-    if (uart0_get_event() == UART0_EV_RX) {
-        msg |= SYS_MSG_UART0_RX;
-        uart0_rst_event();
+    if (uart_bcl_get_event() == UART_EV_RX) {
+        msg |= SYS_MSG_UART_BCL_RX;
+        uart_bcl_rst_event();
     }
 
     eh_exec(msg);
@@ -71,12 +72,13 @@ int main(void)
     clock_pin_init();
     clock_init();
 
-    uart0_pin_init();
-    uart0_init();
-#ifdef UART0_RX_USES_RINGBUF
-    uart0_set_rx_irq_handler(uart0_rx_ringbuf_handler);
+    uart_bcl_pin_init();
+    uart_bcl_init();
+#if defined UART0_RX_USES_RINGBUF || defined UART1_RX_USES_RINGBUF || \
+    defined UART2_RX_USES_RINGBUF || defined UART3_RX_USES_RINGBUF
+    uart_bcl_set_rx_irq_handler(uart_bcl_rx_ringbuf_handler);
 #else
-    uart0_set_rx_irq_handler(uart0_rx_simple_handler);
+    uart_bcl_set_rx_irq_handler(uart_bcl_rx_simple_handler);
 #endif
 
     i2c_init();
@@ -91,7 +93,7 @@ int main(void)
 #endif
 
     eh_init();
-    eh_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
+    eh_register(&uart_bcl_rx_irq, SYS_MSG_UART_BCL_RX);
     _BIS_SR(GIE);
 
     display_version();
