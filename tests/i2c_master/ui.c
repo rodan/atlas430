@@ -212,14 +212,11 @@ void parse_user_input(void)
         //display_memtest(I2C_BASE_ADDR, 0x90, 0x98, TEST_00);
 
         display_memtest(I2C_BASE_ADDR, FM24_SLAVE_ADDR, 0, FM_LA, TEST_FF);
-        display_memtest(I2C_BASE_ADDR, FM24_SLAVE_ADDR, 0, FM_LA, TEST_CNT);
         display_memtest(I2C_BASE_ADDR, FM24_SLAVE_ADDR, 0, FM_LA, TEST_00);
+        display_memtest(I2C_BASE_ADDR, FM24_SLAVE_ADDR, 0, FM_LA, TEST_CNT);
+        display_memtest(I2C_BASE_ADDR, FM24_SLAVE_ADDR, 0, FM_LA, TEST_AA);
         uart_bcl_print(" * roll over test\r\n");
         display_memtest(I2C_BASE_ADDR, FM24_SLAVE_ADDR, FM_LA - 3, FM_LA + 5, TEST_CNT);
-    //} else if (f == 'r') {
-    //    FM24_read(I2C_BASE_ADDR, FM24_SLAVE_ADDR, data_r, FM_LA-3, 8);
-    //} else if (f == 'w') {
-    //    display_memtest(I2C_BASE_ADDR, FM24_SLAVE_ADDR, FM_LA - 3, FM_LA + 5, TEST_CNT);
     } else if (f == 'h') {
         print_buf_fram(FM_LA - 63, 128);
 #endif
