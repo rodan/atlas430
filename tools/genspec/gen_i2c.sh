@@ -42,7 +42,7 @@ out_tail()
 
     cat << EOF
 #else
-    #error "I2C_USES_UCB${ucb_id} was defined but pins not known in 'glue/${family}/i2c_ucb${ucb_id}_pin.c'"
+    #warning "I2C_USES_UCB${ucb_id} was defined but pins not known in 'glue/${family}/i2c_ucb${ucb_id}_pin.c'"
 #endif
 
 #endif

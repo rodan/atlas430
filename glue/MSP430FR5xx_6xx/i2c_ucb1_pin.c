@@ -4,7 +4,7 @@
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/atlas430
 
-  generated on Fri Dec  3 09:02:44 UTC 2021
+  generated on Wed Dec  8 10:10:44 UTC 2021
 */
 
 #include <msp430.h>
@@ -14,18 +14,7 @@ void i2c_ucb1_pin_init(void)
 
 #ifdef I2C_USES_UCB1
 
-#if defined (__MSP430FR6005__) || defined (__MSP430FR6007__) \
- || defined (__MSP430FR6035__) || defined (__MSP430FR60371__) \
- || defined (__MSP430FR6037__) || defined (__MSP430FR6045__) \
- || defined (__MSP430FR60471__) || defined (__MSP430FR6047__)
-
-    P5SEL0 &= ~BIT6;
-    P5SEL1 |= BIT6;
-    P8SEL0 |= BIT5 | BIT6;
-    P8SEL1 &= ~(BIT5 | BIT6);
-#error multiple pins found for the UCB1SCL function, you must initialize them manually
-
-#elif defined (__MSP430FR5887__) || defined (__MSP430FR5888__) \
+#if defined (__MSP430FR5887__) || defined (__MSP430FR5888__) \
  || defined (__MSP430FR58891__) || defined (__MSP430FR5889__) \
  || defined (__MSP430FR5986__) || defined (__MSP430FR5987__) \
  || defined (__MSP430FR5988__) || defined (__MSP430FR59891__) \
@@ -49,8 +38,8 @@ void i2c_ucb1_pin_init(void)
     P4SEL1 |= BIT1;
     P4SEL1 |= BIT6;
     P4SEL1 |= BIT7;
-#error multiple pins found for the UCB1SCL function, you must initialize them manually
-#error multiple pins found for the UCB1SDA function, you must initialize them manually
+#warning multiple pins found for the UCB1SCL function, you must initialize them manually
+#warning multiple pins found for the UCB1SDA function, you must initialize them manually
 
 #elif defined (__MSP430FR5041__) || defined (__MSP430FR50431__) \
  || defined (__MSP430FR5043__) || defined (__MSP430FR6041__) \
@@ -60,30 +49,8 @@ void i2c_ucb1_pin_init(void)
     P3SEL1 &= ~(BIT6 | BIT7);
     P5SEL0 &= ~(BIT5 | BIT6);
     P5SEL1 |= BIT5 | BIT6;
-#error multiple pins found for the UCB1SCL function, you must initialize them manually
-#error multiple pins found for the UCB1SDA function, you must initialize them manually
-
-#elif defined (__MSP430FR58471__) || defined (__MSP430FR5847__) \
- || defined (__MSP430FR5848__) || defined (__MSP430FR5849__) \
- || defined (__MSP430FR5857__) || defined (__MSP430FR5858__) \
- || defined (__MSP430FR5859__) || defined (__MSP430FR58671__) \
- || defined (__MSP430FR5867__) || defined (__MSP430FR5868__) \
- || defined (__MSP430FR5869__) || defined (__MSP430FR59471__) \
- || defined (__MSP430FR5947__) || defined (__MSP430FR5948__) \
- || defined (__MSP430FR5949__) || defined (__MSP430FR5957__) \
- || defined (__MSP430FR5958__) || defined (__MSP430FR5959__) \
- || defined (__MSP430FR5967__) || defined (__MSP430FR5968__) \
- || defined (__MSP430FR59691__) || defined (__MSP430FR5969__)
-
-#error function UCB1SCL not found for this uC
-#error function UCB1SDA not found for this uC
-
-#elif defined (__MSP430FR5962__) || defined (__MSP430FR5964__) \
- || defined (__MSP430FR5992__) || defined (__MSP430FR59941__) \
- || defined (__MSP430FR5994__)
-
-    P5SEL0 |= BIT0 | BIT1;
-    P5SEL1 &= ~(BIT0 | BIT1);
+#warning multiple pins found for the UCB1SCL function, you must initialize them manually
+#warning multiple pins found for the UCB1SDA function, you must initialize them manually
 
 #elif defined (__MSP430FR5870__) || defined (__MSP430FR58721__) \
  || defined (__MSP430FR5872__) || defined (__MSP430FR59221__) \
@@ -100,11 +67,44 @@ void i2c_ucb1_pin_init(void)
     P3SEL1 &= ~(BIT1 | BIT2);
     P4SEL0 &= ~(BIT6 | BIT7);
     P4SEL1 |= BIT6 | BIT7;
-#error multiple pins found for the UCB1SCL function, you must initialize them manually
-#error multiple pins found for the UCB1SDA function, you must initialize them manually
+#warning multiple pins found for the UCB1SCL function, you must initialize them manually
+#warning multiple pins found for the UCB1SDA function, you must initialize them manually
+
+#elif defined (__MSP430FR58471__) || defined (__MSP430FR5847__) \
+ || defined (__MSP430FR5848__) || defined (__MSP430FR5849__) \
+ || defined (__MSP430FR5857__) || defined (__MSP430FR5858__) \
+ || defined (__MSP430FR5859__) || defined (__MSP430FR58671__) \
+ || defined (__MSP430FR5867__) || defined (__MSP430FR5868__) \
+ || defined (__MSP430FR5869__) || defined (__MSP430FR59471__) \
+ || defined (__MSP430FR5947__) || defined (__MSP430FR5948__) \
+ || defined (__MSP430FR5949__) || defined (__MSP430FR5957__) \
+ || defined (__MSP430FR5958__) || defined (__MSP430FR5959__) \
+ || defined (__MSP430FR5967__) || defined (__MSP430FR5968__) \
+ || defined (__MSP430FR59691__) || defined (__MSP430FR5969__)
+
+#warning function UCB1SCL not found for this uC
+#warning function UCB1SDA not found for this uC
+
+#elif defined (__MSP430FR6005__) || defined (__MSP430FR6007__) \
+ || defined (__MSP430FR6035__) || defined (__MSP430FR60371__) \
+ || defined (__MSP430FR6037__) || defined (__MSP430FR6045__) \
+ || defined (__MSP430FR60471__) || defined (__MSP430FR6047__)
+
+    P5SEL0 &= ~BIT6;
+    P5SEL1 |= BIT6;
+    P8SEL0 |= BIT5 | BIT6;
+    P8SEL1 &= ~(BIT5 | BIT6);
+#warning multiple pins found for the UCB1SCL function, you must initialize them manually
+
+#elif defined (__MSP430FR5962__) || defined (__MSP430FR5964__) \
+ || defined (__MSP430FR5992__) || defined (__MSP430FR59941__) \
+ || defined (__MSP430FR5994__)
+
+    P5SEL0 |= BIT0 | BIT1;
+    P5SEL1 &= ~(BIT0 | BIT1);
 
 #else
-    #error "I2C_USES_UCB1 was defined but pins not known in 'glue/MSP430FR5xx_6xx/i2c_ucb1_pin.c'"
+    #warning "I2C_USES_UCB1 was defined but pins not known in 'glue/MSP430FR5xx_6xx/i2c_ucb1_pin.c'"
 #endif
 
 #endif

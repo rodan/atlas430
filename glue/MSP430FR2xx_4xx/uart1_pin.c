@@ -4,7 +4,7 @@
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/atlas430
 
-  generated on Wed Dec  1 15:37:43 UTC 2021
+  generated on Wed Dec  8 10:12:20 UTC 2021
 */
 
 #include <msp430.h>
@@ -14,18 +14,7 @@ void uart1_pin_init(void)
 
 #ifdef USE_UART1
 
-#if defined (__MSP430FR2000__) || defined (__MSP430FR2032__) \
- || defined (__MSP430FR2033__) || defined (__MSP430FR2100__) \
- || defined (__MSP430FR2110__) || defined (__MSP430FR2111__) \
- || defined (__MSP430FR2310__) || defined (__MSP430FR2311__) \
- || defined (__MSP430FR2422__) || defined (__MSP430FR2512__) \
- || defined (__MSP430FR2522__) || defined (__MSP430FR4131__) \
- || defined (__MSP430FR4132__) || defined (__MSP430FR4133__)
-
-#error function UCA1RXD not found for this uC
-#error function UCA1TXD not found for this uC
-
-#elif defined (__MSP430FR2433__) || defined (__MSP430FR2475__) \
+#if defined (__MSP430FR2433__) || defined (__MSP430FR2475__) \
  || defined (__MSP430FR2476__) || defined (__MSP430FR2532__) \
  || defined (__MSP430FR2533__) || defined (__MSP430FR2632__) \
  || defined (__MSP430FR2633__) || defined (__MSP430FR2672__) \
@@ -41,8 +30,19 @@ void uart1_pin_init(void)
     P4SEL0 |= BIT2 | BIT3;
     P4SEL1 &= ~(BIT2 | BIT3);
 
+#elif defined (__MSP430FR2000__) || defined (__MSP430FR2032__) \
+ || defined (__MSP430FR2033__) || defined (__MSP430FR2100__) \
+ || defined (__MSP430FR2110__) || defined (__MSP430FR2111__) \
+ || defined (__MSP430FR2310__) || defined (__MSP430FR2311__) \
+ || defined (__MSP430FR2422__) || defined (__MSP430FR2512__) \
+ || defined (__MSP430FR2522__) || defined (__MSP430FR4131__) \
+ || defined (__MSP430FR4132__) || defined (__MSP430FR4133__)
+
+#warning function UCA1RXD not found for this uC
+#warning function UCA1TXD not found for this uC
+
 #else
-    #error "USE_UART1 was defined but pins not known in 'glue/MSP430FR2xx_4xx/uart1_pin.c'"
+    #warning "USE_UART1 was defined but pins not known in 'glue/MSP430FR2xx_4xx/uart1_pin.c'"
 #endif
 #endif
 }

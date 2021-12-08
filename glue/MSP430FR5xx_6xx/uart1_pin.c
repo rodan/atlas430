@@ -4,7 +4,7 @@
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/atlas430
 
-  generated on Wed Dec  1 15:38:07 UTC 2021
+  generated on Wed Dec  8 10:12:51 UTC 2021
 */
 
 #include <msp430.h>
@@ -71,11 +71,11 @@ void uart1_pin_init(void)
     P3SEL1 &= ~(BIT4 | BIT5);
     P5SEL0 |= BIT4 | BIT5;
     P5SEL1 &= ~(BIT4 | BIT5);
-#error multiple pins found for the UCA1RXD function, you must initialize them manually
-#error multiple pins found for the UCA1TXD function, you must initialize them manually
+#warning multiple pins found for the UCA1RXD function, you must initialize them manually
+#warning multiple pins found for the UCA1TXD function, you must initialize them manually
 
 #else
-    #error "USE_UART1 was defined but pins not known in 'glue/MSP430FR5xx_6xx/uart1_pin.c'"
+    #warning "USE_UART1 was defined but pins not known in 'glue/MSP430FR5xx_6xx/uart1_pin.c'"
 #endif
 #endif
 }

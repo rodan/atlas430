@@ -4,7 +4,7 @@
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/atlas430
 
-  generated on Wed Dec  1 15:38:47 UTC 2021
+  generated on Wed Dec  8 10:13:45 UTC 2021
 */
 
 #include <msp430.h>
@@ -47,20 +47,6 @@ void uart1_pin_init(void)
 
     P4SEL |= BIT4 | BIT5;
 
-#elif defined (__CC430F5123__) || defined (__CC430F5125__) \
- || defined (__CC430F5133__) || defined (__CC430F5135__) \
- || defined (__CC430F5137__) || defined (__CC430F5143__) \
- || defined (__CC430F5145__) || defined (__CC430F5147__) \
- || defined (__CC430F6125__) || defined (__CC430F6126__) \
- || defined (__CC430F6127__) || defined (__CC430F6135__) \
- || defined (__CC430F6137__) || defined (__CC430F6147__) \
- || defined (__MSP430F5131__) || defined (__MSP430F5132__) \
- || defined (__MSP430F5151__) || defined (__MSP430F5152__) \
- || defined (__MSP430F5171__) || defined (__MSP430F5172__)
-
-#error function UCA1RXD not found for this uC
-#error function UCA1TXD not found for this uC
-
 #elif defined (__MSP430F6720__) || defined (__MSP430F6720A__) \
  || defined (__MSP430F6721__) || defined (__MSP430F6721A__) \
  || defined (__MSP430F6723__) || defined (__MSP430F6723A__) \
@@ -87,6 +73,20 @@ void uart1_pin_init(void)
  || defined (__MSP430F5438A__)
 
     P5SEL |= BIT6 | BIT7;
+
+#elif defined (__CC430F5123__) || defined (__CC430F5125__) \
+ || defined (__CC430F5133__) || defined (__CC430F5135__) \
+ || defined (__CC430F5137__) || defined (__CC430F5143__) \
+ || defined (__CC430F5145__) || defined (__CC430F5147__) \
+ || defined (__CC430F6125__) || defined (__CC430F6126__) \
+ || defined (__CC430F6127__) || defined (__CC430F6135__) \
+ || defined (__CC430F6137__) || defined (__CC430F6147__) \
+ || defined (__MSP430F5131__) || defined (__MSP430F5132__) \
+ || defined (__MSP430F5151__) || defined (__MSP430F5152__) \
+ || defined (__MSP430F5171__) || defined (__MSP430F5172__)
+
+#warning function UCA1RXD not found for this uC
+#warning function UCA1TXD not found for this uC
 
 #elif defined (__MSP430F5333__) || defined (__MSP430F5335__) \
  || defined (__MSP430F5336__) || defined (__MSP430F5338__) \
@@ -144,7 +144,7 @@ void uart1_pin_init(void)
     P3SEL0 |= BIT4 | BIT5;
 
 #else
-    #error "USE_UART1 was defined but pins not known in 'glue/MSP430F5xx_6xx/uart1_pin.c'"
+    #warning "USE_UART1 was defined but pins not known in 'glue/MSP430F5xx_6xx/uart1_pin.c'"
 #endif
 #endif
 }

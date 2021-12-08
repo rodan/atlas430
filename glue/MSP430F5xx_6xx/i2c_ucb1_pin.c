@@ -4,7 +4,7 @@
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/atlas430
 
-  generated on Fri Dec  3 09:03:22 UTC 2021
+  generated on Wed Dec  8 10:11:33 UTC 2021
 */
 
 #include <msp430.h>
@@ -105,8 +105,8 @@ void i2c_ucb1_pin_init(void)
  || defined (__MSP430F67621__) || defined (__MSP430F67621A__) \
  || defined (__MSP430F67641__) || defined (__MSP430F67641A__)
 
-#error function UCB1SCL not found for this uC
-#error function UCB1SDA not found for this uC
+#warning function UCB1SCL not found for this uC
+#warning function UCB1SDA not found for this uC
 
 #elif defined (__MSP430F5333__) || defined (__MSP430F5335__) \
  || defined (__MSP430F5336__) || defined (__MSP430F5338__) \
@@ -142,7 +142,7 @@ void i2c_ucb1_pin_init(void)
     P5SEL |= BIT4;
 
 #else
-    #error "I2C_USES_UCB1 was defined but pins not known in 'glue/MSP430F5xx_6xx/i2c_ucb1_pin.c'"
+    #warning "I2C_USES_UCB1 was defined but pins not known in 'glue/MSP430F5xx_6xx/i2c_ucb1_pin.c'"
 #endif
 
 #endif

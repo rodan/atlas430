@@ -141,7 +141,7 @@ process_uc()
             pin_found=true
             pin_cnt=$(echo ${pins} | wc -w)
             [ "${pin_cnt}" -gt 1 ] && {
-                echo "#error multiple pins found for the ${filter_function} function, you must initialize them manually" >> "${output_dir}/${uc}_${output_suffix}.c"
+                echo "#warning multiple pins found for the ${filter_function} function, you must initialize them manually" >> "${output_dir}/${uc}_${output_suffix}.c"
                 warn "multiple pins have been found for ${filter_function}: ${pins}"
             }
             inf "${filter_function} pin_type sh"
@@ -183,7 +183,7 @@ process_uc()
         if [ -z "${dedicated_pin_str}" ]; then
             warn "no dedicated, shared or port-mapped pins found for ${filter_function}"
             inf "${filter_function} pin_type -"
-            echo "    #error function ${filter_function} not found for this uC" >> "${output_dir}/${uc}_${output_suffix}.c"
+            echo "    #warning function ${filter_function} not found for this uC" >> "${output_dir}/${uc}_${output_suffix}.c"
             ret=8
         else
             inf "${filter_function} pin_type de"

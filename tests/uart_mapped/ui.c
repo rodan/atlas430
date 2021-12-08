@@ -7,7 +7,7 @@
 #include "ui.h"
 
 //#define TEST_TX_STR
-#define TEST_PRINT
+//#define TEST_PRINT
 //#define TEST_ITOA
 //#define TEST_SNPRINTF
 //#define TEST_UTOH

@@ -23,6 +23,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "glue.h"
 #include "ds3231.h"
 
@@ -72,6 +73,7 @@ t.year_s };
     }
 
     i2c_package_t pkg;
+    memset(&pkg, 0, sizeof(i2c_package_t));
     pkg.slave_addr = DS3231_I2C_ADDR;
     pkg.addr = NULL;
     pkg.addr_len = 0;
@@ -100,6 +102,8 @@ uint8_t DS3231_get(const uint16_t usci_base_addr, struct ts * t)
     uint8_t i2c_cmd[1] = { DS3231_TIME_CAL_ADDR };
 
     i2c_package_t pkg;
+    memset(&i2c_buff, 0, 7);
+    memset(&pkg, 0, sizeof(i2c_package_t));
     pkg.slave_addr = DS3231_I2C_ADDR;
     pkg.addr = i2c_cmd;
     pkg.addr_len = 1;
@@ -151,6 +155,7 @@ uint8_t DS3231_set_addr(const uint16_t usci_base_addr, const uint8_t addr, const
     uint8_t i2c_buff[2] = { addr, val };
 
     i2c_package_t pkg;
+    memset(&pkg, 0, sizeof(i2c_package_t));
     pkg.slave_addr = DS3231_I2C_ADDR;
     pkg.addr = NULL;
     pkg.addr_len = 0;
@@ -174,6 +179,7 @@ uint8_t DS3231_get_addr(const uint16_t usci_base_addr, const uint8_t addr, uint8
     uint8_t i2c_cmd[1]={ addr };
 
     i2c_package_t pkg;
+    memset(&pkg, 0, sizeof(i2c_package_t));
     pkg.slave_addr = DS3231_I2C_ADDR;
     pkg.addr = i2c_cmd;
     pkg.addr_len = 1;
@@ -260,6 +266,7 @@ uint8_t DS3231_get_treg(const uint16_t usci_base_addr, float *temp)
     uint8_t i2c_cmd[1] = { DS3231_TEMPERATURE_ADDR };
 
     i2c_package_t pkg;
+    memset(&pkg, 0, sizeof(i2c_package_t));
     pkg.slave_addr = DS3231_I2C_ADDR;
     pkg.addr = i2c_cmd;
     pkg.addr_len = 1;
@@ -314,6 +321,7 @@ uint8_t DS3231_set_a1(const uint16_t usci_base_addr,
     }
 
     i2c_package_t pkg;
+    memset(&pkg, 0, sizeof(i2c_package_t));
     pkg.slave_addr = DS3231_I2C_ADDR;
     pkg.addr = NULL;
     pkg.addr_len = 0;
@@ -341,6 +349,7 @@ uint8_t DS3231_get_a1(const uint16_t usci_base_addr, char *buf, const uint8_t le
     uint8_t i2c_cmd[1] = { DS3231_ALARM1_ADDR };
 
     i2c_package_t pkg;
+    memset(&pkg, 0, sizeof(i2c_package_t));
     pkg.slave_addr = DS3231_I2C_ADDR;
     pkg.addr = i2c_cmd;
     pkg.addr_len = 1;
@@ -423,6 +432,7 @@ uint8_t DS3231_set_a2(const uint16_t usci_base_addr,
     }
 
     i2c_package_t pkg;
+    memset(&pkg, 0, sizeof(i2c_package_t));
     pkg.slave_addr = DS3231_I2C_ADDR;
     pkg.addr = NULL;
     pkg.addr_len = 0;
@@ -450,6 +460,7 @@ uint8_t DS3231_get_a2(const uint16_t usci_base_addr, char *buf, const uint8_t le
     uint8_t i2c_cmd[1] = { DS3231_ALARM2_ADDR };
 
     i2c_package_t pkg;
+    memset(&pkg, 0, sizeof(i2c_package_t));
     pkg.slave_addr = DS3231_I2C_ADDR;
     pkg.addr = i2c_cmd;
     pkg.addr_len = 1;

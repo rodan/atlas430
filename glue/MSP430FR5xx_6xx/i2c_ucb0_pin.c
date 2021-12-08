@@ -4,7 +4,7 @@
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/atlas430
 
-  generated on Fri Dec  3 09:02:33 UTC 2021
+  generated on Wed Dec  8 10:10:30 UTC 2021
 */
 
 #include <msp430.h>
@@ -67,7 +67,7 @@ void i2c_ucb0_pin_init(void)
     P1SEL1 |= BIT6 | BIT7;
 
 #else
-    #error "I2C_USES_UCB0 was defined but pins not known in 'glue/MSP430FR5xx_6xx/i2c_ucb0_pin.c'"
+    #warning "I2C_USES_UCB0 was defined but pins not known in 'glue/MSP430FR5xx_6xx/i2c_ucb0_pin.c'"
 #endif
 
 #endif

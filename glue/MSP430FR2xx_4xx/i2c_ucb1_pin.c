@@ -4,7 +4,7 @@
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/atlas430
 
-  generated on Fri Dec  3 09:02:24 UTC 2021
+  generated on Wed Dec  8 10:10:18 UTC 2021
 */
 
 #include <msp430.h>
@@ -14,7 +14,13 @@ void i2c_ucb1_pin_init(void)
 
 #ifdef I2C_USES_UCB1
 
-#if defined (__MSP430FR2475__) || defined (__MSP430FR2476__) \
+#if defined (__MSP430FR2153__) || defined (__MSP430FR2155__) \
+ || defined (__MSP430FR2353__) || defined (__MSP430FR2355__)
+
+    P4SEL0 |= BIT6 | BIT7;
+    P4SEL1 &= ~(BIT6 | BIT7);
+
+#elif defined (__MSP430FR2475__) || defined (__MSP430FR2476__) \
  || defined (__MSP430FR2672__) || defined (__MSP430FR2673__) \
  || defined (__MSP430FR2675__) || defined (__MSP430FR2676__)
 
@@ -22,14 +28,8 @@ void i2c_ucb1_pin_init(void)
     P3SEL1 &= ~(BIT2 | BIT6);
     P4SEL0 |= BIT3 | BIT4;
     P4SEL1 &= ~(BIT3 | BIT4);
-#error multiple pins found for the UCB1SCL function, you must initialize them manually
-#error multiple pins found for the UCB1SDA function, you must initialize them manually
-
-#elif defined (__MSP430FR2153__) || defined (__MSP430FR2155__) \
- || defined (__MSP430FR2353__) || defined (__MSP430FR2355__)
-
-    P4SEL0 |= BIT6 | BIT7;
-    P4SEL1 &= ~(BIT6 | BIT7);
+#warning multiple pins found for the UCB1SCL function, you must initialize them manually
+#warning multiple pins found for the UCB1SDA function, you must initialize them manually
 
 #elif defined (__MSP430FR2000__) || defined (__MSP430FR2032__) \
  || defined (__MSP430FR2033__) || defined (__MSP430FR2100__) \
@@ -42,11 +42,11 @@ void i2c_ucb1_pin_init(void)
  || defined (__MSP430FR4131__) || defined (__MSP430FR4132__) \
  || defined (__MSP430FR4133__)
 
-#error function UCB1SCL not found for this uC
-#error function UCB1SDA not found for this uC
+#warning function UCB1SCL not found for this uC
+#warning function UCB1SDA not found for this uC
 
 #else
-    #error "I2C_USES_UCB1 was defined but pins not known in 'glue/MSP430FR2xx_4xx/i2c_ucb1_pin.c'"
+    #warning "I2C_USES_UCB1 was defined but pins not known in 'glue/MSP430FR2xx_4xx/i2c_ucb1_pin.c'"
 #endif
 
 #endif

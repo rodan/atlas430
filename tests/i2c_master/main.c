@@ -31,14 +31,20 @@ void check_events(void)
 
 void i2c_init(void)
 {
+
+#if defined __MSP430FR2476__
+    P1SEL0 |= BIT2 | BIT3;
+    P1SEL1 &= ~(BIT2 | BIT3);
+#else
     i2c_pin_init();
+#endif
 
 #if I2C_USE_DEV > 3
     // enhanced USCI capable microcontroller
     EUSCI_B_I2C_initMasterParam param = {0};
 
     param.selectClockSource = EUSCI_B_I2C_CLOCKSOURCE_SMCLK;
-    param.i2cClk = SMCLK_FREQ;// CS_getSMCLK();
+    param.i2cClk = SMCLK_FREQ;
     param.dataRate = EUSCI_B_I2C_SET_DATA_RATE_400KBPS;
     param.byteCounterThreshold = 0;
     param.autoSTOPGeneration = EUSCI_B_I2C_NO_AUTO_STOP;
@@ -68,7 +74,15 @@ int main(void)
     clock_pin_init();
     clock_init();
 
+#if defined __MSP430FR6989__
+    P3SEL0 |= BIT4 | BIT5;
+    P3SEL1 &= ~(BIT4 | BIT5);
+#elif defined __MSP430FR2476__
+    P1SEL0 |= BIT4 | BIT5;
+    P1SEL1 &= ~(BIT4 | BIT5); 
+#else
     uart_bcl_pin_init();
+#endif
     uart_bcl_init();
 #if defined UART0_RX_USES_RINGBUF || defined UART1_RX_USES_RINGBUF || \
     defined UART2_RX_USES_RINGBUF || defined UART3_RX_USES_RINGBUF

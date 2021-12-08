@@ -4,7 +4,7 @@
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/atlas430
 
-  generated on Fri Dec  3 09:03:40 UTC 2021
+  generated on Wed Dec  8 10:11:57 UTC 2021
 */
 
 #include <msp430.h>
@@ -14,7 +14,14 @@ void i2c_ucb3_pin_init(void)
 
 #ifdef I2C_USES_UCB3
 
-#if defined (__CC430F5123__) || defined (__CC430F5125__) \
+#if defined (__MSP430F5252__) || defined (__MSP430F5253__) \
+ || defined (__MSP430F5254__) || defined (__MSP430F5255__) \
+ || defined (__MSP430F5256__) || defined (__MSP430F5257__) \
+ || defined (__MSP430F5258__) || defined (__MSP430F5259__)
+
+    P2SEL |= BIT2 | BIT3;
+
+#elif defined (__CC430F5123__) || defined (__CC430F5125__) \
  || defined (__CC430F5133__) || defined (__CC430F5135__) \
  || defined (__CC430F5137__) || defined (__CC430F5143__) \
  || defined (__CC430F5145__) || defined (__CC430F5147__) \
@@ -114,15 +121,8 @@ void i2c_ucb3_pin_init(void)
  || defined (__MSP430FG6425__) || defined (__MSP430FG6426__) \
  || defined (__MSP430FG6625__) || defined (__MSP430FG6626__)
 
-#error function UCB3SCL not found for this uC
-#error function UCB3SDA not found for this uC
-
-#elif defined (__MSP430F5252__) || defined (__MSP430F5253__) \
- || defined (__MSP430F5254__) || defined (__MSP430F5255__) \
- || defined (__MSP430F5256__) || defined (__MSP430F5257__) \
- || defined (__MSP430F5258__) || defined (__MSP430F5259__)
-
-    P2SEL |= BIT2 | BIT3;
+#warning function UCB3SCL not found for this uC
+#warning function UCB3SDA not found for this uC
 
 #elif defined (__MSP430BT5190__) || defined (__MSP430F5418__) \
  || defined (__MSP430F5418A__) || defined (__MSP430F5419__) \
@@ -135,7 +135,7 @@ void i2c_ucb3_pin_init(void)
     P10SEL |= BIT1 | BIT2;
 
 #else
-    #error "I2C_USES_UCB3 was defined but pins not known in 'glue/MSP430F5xx_6xx/i2c_ucb3_pin.c'"
+    #warning "I2C_USES_UCB3 was defined but pins not known in 'glue/MSP430F5xx_6xx/i2c_ucb3_pin.c'"
 #endif
 
 #endif

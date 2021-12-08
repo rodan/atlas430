@@ -63,8 +63,6 @@
 #define I2C_IE          UCB0IE
 #define I2C_IFG         UCB0IFG
 #define I2C_IV          UCB0IV
-#define I2C_ISR_VECTOR  USCI_B0_VECTOR
-//#define I2C_USES_UCB0
 #else
 #error "Invalid I2C_USE_DEV in i2c_config.h"
 #endif
@@ -83,8 +81,6 @@
 #define I2C_IE          UCB1IE
 #define I2C_IFG         UCB1IFG
 #define I2C_IV          UCB1IV
-#define I2C_ISR_VECTOR  USCI_B1_VECTOR
-//#define I2C_USES_UCB1
 #else
 #error "Invalid I2C_USE_DEV in i2c_config.h"
 #endif
@@ -103,8 +99,6 @@
 #define I2C_IE          UCB2IE
 #define I2C_IFG         UCB2IFG
 #define I2C_IV          UCB2IV
-#define I2C_ISR_VECTOR  USCI_B2_VECTOR
-//#define I2C_USES_UCB2
 #else
 #error "Invalid I2C_USE_DEV in i2c_config.h"
 #endif
@@ -123,8 +117,6 @@
 #define I2C_IE          UCB3IE
 #define I2C_IFG         UCB3IFG
 #define I2C_IV          UCB3IV
-#define I2C_ISR_VECTOR  USCI_B3_VECTOR
-//#define I2C_USES_UCB3
 #else
 #error "Invalid I2C_USE_DEV in i2c_config.h"
 #endif
@@ -143,8 +135,6 @@
 #define I2C_IE          UCB0IE
 #define I2C_IFG         UCB0IFG
 #define I2C_IV          UCB0IV
-#define I2C_ISR_VECTOR  EUSCI_B0_VECTOR
-//#define I2C_USES_UCB0
 #else
 #error "Invalid I2C_USE_DEV in i2c_config.h"
 #endif
@@ -164,8 +154,6 @@
 #define I2C_IE          UCB1IE
 #define I2C_IFG         UCB1IFG
 #define I2C_IV          UCB1IV
-#define I2C_ISR_VECTOR  EUSCI_B1_VECTOR
-//#define I2C_USES_UCB1
 #else
 #error "Invalid I2C_USE_DEV in i2c_config.h"
 #endif
@@ -184,8 +172,6 @@
 #define I2C_IE          UCB2IE
 #define I2C_IFG         UCB2IFG
 #define I2C_IV          UCB2IV
-#define I2C_ISR_VECTOR  EUSCI_B2_VECTOR
-//#define I2C_USES_UCB2
 #else
 #error "Invalid I2C_USE_DEV in i2c_config.h"
 #endif
@@ -204,8 +190,6 @@
 #define I2C_IE          UCB3IE
 #define I2C_IFG         UCB3IFG
 #define I2C_IV          UCB3IV
-#define I2C_ISR_VECTOR  EUSCI_B3_VECTOR
-//#define I2C_USES_UCB3
 #else
 #error "Invalid I2C_USE_DEV in i2c_config.h"
 #endif

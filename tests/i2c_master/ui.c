@@ -11,7 +11,7 @@
 #define TEST_CYPRESS_FM24
 #define TEST_HSC_SSC
 #define TEST_DS3231
-#define TEST_TCA6408
+//#define TEST_TCA6408
 
 static const char menu_str[]="\
  available commands:\r\n\r\n\

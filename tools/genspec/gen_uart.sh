@@ -42,7 +42,7 @@ out_tail()
 
     cat << EOF
 #else
-    #error "USE_UART${uart_id} was defined but pins not known in 'glue/${family}/uart${uart_id}_pin.c'"
+    #warning "USE_UART${uart_id} was defined but pins not known in 'glue/${family}/uart${uart_id}_pin.c'"
 #endif
 #endif
 }

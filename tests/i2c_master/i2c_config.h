@@ -49,19 +49,10 @@
 /// optional eUSCI Control Word Register 1
 #define I2C_CWR1        0   ///< \hideinitializer
 
-///\}
-
-// bitbang i2c
-//#define I2C_MASTER_DIR      P7DIR
-//#define I2C_MASTER_OUT      P7OUT
-//#define I2C_MASTER_IN       P7IN
-//#define I2C_MASTER_SCL      BIT1
-//#define I2C_MASTER_SDA      BIT0
-
-// eUSCI
 #define I2C_BASE_ADDR       EUSCI_B2_BASE
 #define I2C_ISR_VECTOR      EUSCI_B2_VECTOR
 
+///\}
 
 #endif
 ///\}

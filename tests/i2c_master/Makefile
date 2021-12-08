@@ -29,7 +29,7 @@ GDB              = $(GCC_BIN_DIR)/msp430-elf-gdb
 CFLAGS       := -D__$(DEVICE)__ -mmcu=$(DEVICE) # -g -DDEPRECATED
 CFLAGS       += -Wall -Wno-switch -Wno-int-to-pointer-cast
 CFLAGS       += $(CFLAGS_EXTRA)
-CFLAGS       += -Werror
+#CFLAGS       += -Werror
 #CFLAGS      += -S -fverbose-asm
 #CFLAGS		 += -fno-force-addr -finline-limit=1 -fno-schedule-insns
 #CFLAGS		 += -fshort-enums -Wl,-Map=output.map

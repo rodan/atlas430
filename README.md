@@ -19,12 +19,10 @@ collection of HAL functions that provide a glue layer between the upstream [Texa
 
 * TI MSP430 DriverLib
 * HAL glue for
-  * default port init
+  * port init
   * system and auxiliary clocks
   * uart with optional interrupt driven tx
-  * blocking i2c implementation
-  * non-blocking i2c controlled by interrupts
-  * bitbanged i2c
+  * interrupt driven i2c
   * interrupt-based event handling
   * scheduling (to be added soon)
 * drivers

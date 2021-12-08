@@ -9,14 +9,6 @@
 //#define SMCLK_FREQ_8M
 #define SMCLK_FREQ_16M
 
-//#define USE_UART0
-//#define UART0_BAUD 57600
-//#define UART0_RXBUF_SZ 16
-//#define UART0_RX_USES_RINGBUF
-//#define UART0_TXBUF_SZ 16
-//#define UART0_TX_USES_IRQ
-
-//#define USE_ITOA_LUT
 //#define CONFIG_DEBUG
 
 #endif
