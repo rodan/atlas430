@@ -31,7 +31,6 @@ void check_events(void)
 
 void i2c_init(void)
 {
-#ifndef I2C_USES_BITBANGING
     i2c_pin_init();
 
 #if I2C_USE_DEV > 3
@@ -54,10 +53,7 @@ void i2c_init(void)
     USCI_B_I2C_initMaster(I2C_BASE_ADDR, &param);
 #endif
 
-    #ifdef I2C_USES_IRQ
-        i2c_irq_init(I2C_BASE_ADDR);
-    #endif
-#endif
+    i2c_irq_init(I2C_BASE_ADDR);
 }
 
 int main(void)

@@ -18,11 +18,13 @@
 #define UART1_TXBUF_SZ 32
 #define UART1_TX_USES_IRQ
 
-//#define I2C_USES_IRQ
-
+#define USE_I2C_MASTER
+#define CONFIG_DS3231
 #define CONFIG_CYPRESS_FM24
-//#define CONFIG_FM24CL64B
-#define CONFIG_FM24V10
+#define CONFIG_FM24CL64B
+//#define CONFIG_FM24V10
+#define CONFIG_HSC_SSC
+#define CONFIG_TCA6408
 
 //#define USE_WATCHDOG
 

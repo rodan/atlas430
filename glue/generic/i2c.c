@@ -1,7 +1,6 @@
 
 /*
 * Copyright (c) 2013, Alexander I. Mykyta
-* Copyright (c) 2019, Petre Rodan
 * All rights reserved.
 * 
 * Redistribution and use in source and binary forms, with or without
@@ -25,11 +24,14 @@
 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifdef USE_I2C_MASTER
+
 #include "driverlib.h"
 #ifdef USE_SIG
 #include "sig.h"
 #endif
 #include "i2c.h"
+#include "i2c_internal.h"
 
 typedef enum {
     SM_SEND_ADDR,
@@ -47,22 +49,13 @@ volatile static struct {
     i2c_state_t next_state;
 } transfer;
 
-#ifdef I2C_USES_IRQ
-#include "i2c_internal.h"
-
-//////////////////////////////////////////////////
-// interrupt controlled i2c implementation
-// needs a configured i2c_config.h in the source dir
-// see the i2c_config.TEMPLATE.h file for guidance
-
 
 void i2c_irq_init(const uint16_t usci_base_addr)
 {
-    // UCBxCTLW0 and UCBxBRW must be setup externally
     I2C_CTL1 &= ~UCSWRST;       // Clear reset
-    //EUSCI_B_I2C_enable(usci_base_addr);
     transfer.status = I2C_IDLE;
 }
+
 
 void i2c_transfer_start(const uint16_t base_addr, const i2c_package_t * pkg,
                         void (*callback) (i2c_status_t result))
@@ -141,71 +134,30 @@ i2c_status_t i2c_transfer_status(void)
 }
 
 
-__attribute__ ((interrupt(I2C_ISR_VECTOR)))
-void USCI_BX_ISR(void)
+#if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
+#pragma vector=I2C_ISR_VECTOR
+__interrupt void USCI_BX_ISR(void)
+#elif defined(__GNUC__)
+void __attribute__ ((interrupt(I2C_ISR_VECTOR))) USCI_BX_ISR(void)
+#else
+#error Compiler not supported!
+#endif
 {
 #ifdef USE_SIG
     sig5_on;
 #endif
     switch (HWREG16(I2C_BASE_ADDR + OFS_UCBxIV)) {
 
-    case USCI_I2C_UCNACKIFG:   // Vector 4: NACKIFG
+    case USCI_I2C_UCNACKIFG:
         I2C_IFG = 0;
         I2C_IE = 0;
         transfer.status = I2C_FAILED;
-        I2C_CTL1 |= UCTXSTP;    // set stop condition
+        I2C_CTL1 |= UCTXSTP;
         if (transfer.callback) {
             transfer.callback(I2C_FAILED);
         }
         __bic_SR_register_on_exit(LPM0_bits);
         return;
-        //break;
-#if 0
-    case USCI_NONE:
-        break;
-    case USCI_I2C_UCALIFG:
-        // Arbitration lost interrupt
-        break;                  // Vector 2: ALIFG
-    case USCI_I2C_UCSTTIFG:
-        // START condition detected interrupt, own address detected on the bus
-        break;
-    case USCI_I2C_UCSTPIFG:
-        // STOP condition detected interrupt
-        break;
-    case USCI_I2C_UCRXIFG3:
-        // data RX
-        break;
-    case USCI_I2C_UCTXIFG3:
-        // data TX
-        break;
-    case USCI_I2C_UCRXIFG2:
-        // data RX
-        break;
-    case USCI_I2C_UCTXIFG2:
-        // data TX
-        break;
-    case USCI_I2C_UCRXIFG1:
-        // data RX
-        break;
-    case USCI_I2C_UCTXIFG1:
-        // data TX
-        break;
-    case USCI_I2C_UCRXIFG0:
-        // data RX
-        break;
-    case USCI_I2C_UCTXIFG0:
-        // data TX
-        break;
-    case USCI_I2C_UCBCNTIFG:
-        // byte counter interrupt
-        break;
-    case USCI_I2C_UCCLTOIFG:
-        // clock low time-out
-        break;
-    case USCI_I2C_UCBIT9IFG:
-        // interrupt forthe ninth clock cycle of a byte of data
-        break;
-#endif
     default:
         break;
     }
@@ -284,159 +236,6 @@ void USCI_BX_ISR(void)
 #endif
 }
 
-#else
-
-
-
-#if defined __MSP430_HAS_EUSCI_Bx__
-
-//////////////////////////////////////////////////
-// blocking i2c implementation
-// the EUSCI_BASE_ADDR is sent over via the uint16_t base_addr argument
-//
-
-void i2c_transfer_start(const uint16_t base_addr, const i2c_package_t * pkg,
-                        void (*callback) (i2c_status_t result))
-{
-    uint8_t i;
-
-    if (pkg->options & I2C_READ) {
-        // some devices need to write a register address/command before a read
-        if (pkg->addr_len) {
-            EUSCI_B_I2C_setSlaveAddress(base_addr, pkg->slave_addr);
-            EUSCI_B_I2C_setMode(base_addr, EUSCI_B_I2C_TRANSMIT_MODE);
-            EUSCI_B_I2C_enable(base_addr);
-            // send START, slave address
-            EUSCI_B_I2C_masterSendStart(base_addr);
-
-            for (i = 0; i < pkg->addr_len; i++) {
-                if (i == 0) {
-                    EUSCI_B_I2C_masterSendMultiByteStart(base_addr, pkg->addr[0]);
-                } else {
-                    EUSCI_B_I2C_masterSendMultiByteNext(base_addr, pkg->addr[i]);
-                }
-            }
-            // send STOP after address/command
-            EUSCI_B_I2C_masterSendMultiByteStop(base_addr);
-        }
-        // SLAVE ADDR + R, read into pkg->data pkg->data_len times
-        EUSCI_B_I2C_setSlaveAddress(base_addr, pkg->slave_addr);
-        EUSCI_B_I2C_setMode(base_addr, EUSCI_B_I2C_RECEIVE_MODE);
-        EUSCI_B_I2C_enable(base_addr);
-        // send slave address
-        EUSCI_B_I2C_masterReceiveStart(base_addr);
-        for (i = 0; i < pkg->data_len - 1; i++) {
-            pkg->data[i] = EUSCI_B_I2C_masterReceiveSingle(base_addr);
-            //pkg->data[i] = EUSCI_B_I2C_masterReceiveMultiByteNext(base_addr);
-        }
-        pkg->data[pkg->data_len - 1] = EUSCI_B_I2C_masterReceiveMultiByteFinish(base_addr);
-
-    } else if (pkg->options & I2C_WRITE) {
-        EUSCI_B_I2C_setSlaveAddress(base_addr, pkg->slave_addr);
-        EUSCI_B_I2C_setMode(base_addr, EUSCI_B_I2C_TRANSMIT_MODE);
-        EUSCI_B_I2C_enable(base_addr);
-        // send START, slave address
-        EUSCI_B_I2C_masterSendStart(base_addr);
-
-        for (i = 0; i < pkg->addr_len; i++) {
-            if (i == 0) {
-                EUSCI_B_I2C_masterSendMultiByteStart(base_addr, pkg->addr[0]);
-            } else {
-                EUSCI_B_I2C_masterSendMultiByteNext(base_addr, pkg->addr[i]);
-            }
-        }
-
-        for (i = 0; i < pkg->data_len; i++) {
-            if (i == 0) {
-                if (pkg->addr_len) {
-                    // we already did a SendMultiByteStart
-                    EUSCI_B_I2C_masterSendMultiByteNext(base_addr, pkg->data[0]);
-                } else {
-                    EUSCI_B_I2C_masterSendMultiByteStart(base_addr, pkg->data[0]);
-                }
-            } else {
-                EUSCI_B_I2C_masterSendMultiByteNext(base_addr, pkg->data[i]);
-            }
-        }
-        // send STOP
-        EUSCI_B_I2C_masterSendMultiByteStop(base_addr);
-    }
-}
-
-#elif defined __MSP430_HAS_USCI_Bx__
-
-//////////////////////////////////////////////////
-// blocking i2c implementation
-// the USCI_BASE_ADDR is sent over via the uint16_t base_addr argument
-//
-
-void i2c_transfer_start(const uint16_t base_addr, const i2c_package_t * pkg,
-                        void (*callback) (i2c_status_t result))
-{
-    uint8_t i;
-
-    if (pkg->options & I2C_READ) {
-        // some devices need to write a register address/command before a read
-        if (pkg->addr_len) {
-            USCI_B_I2C_setSlaveAddress(base_addr, pkg->slave_addr);
-            USCI_B_I2C_setMode(base_addr, USCI_B_I2C_TRANSMIT_MODE);
-            USCI_B_I2C_enable(base_addr);
-            // send START, slave address
-            USCI_B_I2C_masterSendStart(base_addr);
-
-            for (i = 0; i < pkg->addr_len; i++) {
-                if (i == 0) {
-                    USCI_B_I2C_masterSendMultiByteStart(base_addr, pkg->addr[0]);
-                } else {
-                    USCI_B_I2C_masterSendMultiByteNext(base_addr, pkg->addr[i]);
-                }
-            }
-            // send STOP after address/command
-            USCI_B_I2C_masterSendMultiByteStop(base_addr);
-        }
-        // SLAVE ADDR + R, read into pkg->data pkg->data_len times
-        USCI_B_I2C_setSlaveAddress(base_addr, pkg->slave_addr);
-        USCI_B_I2C_setMode(base_addr, USCI_B_I2C_RECEIVE_MODE);
-        USCI_B_I2C_enable(base_addr);
-        // send slave address
-        USCI_B_I2C_masterReceiveMultiByteStart(base_addr);
-        for (i = 0; i < pkg->data_len - 1; i++) {
-            pkg->data[i] = USCI_B_I2C_masterReceiveSingle(base_addr);
-            //pkg->data[i] = USCI_B_I2C_masterReceiveMultiByteNext(base_addr);
-        }
-        pkg->data[pkg->data_len - 1] = USCI_B_I2C_masterReceiveMultiByteFinish(base_addr);
-    } else if (pkg->options & I2C_WRITE) {
-        USCI_B_I2C_setSlaveAddress(base_addr, pkg->slave_addr);
-        USCI_B_I2C_setMode(base_addr, USCI_B_I2C_TRANSMIT_MODE);
-        USCI_B_I2C_enable(base_addr);
-        // send START, slave address
-        USCI_B_I2C_masterSendStart(base_addr);
-
-        for (i = 0; i < pkg->addr_len; i++) {
-            if (i == 0) {
-                USCI_B_I2C_masterSendMultiByteStart(base_addr, pkg->addr[0]);
-            } else {
-                USCI_B_I2C_masterSendMultiByteNext(base_addr, pkg->addr[i]);
-            }
-        }
-
-        for (i = 0; i < pkg->data_len; i++) {
-            if (i == 0) {
-                if (pkg->addr_len) {
-                    // we already did a SendMultiByteStart
-                    USCI_B_I2C_masterSendMultiByteNext(base_addr, pkg->data[0]);
-                } else {
-                    USCI_B_I2C_masterSendMultiByteStart(base_addr, pkg->data[0]);
-                }
-            } else {
-                USCI_B_I2C_masterSendMultiByteNext(base_addr, pkg->data[i]);
-            }
-        }
-        // send STOP
-        USCI_B_I2C_masterSendMultiByteStop(base_addr);
-    }
-}
-#endif
 #endif
 
 ///\}
