@@ -13,20 +13,12 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "tca6408.h"
-
-#ifdef I2C_USES_BITBANGING
-#include "serial_bitbang.h"
-#else
 #include "i2c.h"
-#endif
 
 uint8_t TCA6408_read(const uint16_t usci_base_addr, const uint8_t slave_addr, uint8_t * data, const uint8_t addr)
 {
     i2c_package_t pkg;
     uint8_t i2c_buf[1];
-#ifdef I2C_USES_BITBANGING
-    uint8_t rv = EXIT_FAILURE;
-#endif
 
     i2c_buf[0] = addr;
 
@@ -38,29 +30,14 @@ uint8_t TCA6408_read(const uint16_t usci_base_addr, const uint8_t slave_addr, ui
     pkg.data_len = 1;
     pkg.options = I2C_WRITE;
 
-#ifdef I2C_USES_BITBANGING
-    rv = i2cm_transfer(&pkg);
-
-    if (rv != I2C_ACK) {
-        return EXIT_FAILURE;
-    }
-#else
     i2c_transfer_start(usci_base_addr, &pkg, NULL);
-#endif
 
     // and now do the actual read
     pkg.data = data;
     pkg.data_len = 1;
     pkg.options = I2C_READ | I2C_LAST_NAK;
 
-#ifdef I2C_USES_BITBANGING
-    rv = i2cm_transfer(&pkg);
-    if (rv != I2C_ACK) {
-        return EXIT_FAILURE;
-    }
-#else
     i2c_transfer_start(usci_base_addr, &pkg, NULL);
-#endif
 
     return EXIT_SUCCESS;
 }
@@ -69,9 +46,6 @@ uint8_t TCA6408_write(const uint16_t usci_base_addr, const uint8_t slave_addr, u
 {
     i2c_package_t pkg;
     uint8_t i2c_buf[1];
-#ifdef I2C_USES_BITBANGING
-    uint8_t rv = 0;
-#endif
 
     i2c_buf[0] = addr;
 
@@ -82,14 +56,7 @@ uint8_t TCA6408_write(const uint16_t usci_base_addr, const uint8_t slave_addr, u
     pkg.data_len = 1;
     pkg.options = I2C_WRITE;
 
-#ifdef I2C_USES_BITBANGING
-    rv = i2cm_transfer(&pkg);
-    if (rv != I2C_ACK) {
-        return EXIT_FAILURE;
-    }
-#else
     i2c_transfer_start(usci_base_addr, &pkg, NULL);
-#endif
 
     return EXIT_SUCCESS;
 }

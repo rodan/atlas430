@@ -17,6 +17,7 @@
 
 #ifdef __I2C_CONFIG_H__
 #include "i2c.h"
+#include "ads1110.h"
 #include "ds3231.h"
 #include "fm24.h"
 #include "fm24_memtest.h"
