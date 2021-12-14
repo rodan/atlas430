@@ -380,7 +380,7 @@ void __attribute__ ((interrupt(USCI_A1_VECTOR))) USCI_A1_ISR(void)
             r = UCA1RXBUF;
         } else {
             r = UCA1RXBUF;
-            //UCA1TXBUF = r; // local echo
+            // UCA1TXBUF = r; // local echo
             if (uart1_rx_irq_handler != NULL) {
                 if (uart1_rx_irq_handler(r)) {
                     ev |= UART1_EV_RX;

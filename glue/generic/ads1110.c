@@ -39,9 +39,8 @@ static void ads1110_state_machine(const uint32_t msg)
 
 uint8_t ADS1110_init(const uint16_t usci_base_addr, const uint8_t slave_address, const uint8_t config_reg)
 {
-    //eh_register(&ads1110_state_machine, SYS_MSG_TIMER0_CCR2);
+    eadc.state = ADS1110_STATE_CONVERT;
     ADS1110_config(usci_base_addr, slave_address, config_reg);
-
     return EXIT_SUCCESS;
 }
 

@@ -144,7 +144,7 @@ void __attribute__ ((interrupt(I2C_ISR_VECTOR))) USCI_BX_ISR(void)
 #endif
 {
 #ifdef USE_SIG
-    sig5_on;
+    sig2_on;
 #endif
     switch (HWREG16(I2C_BASE_ADDR + OFS_UCBxIV)) {
 
@@ -232,7 +232,7 @@ void __attribute__ ((interrupt(I2C_ISR_VECTOR))) USCI_BX_ISR(void)
     }
 
 #ifdef USE_SIG
-    sig5_off;
+    sig2_off;
 #endif
 }
 

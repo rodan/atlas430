@@ -28,7 +28,7 @@
 
 //#define USE_WATCHDOG
 
-//#define USE_SIG
+#define USE_SIG
 //#define CONFIG_DEBUG
 
 #endif
