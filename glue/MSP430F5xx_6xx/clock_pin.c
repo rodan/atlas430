@@ -4,7 +4,7 @@
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/atlas430
 
-  generated on Wed Dec  1 09:21:43 UTC 2021
+  generated on Sun Jan  2 20:21:05 UTC 2022
 */
 
 #include <msp430.h>
@@ -199,8 +199,8 @@ void clock_pin_init(void)
  || defined (__MSP430F67791__) || defined (__MSP430F67791A__) \
  || defined (__MSP430F6779__) || defined (__MSP430F6779A__)
 
-#error function XT2IN not found for this uC
-#error function XT2OUT not found for this uC
+#warning function XT2IN not found for this uC
+#warning function XT2OUT not found for this uC
 
 #elif defined (__MSP430BT5190__) || defined (__MSP430F5212__) \
  || defined (__MSP430F5214__) || defined (__MSP430F5217__) \

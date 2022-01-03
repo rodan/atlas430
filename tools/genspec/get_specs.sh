@@ -9,6 +9,7 @@
 . gen_functions.sh
 
 #set -x
+export max_table_rows=70
 
 usage()
 {
@@ -125,11 +126,11 @@ process_uc()
         ${pin_found} && continue
         function_is_port_mapped=false
         pin_str=$(grep "P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_\-\+]*${filter_function}" "${uc_spec_dump}")
-        err ${pin_str}
+        #err ${pin_str}
 
         # extract pin from Port table
-        [ -z "${pin_str}" ] && pin_str=$(grep -A60 'Table.*Pin Functions' "${uc_spec_dump}" | cut -c1-30 | grep '^[ ]\{0,2\}[A-Z]' | sed 's|([0-9]*)||g;s|[ ][0-9]*[ ]||g;s|[][0-9]*$||;s|[ ]||g' | sed ':x; /\/$/ { N; s|/\n|/|; tx }' | grep "^P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_\-\+]*${filter_function}")
-        err ${pin_str}
+        [ -z "${pin_str}" ] && pin_str=$(grep "-A${max_table_rows}" 'Table.*Pin Functions' "${uc_spec_dump}" | cut -c1-30 | grep '^[ ]\{0,2\}[A-Z]' | sed 's|([0-9]*)||g;s|[ ][0-9]*[ ]||g;s|[][0-9]*$||;s|[ ]||g' | sed ':x; /\/$/ { N; s|/\n|/|; tx }' | grep "^P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_\-\+]*${filter_function}")
+        #err ${pin_str}
 
         if [ -n "${pin_str}" ]; then
             if echo "${pin_str}" | grep -q "PM_${filter_function}"; then
@@ -326,29 +327,32 @@ process_uc()
         # filter the row containing the function, make sure to ignore all footnotes
         if [ -n "${filter_table_function}" ]; then
             if [ "${multi_function}" == "true" ]; then
-                function_row=$(grep -A60 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "^[A-Z0-9/ \._]\{25,\}${function_found}" | grep "[ ]${filter_table_function}[ ]" | grep -Ev "${function_row_ignore}" | xargs)
+                function_row=$(grep "-A${max_table_rows}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "^[A-Z0-9/ \._]\{25,\}${function_found}" | grep "[ ]${filter_table_function}[ ]" | grep -Ev "${function_row_ignore}" | xargs)
             else
-                function_row=$(grep -A60 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | grep "[ ]${filter_table_function}[ ]" | grep -Ev "${function_row_ignore}" | xargs)
+                function_row=$(grep "-A${max_table_rows}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | grep "[ ]${filter_table_function}[ ]" | grep -Ev "${function_row_ignore}" | xargs)
             fi
             function_row_data=$(echo "${function_row}" | sed "s|.*${function_found}||g;s|.*${filter_table_function}||g" | xargs)
         else
             if [ "${multi_function}" == "true" ]; then
+                err '#1'
                 # xargs -0 needed due to typo containing an apostrophe in msp430fr2433.pdf ti_ticket_02
-                function_row=$(grep -A60 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "^[A-Z0-9/ \._!]\{25,\}${function_found}" | grep -Ev "${function_row_ignore}" | head -n1 |xargs -0)
+                function_row=$(grep "-A${max_table_rows}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "^[A-Z0-9/ \._!]\{25,\}${function_found}" | grep -Ev "${function_row_ignore}" | head -n1 |xargs -0)
                 function_row_data=$(echo "${function_row}" | sed "s|.*${function_found}[A-Z0-9/\.'_]*||g" | xargs)
             else
-                function_row=$(grep -A60 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | grep -Ev "${function_row_ignore}" | xargs)
+                err '#2'
+                function_row=$(grep "-A${max_table_rows}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | grep -Ev "${function_row_ignore}" | xargs)
                 function_row_data=$(echo "${function_row}" | sed "s|.*${function_found}||g" | xargs)
             fi
         fi
         function_row_data_cnt=$(echo "${function_row_data}" | wc -w)
+
 
         if [ "${function_row_data_cnt}" == 0 ] && [ "${function_is_port_mapped}" == "true" ]; then
             # might need to add an if [ -n "${filter_table_function}" ]
             for (( i=0;i<3;i++ )); do
                 after_check="-A${i}"
                 before_check="-B${i}"
-                function_row_data=$(grep -A60 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "[ ]\{0,10\}${pin}" | grep "Mapped secondary digital" | sed 's|0; 1|ignore|g;s|.*Table [0-9]*-[0-9]*||g;s|≤ [0-9]*|ignore|g;s|= [0-9]*|ignore|g;s|.*Mapped secondary digita[l function]\{1,10\}||;s|[()]||')
+                function_row_data=$(grep "-A${max_table_rows}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "[ ]\{0,10\}${pin}" | grep "Mapped secondary digital" | sed 's|0; 1|ignore|g;s|.*Table [0-9]*-[0-9]*||g;s|≤ [0-9]*|ignore|g;s|= [0-9]*|ignore|g;s|.*Mapped secondary digita[l function]\{1,10\}||;s|[()]||')
                 function_rows=$(echo "${function_row_data}" | wc -l)
                 if [ "${function_rows}" -gt 1 ]; then
                     function_row_data=$(echo "${function_row_data}" | head -n1 | xargs)
@@ -361,7 +365,7 @@ process_uc()
                     function_row_data=$(echo "${function_row_data}" | xargs)
                 fi
                 function_row_data_cnt=$(echo "${function_row_data}" | wc -w)
-                #grep -A60 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "${pin}"
+                #grep "-A${max_table_rows}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "${pin}"
                 [ "${function_row_data_cnt}" -gt 0 ] && break;
             done
             if [ "${function_row_data_cnt}" == 0 ]; then
@@ -369,15 +373,15 @@ process_uc()
                  for (( i=0;i<6;i++ )); do
                     after_check="-A${i}"
                     before_check="-B${i}"
-                    function_row_data_tmp=$(grep -A60 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "[ ]\{0,10\}${pin}")
-                    #function_row_data=$(grep -A60 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "[ ]\{0,10\}${pin}" | grep -A1 "Mapped secondary digital" | sed 's|0; 1|ignore|g;s|.*Table [0-9]*-[0-9]*|             |g;s|≤ [0-9]*|ignore|g;s|= [0-9]*|ignore|g;s|.*[Mapped secondary d]igita[l function]\{1,10\}|                 |;s|[()]||' | cut -c41- | xargs)
+                    function_row_data_tmp=$(grep "-A${max_table_rows}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "[ ]\{0,10\}${pin}")
+                    #function_row_data=$(grep "-A${max_table_rows}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "[ ]\{0,10\}${pin}" | grep -A1 "Mapped secondary digital" | sed 's|0; 1|ignore|g;s|.*Table [0-9]*-[0-9]*|             |g;s|≤ [0-9]*|ignore|g;s|= [0-9]*|ignore|g;s|.*[Mapped secondary d]igita[l function]\{1,10\}|                 |;s|[()]||' | cut -c41- | xargs)
                     if echo "${function_row_data_tmp}" | grep -q 'Mapped secondary digital' ; then
                         function_row_data=$(echo "${function_row_data_tmp}" | grep -A1 "Mapped secondary digital" | sed 's|0; 1|ignore|g;s|.*Table [0-9]*-[0-9]*|             |g;s|≤ [0-9]*|ignore|g;s|= [0-9]*|ignore|g;s|.*[Mapped secondary d]igita[l function]\{1,10\}|                 |;s|[()]||' | cut -c41- | xargs)
                     elif echo "${function_row_data_tmp}" | cut -c25- | grep -q "${function_found}"; then
                         function_row_data=$(echo "${function_row_data_tmp}" | grep -A1 "${function_found}" | cut -c65- | xargs)
                     fi
                     function_row_data_cnt=$(echo "${function_row_data}" | wc -w)
-                    #grep -A60 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "[ ]\{0,10\}${pin}"
+                    #grep "-A${max_table_rows}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "[ ]\{0,10\}${pin}"
                     [ "${function_row_data_cnt}" -gt 0 ] && break;
                 done               
             fi
@@ -388,7 +392,7 @@ process_uc()
             for (( i=0;i<6;i++ )); do
                 after_check="-A${i}"
                 before_check="-B${i}"
-                function_row_data_tmp=$(grep -A60 "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "[ ]\{0,10\}${pin}")
+                function_row_data_tmp=$(grep "-A${max_table_rows}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "[ ]\{0,10\}${pin}")
                 if echo "${function_row_data_tmp}" | cut -c25- | grep -q "${function_found}"; then
                     if [ -n "${filter_table_function}" ]; then
                         function_row_data=$(echo "${function_row_data_tmp}" | cut -c25- | grep -A1 "${function_found}" | grep -A1 "${filter_table_function}" | cut -c40- | xargs)

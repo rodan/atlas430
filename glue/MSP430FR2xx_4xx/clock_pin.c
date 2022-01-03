@@ -4,7 +4,7 @@
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/atlas430
 
-  generated on Wed Dec  1 09:21:19 UTC 2021
+  generated on Sun Jan  2 20:20:41 UTC 2022
 */
 
 #include <msp430.h>
@@ -66,8 +66,8 @@ void clock_pin_init(void)
  || defined (__MSP430FR4131__) || defined (__MSP430FR4132__) \
  || defined (__MSP430FR4133__)
 
-#error function HFXIN not found for this uC
-#error function HFXOUT not found for this uC
+#warning function HFXIN not found for this uC
+#warning function HFXOUT not found for this uC
 
 #else
     #error "USE_XT2 was defined but pins not known in 'glue/MSP430FR2xx_4xx/clock_pin.c'"
