@@ -94,8 +94,8 @@ gen_clock_MSP430FR2xx_4xx()
     bash get_specs.sh -f 'XIN' -F "${family}" -s clock -d "${output_dir}"
     bash get_specs.sh -f 'XOUT' -F "${family}" -s clock -d "${output_dir}"
 
-    #bash get_specs.sh -f 'XIN' -T 'msp430fr2512' -s clock -d "${output_dir}"
-    #bash get_specs.sh -f 'XOUT' -T 'msp430fr2512' -s clock -d "${output_dir}"
+    #bash get_specs.sh -f 'XIN' -T 'msp430fr2000' -s clock -d "${output_dir}"
+    #bash get_specs.sh -f 'XOUT' -T 'msp430fr2000' -s clock -d "${output_dir}"
     
     for source_in in "${output_dir}"/*_clock.c; do
         source_out=${source_in//_clock.c/_clock_comb.c}
@@ -111,8 +111,8 @@ gen_clock_MSP430FR2xx_4xx()
     bash get_specs.sh -f 'HFXIN' -tf 'crystal[ ]*mode' -F "${family}" -s clock -d "${output_dir}"
     bash get_specs.sh -f 'HFXOUT' -tf 'crystal[ ]*mode' -F "${family}" -s clock -d "${output_dir}"
 
-    #bash get_specs.sh -f 'HFXIN' -tf 'crystal[ ]*mode' -T 'msp430fr5870' -s clock -d "${output_dir}"
-    #bash get_specs.sh -f 'HFXOUT' -tf 'crystal[ ]*mode' -T 'msp430fr5870' -s clock -d "${output_dir}"
+    #bash get_specs.sh -f 'HFXIN' -tf 'crystal[ ]*mode' -T 'msp430fr2000' -s clock -d "${output_dir}"
+    #bash get_specs.sh -f 'HFXOUT' -tf 'crystal[ ]*mode' -T 'msp430fr2000' -s clock -d "${output_dir}"
     
     for source_in in "${output_dir}"/*_clock.c; do
         source_out=${source_in//_clock.c/_clock_comb.c}
@@ -278,13 +278,5 @@ gen_table()
 }
 
 gen_code
-gen_table
-
-# without USE_PARALLEL
-# 270.96user 37.23system 4:21.71elapsed 117%CPU (0avgtext+0avgdata 15352maxresident)k
-# 0inputs+390600outputs (281major+59455616minor)pagefaults 0swaps
-
-# with USE_PARALLEL="true"
-# 336.63user 46.62system 0:35.46elapsed 1080%CPU (0avgtext+0avgdata 17792maxresident)k
-# 0inputs+936288outputs (7284major+51558214minor)pagefaults 0swaps
+#gen_table
 

@@ -1,20 +1,37 @@
 /*
-  pin setup for the i2c UCB0 subsystem. 
+  pin setup for the spi UCB0 subsystem. 
   this file is generated automatically based on the device datasheets
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/atlas430
 
-  generated on Tue Jan  4 13:45:56 UTC 2022
+  generated on Tue Jan  4 17:18:00 UTC 2022
 */
 
 #include <msp430.h>
 
-void i2c_ucb0_pin_init(void)
+void spi_ucb0_pin_init(void)
 {
 
-#ifdef I2C_USES_UCB0
+#ifdef SPI_USES_UCB0
 
-#if defined (__MSP430F5333__) || defined (__MSP430F5335__) \
+#if defined (__MSP430F5131__) || defined (__MSP430F5132__) \
+ || defined (__MSP430F5151__) || defined (__MSP430F5152__) \
+ || defined (__MSP430F5171__) || defined (__MSP430F5172__)
+
+    P1DIR &= ~(BIT3 | BIT4 | BIT5);
+    P1SEL |= BIT3 | BIT4 | BIT5;
+
+#elif defined (__CC430F5123__) || defined (__CC430F5125__) \
+ || defined (__CC430F5133__) || defined (__CC430F5135__) \
+ || defined (__CC430F5137__) || defined (__CC430F5143__) \
+ || defined (__CC430F5145__) || defined (__CC430F5147__) \
+ || defined (__CC430F6125__) || defined (__CC430F6126__) \
+ || defined (__CC430F6127__) || defined (__CC430F6135__) \
+ || defined (__CC430F6137__) || defined (__CC430F6147__)
+
+    P1SEL |= BIT2 | BIT3 | BIT4;
+
+#elif defined (__MSP430F5333__) || defined (__MSP430F5335__) \
  || defined (__MSP430F5336__) || defined (__MSP430F5338__) \
  || defined (__MSP430F5358__) || defined (__MSP430F5359__) \
  || defined (__MSP430F5630__) || defined (__MSP430F5631__) \
@@ -34,7 +51,7 @@ void i2c_ucb0_pin_init(void)
  || defined (__MSP430FG6425__) || defined (__MSP430FG6426__) \
  || defined (__MSP430FG6625__) || defined (__MSP430FG6626__)
 
-    P2SEL |= BIT1 | BIT2;
+    P2SEL |= BIT1 | BIT2 | BIT3;
 
 #elif defined (__MSP430F5212__) || defined (__MSP430F5214__) \
  || defined (__MSP430F5217__) || defined (__MSP430F5219__) \
@@ -67,24 +84,7 @@ void i2c_ucb0_pin_init(void)
  || defined (__MSP430F5526__) || defined (__MSP430F5527__) \
  || defined (__MSP430F5528__) || defined (__MSP430F5529__)
 
-    P3SEL |= BIT0 | BIT1;
-
-#elif defined (__MSP430F5131__) || defined (__MSP430F5132__) \
- || defined (__MSP430F5151__) || defined (__MSP430F5152__) \
- || defined (__MSP430F5171__) || defined (__MSP430F5172__)
-
-    P1DIR &= ~(BIT4 | BIT5);
-    P1SEL |= BIT4 | BIT5;
-
-#elif defined (__CC430F5123__) || defined (__CC430F5125__) \
- || defined (__CC430F5133__) || defined (__CC430F5135__) \
- || defined (__CC430F5137__) || defined (__CC430F5143__) \
- || defined (__CC430F5145__) || defined (__CC430F5147__) \
- || defined (__CC430F6125__) || defined (__CC430F6126__) \
- || defined (__CC430F6127__) || defined (__CC430F6135__) \
- || defined (__CC430F6137__) || defined (__CC430F6147__)
-
-    P1SEL |= BIT2 | BIT3;
+    P3SEL |= BIT0 | BIT1 | BIT2;
 
 #elif defined (__MSP430F6720__) || defined (__MSP430F6720A__) \
  || defined (__MSP430F6721__) || defined (__MSP430F6721A__) \
@@ -101,17 +101,8 @@ void i2c_ucb0_pin_init(void)
  || defined (__MSP430F67621__) || defined (__MSP430F67621A__) \
  || defined (__MSP430F67641__) || defined (__MSP430F67641A__)
 
+    P1SEL |= BIT7;
     P2SEL |= BIT0 | BIT1;
-
-#elif defined (__MSP430BT5190__) || defined (__MSP430F5418__) \
- || defined (__MSP430F5418A__) || defined (__MSP430F5419__) \
- || defined (__MSP430F5419A__) || defined (__MSP430F5435__) \
- || defined (__MSP430F5435A__) || defined (__MSP430F5436__) \
- || defined (__MSP430F5436A__) || defined (__MSP430F5437__) \
- || defined (__MSP430F5437A__) || defined (__MSP430F5438__) \
- || defined (__MSP430F5438A__)
-
-    P3SEL |= BIT1 | BIT2;
 
 #elif defined (__MSP430F67451__) || defined (__MSP430F67451A__) \
  || defined (__MSP430F6745__) || defined (__MSP430F6745A__) \
@@ -144,10 +135,20 @@ void i2c_ucb0_pin_init(void)
  || defined (__MSP430F67791__) || defined (__MSP430F67791A__) \
  || defined (__MSP430F6779__) || defined (__MSP430F6779A__)
 
-    P2SEL0 |= BIT5 | BIT6;
+    P2SEL0 |= BIT5 | BIT6 | BIT7;
+
+#elif defined (__MSP430BT5190__) || defined (__MSP430F5418__) \
+ || defined (__MSP430F5418A__) || defined (__MSP430F5419__) \
+ || defined (__MSP430F5419A__) || defined (__MSP430F5435__) \
+ || defined (__MSP430F5435A__) || defined (__MSP430F5436__) \
+ || defined (__MSP430F5436A__) || defined (__MSP430F5437__) \
+ || defined (__MSP430F5437A__) || defined (__MSP430F5438__) \
+ || defined (__MSP430F5438A__)
+
+    P3SEL |= BIT1 | BIT2 | BIT3;
 
 #else
-    #warning "I2C_USES_UCB0 was defined but pins not known in 'glue/MSP430F5xx_6xx/i2c_ucb0_pin.c'"
+    #warning "SPI_USES_UCB0 was defined but pins not known in 'glue/MSP430F5xx_6xx/spi_ucb0_pin.c'"
 #endif
 
 #endif

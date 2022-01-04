@@ -91,8 +91,8 @@ gen_i2c()
 
     #bash get_specs.sh -f "UCB${ucb_id}SDA" -T 'msp430fr6005' -s "i2c_ucb${ucb_id}" -d "${output_dir}"
     #bash get_specs.sh -f "UCB${ucb_id}SCL" -T 'msp430fr6005' -s "i2c_ucb${ucb_id}" -d "${output_dir}"
-    #bash get_specs.sh -f "UCB${ucb_id}SDA" -T 'cc430f5133' -s "i2c_ucb${ucb_id}" -d "${output_dir}"
-    #bash get_specs.sh -f "UCB${ucb_id}SCL" -T 'cc430f5133' -s "i2c_ucb${ucb_id}" -d "${output_dir}"
+    #bash get_specs.sh -f "UCB${ucb_id}SDA" -T 'msp430f5131' -s "i2c_ucb${ucb_id}" -d "${output_dir}"
+    #bash get_specs.sh -f "UCB${ucb_id}SCL" -T 'msp430f5131' -s "i2c_ucb${ucb_id}" -d "${output_dir}"
 
     for source_in in "${output_dir}"/*_i2c_ucb"${ucb_id}".c; do
         source_out=${source_in//_i2c_ucb${ucb_id}.c/_i2c_ucb${ucb_id}_comb.c}

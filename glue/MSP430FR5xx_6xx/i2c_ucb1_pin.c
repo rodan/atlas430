@@ -4,7 +4,7 @@
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/atlas430
 
-  generated on Wed Dec  8 10:10:44 UTC 2021
+  generated on Tue Jan  4 13:45:29 UTC 2022
 */
 
 #include <msp430.h>
@@ -38,6 +38,18 @@ void i2c_ucb1_pin_init(void)
     P4SEL1 |= BIT1;
     P4SEL1 |= BIT6;
     P4SEL1 |= BIT7;
+#warning multiple pins found for the UCB1SCL function, you must initialize them manually
+#warning multiple pins found for the UCB1SDA function, you must initialize them manually
+
+#elif defined (__MSP430FR6005__) || defined (__MSP430FR6007__) \
+ || defined (__MSP430FR6035__) || defined (__MSP430FR60371__) \
+ || defined (__MSP430FR6037__) || defined (__MSP430FR6045__) \
+ || defined (__MSP430FR60471__) || defined (__MSP430FR6047__)
+
+    P5SEL0 &= ~(BIT5 | BIT6);
+    P5SEL1 |= BIT5 | BIT6;
+    P8SEL0 |= BIT5 | BIT6;
+    P8SEL1 &= ~(BIT5 | BIT6);
 #warning multiple pins found for the UCB1SCL function, you must initialize them manually
 #warning multiple pins found for the UCB1SDA function, you must initialize them manually
 
@@ -84,17 +96,6 @@ void i2c_ucb1_pin_init(void)
 
 #warning function UCB1SCL not found for this uC
 #warning function UCB1SDA not found for this uC
-
-#elif defined (__MSP430FR6005__) || defined (__MSP430FR6007__) \
- || defined (__MSP430FR6035__) || defined (__MSP430FR60371__) \
- || defined (__MSP430FR6037__) || defined (__MSP430FR6045__) \
- || defined (__MSP430FR60471__) || defined (__MSP430FR6047__)
-
-    P5SEL0 &= ~BIT6;
-    P5SEL1 |= BIT6;
-    P8SEL0 |= BIT5 | BIT6;
-    P8SEL1 &= ~(BIT5 | BIT6);
-#warning multiple pins found for the UCB1SCL function, you must initialize them manually
 
 #elif defined (__MSP430FR5962__) || defined (__MSP430FR5964__) \
  || defined (__MSP430FR5992__) || defined (__MSP430FR59941__) \

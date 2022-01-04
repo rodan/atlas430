@@ -88,8 +88,8 @@ gen_uart()
     bash get_specs.sh -f "UCA${uart_id}RXD" -F "${family}" -s "uart${uart_id}" -d "${output_dir}"
     bash get_specs.sh -f "UCA${uart_id}TXD" -F "${family}" -s "uart${uart_id}" -d "${output_dir}"
 
-    #bash get_specs.sh -f "UCA${uart_id}RXD" -T 'msp430fr5041' -s "uart${uart_id}" -d "${output_dir}"
-    #bash get_specs.sh -f "UCA${uart_id}TXD" -T 'msp430fr5041' -s "uart${uart_id}" -d "${output_dir}"
+    #bash get_specs.sh -f "UCA${uart_id}RXD" -T 'msp430f67671' -s "uart${uart_id}" -d "${output_dir}"
+    #bash get_specs.sh -f "UCA${uart_id}TXD" -T 'msp430f67671' -s "uart${uart_id}" -d "${output_dir}"
     #bash get_specs.sh -f "UCA${uart_id}RXD" -T 'msp430fr2633' -s "uart${uart_id}" -d "${output_dir}"
     #bash get_specs.sh -f "UCA${uart_id}TXD" -T 'msp430fr2633' -s "uart${uart_id}" -d "${output_dir}"
 

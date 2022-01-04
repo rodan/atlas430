@@ -1,27 +1,20 @@
 /*
-  pin setup for the i2c UCB2 subsystem. 
+  pin setup for the spi UCB3 subsystem. 
   this file is generated automatically based on the device datasheets
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/atlas430
 
-  generated on Tue Jan  4 13:45:34 UTC 2022
+  generated on Tue Jan  4 14:25:14 UTC 2022
 */
 
 #include <msp430.h>
 
-void i2c_ucb2_pin_init(void)
+void spi_ucb3_pin_init(void)
 {
 
-#ifdef I2C_USES_UCB2
+#ifdef SPI_USES_UCB3
 
-#if defined (__MSP430FR5962__) || defined (__MSP430FR5964__) \
- || defined (__MSP430FR5992__) || defined (__MSP430FR59941__) \
- || defined (__MSP430FR5994__)
-
-    P7SEL0 |= BIT0 | BIT1;
-    P7SEL1 &= ~(BIT0 | BIT1);
-
-#elif defined (__MSP430FR5041__) || defined (__MSP430FR50431__) \
+#if defined (__MSP430FR5041__) || defined (__MSP430FR50431__) \
  || defined (__MSP430FR5043__) || defined (__MSP430FR58471__) \
  || defined (__MSP430FR5847__) || defined (__MSP430FR5848__) \
  || defined (__MSP430FR5849__) || defined (__MSP430FR5857__) \
@@ -63,11 +56,19 @@ void i2c_ucb2_pin_init(void)
  || defined (__MSP430FR6987__) || defined (__MSP430FR6988__) \
  || defined (__MSP430FR69891__) || defined (__MSP430FR6989__)
 
-#warning function UCB2SCL not found for this uC
-#warning function UCB2SDA not found for this uC
+#warning function UCB3CLK not found for this uC
+#warning function UCB3SIMO not found for this uC
+#warning function UCB3SOMI not found for this uC
+
+#elif defined (__MSP430FR5962__) || defined (__MSP430FR5964__) \
+ || defined (__MSP430FR5992__) || defined (__MSP430FR59941__) \
+ || defined (__MSP430FR5994__)
+
+    P6SEL0 |= BIT4 | BIT5 | BIT6;
+    P6SEL1 &= ~(BIT4 | BIT5 | BIT6);
 
 #else
-    #warning "I2C_USES_UCB2 was defined but pins not known in 'glue/MSP430FR5xx_6xx/i2c_ucb2_pin.c'"
+    #warning "SPI_USES_UCB3 was defined but pins not known in 'glue/MSP430FR5xx_6xx/spi_ucb3_pin.c'"
 #endif
 
 #endif

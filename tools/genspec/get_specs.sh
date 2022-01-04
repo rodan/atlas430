@@ -9,7 +9,12 @@
 . gen_functions.sh
 
 #set -x
-export max_table_rows=70
+export max_rows_per_page=70
+export PIN_NOT_FOUND=255
+export PIN_DETECT_ERR=254
+export PIN_FOUND=0
+export PIN_TYPE_PM=1
+export PIN_TYPE_PM_RISKY=2
 
 usage()
 {
@@ -25,6 +30,130 @@ usage()
        -h           small usage text
 EOF
     exit
+}
+
+pin_detect_in_signal_descriptions_table()
+{
+    local searched_function=$1
+    local table_rows
+    local found_pin
+
+    table_rows=$(grep -E "-A${max_rows_per_page}" 'Table.*Signal Descriptions' "${datasheet_txt}" |  cut -c1-20 | sed 's|([0-9]*)||g;s|[ ][0-9]*[ ]||g;s|[][0-9]*$||;s|[ ]||g' | sed ':x; /\/$/ { N; s|/\n|/|; tx }')
+    #err "${table_rows}"
+
+    found_pin=$(echo "${table_rows}" | grep -o "P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_\-\+]*${searched_function}" | grep -o 'P[0-9J]\{1,2\}\.[0-7]' | sort -u | xargs)
+
+    if [ -z "${found_pin}" ]; then
+        return "${PIN_NOT_FOUND}"
+    else
+        inf "found '${HILITE}${found_pin}${NORMAL}' in 'Signal Descriptions' table"
+        echo "${found_pin}"
+        return "${PIN_FOUND}"
+    fi
+}
+
+pin_detect_in_default_mapping_table()
+{
+    local searched_function=$1
+    local ret=${PIN_NOT_FOUND}
+    local table_rows
+    local found_pin
+
+    table_rows=$(grep -E "-A${max_rows_per_page}" 'Table.*Default Mapping' "${datasheet_txt}" |  cut -c1-60 | sed 's|([0-9]*)||g;s|[ ][0-9]*[ ]||g;s|[][0-9]*$||;s|[ ]||g' | sed ':x; /\/$/ { N; s|/\n|/|; tx }')
+    #err "${table_rows}"
+
+    if echo "${table_rows}" | grep -q "${searched_function}"; then
+        for (( i=0;i<2;i++ )); do
+            after_check="-A${i}"
+            before_check="-B${i}"
+            pin_str=$(echo "${table_rows}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "${searched_function}" | grep '^[ ]*P[0-9J]\{1,2\}\.[0-7]')
+            pin_str_lines=$(echo "${pin_str}" | wc -l)
+            #err "${pin_str}"
+            if [ "${pin_str_lines}" == 1 ] && [ -n "${pin_str}" ]; then 
+                found_pin=$(echo "${pin_str}" | grep -o 'P[0-9J]\{1,2\}\.[0-7]')
+                ret=${PIN_TYPE_PM}
+                #function_is_port_mapped=true
+                #function_found="${filter_function}"
+                #function_type="default PM "
+                inf "${searched_function} pin_type pm"
+                inf "found '${HILITE}${found_pin}${NORMAL}' in 'Default Mapping' table"
+                break
+            elif [ "${pin_str_lines}" -gt 1 ]; then
+                warn "multiple pins found with the same distance from ${searched_function}, picking the one with lower word count"
+                #possible_pins=$(echo "${pin_str}" | grep 'P[0-9J]\{1,2\}\.[0-7]')
+                possible_pins=$(grep -E "-A${max_rows_per_page}" 'Table.*Default Mapping' "${datasheet_txt}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "${searched_function}" | grep '^[ ]*P[0-9J]\{1,2\}\.[0-7]')
+                upper_pin=$(echo "${possible_pins}" | head -n1)
+                upper_pin_cnt=$(echo "${upper_pin}" | wc -w)
+                lower_pin=$(echo "${possible_pins}" | tail -n1)
+                lower_pin_cnt=$(echo "${lower_pin}" | wc -w)
+
+                if [ "${lower_pin_cnt}" -lt "${upper_pin_cnt}" ]; then
+                    found_pin=$(echo "${lower_pin}" | grep -o 'P[0-9J]\{1,2\}\.[0-7]')
+                else
+                    found_pin=$(echo "${upper_pin}" | grep -o 'P[0-9J]\{1,2\}\.[0-7]')
+                fi
+
+                inf "${searched_function} pin_type pm"
+                inf "found '${HILITE}${found_pin}${NORMAL}' in 'Default Mapping' table, but prepared to be ignored"
+                ret=${PIN_TYPE_PM_RISKY}
+                #ret="${PIN_DETECT_ERR}"
+                break
+            fi
+        done
+    fi
+
+    #found_pin=$(echo "${table_rows}" | grep -o "P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_\-\+]*${searched_function}" | grep -o 'P[0-9J]\{1,2\}\.[0-7]' | sort -u | xargs)
+    #function_is_port_mapped=true
+
+    if [ -z "${found_pin}" ]; then
+        return "${PIN_NOT_FOUND}"
+    else
+        echo "${found_pin}"
+        return "${ret}"
+    fi
+}
+
+pin_detect_in_pin_functions_table()
+{
+    local searched_function=$1
+    local ret=${PIN_NOT_FOUND}
+    local table_rows
+    local found_pin
+
+    table_rows=$(grep "-A${max_rows_per_page}" 'Table.*Pin Functions' "${uc_spec_dump}" | cut -c1-30 | grep '^[ ]\{0,2\}[A-Z]' | sed 's|([0-9]*)||g;s|[ ][0-9]*[ ]||g;s|[][0-9]*$||;s|[ ]||g' | sed ':x; /\/$/ { N; s|/\n|/|; tx }' | grep "^P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_\-\+]*${searched_function}")
+
+    found_pin=$(echo "${table_rows}" | sed 's|CAP|CAp|g' | grep -o "P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_\-\+]*${searched_function}" | grep -o 'P[0-9J]\{1,2\}\.[0-7]' | sort -u | xargs)
+    pin_cnt=$(echo "${found_pin}" | wc -w)
+    [ "${pin_cnt}" -gt 1 ] && {
+        echo "#warning multiple pins found for the ${searched_function} function, you must initialize them manually" >> "${output_dir}/${uc}_${output_suffix}.c"
+        warn "multiple pins have been found for ${searched_function}: ${pins}"
+    }
+
+    if [ -z "${found_pin}" ]; then
+        return "${PIN_NOT_FOUND}"
+    else
+        ret="${PIN_FOUND}"
+        echo "${table_rows}" | grep -q "PM_${searched_function}" && ret=${PIN_TYPE_PM}
+        inf "found '${HILITE}${found_pin}${NORMAL}' in 'Pin Functions' table"
+        inf "${searched_function} pin_type sh"
+        echo "${found_pin}"
+        return "${ret}"
+    fi
+}
+
+pin_detect_dedicated()
+{
+    local searched_function=$1
+    local table_rows
+
+    table_rows=$(grep -E -A65 '(Terminal Functions)|(Signal Descriptions)' "${datasheet_txt}" | grep "${searched_function}" | grep -v "PM_${searched_function}")
+
+    if [ -z "${table_rows}" ]; then
+        return "${PIN_NOT_FOUND}"
+    else
+        inf "${searched_function} pin_type de"
+        return "${PIN_FOUND}"
+    fi
 }
 
 # error levels:
@@ -114,88 +243,61 @@ process_uc()
     unset pins
     unset function_found
     unset function_is_port_mapped
-    unset function_type
 
     uc_spec_dump="${output_dir}/${uc}.txt"
     # shellcheck disable=SC2086
     pdftotext -layout -eol unix -nopgbrk ${pdftotext_arg_first} ${pdftotext_arg_last} "${datasheet_pdf}" "${uc_spec_dump}"
 
-    pin_found=false
-    for filter_function in ${filter_functions}; do
-        function_type=''
-        ${pin_found} && continue
-        function_is_port_mapped=false
-        pin_str=$(grep "P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_\-\+]*${filter_function}" "${uc_spec_dump}")
-        #err ${pin_str}
+    function_is_port_mapped=false
 
-        # extract pin from Port table
-        [ -z "${pin_str}" ] && pin_str=$(grep "-A${max_table_rows}" 'Table.*Pin Functions' "${uc_spec_dump}" | cut -c1-30 | grep '^[ ]\{0,2\}[A-Z]' | sed 's|([0-9]*)||g;s|[ ][0-9]*[ ]||g;s|[][0-9]*$||;s|[ ]||g' | sed ':x; /\/$/ { N; s|/\n|/|; tx }' | grep "^P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_\-\+]*${filter_function}")
-        #err ${pin_str}
-
-        if [ -n "${pin_str}" ]; then
-            if echo "${pin_str}" | grep -q "PM_${filter_function}"; then
-                function_is_port_mapped=true
-                function_type="PM_"
-            fi
-            function_found="${filter_function}"
-            pins=$(echo "${pin_str}" | sed 's|CAP|CAp|g' | grep -o "P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_\-\+]*${filter_function}" | grep -o 'P[0-9J]\{1,2\}\.[0-7]' | sort -u | xargs)
-            pin_found=true
-            pin_cnt=$(echo ${pins} | wc -w)
-            [ "${pin_cnt}" -gt 1 ] && {
-                echo "#warning multiple pins found for the ${filter_function} function, you must initialize them manually" >> "${output_dir}/${uc}_${output_suffix}.c"
-                warn "multiple pins have been found for ${filter_function}: ${pins}"
-            }
-            inf "${filter_function} pin_type sh"
-        else
-            # seach dedicated pins, ignore port mapped ones
-            dedicated_pin_str=$(grep -E -A65 '(Terminal Functions)|(Signal Descriptions)' "${datasheet_txt}" | grep "${filter_function}" | grep -v "PM_${filter_function}")
-            #dedicated_function_found="${filter_function}"
-            #dedicated_pin_found=true
-        fi
-    done
-
-    if [ -z "${pin_str}" ]; then
-        default_mapping_table=$(grep -E -A65 'Table.*Default Mapping' "${datasheet_txt}")
-        if echo "${default_mapping_table}" | grep -q "${filter_function}"; then
-            for (( i=0;i<2;i++ )); do
-                after_check="-A${i}"
-                before_check="-B${i}"
-                pin_str=$(echo "${default_mapping_table}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "${filter_function}" | grep '^[ ]*P[0-9J]\{1,2\}\.[0-7]')
-                pin_str_lines=$(echo "${pin_str}" | wc -l)
-                if [ "${pin_str_lines}" == 1 ] && [ -n "${pin_str}" ]; then 
-                    pins=$(echo "${pin_str}" | grep -o 'P[0-9J]\{1,2\}\.[0-7]')
-                    pin_found=true
-                    function_is_port_mapped=true
-                    function_found="${filter_function}"
-                    function_type="default PM "
-                    inf "${filter_function} pin_type pm"
-                    break
-                elif [ "${pin_str_lines}" -gt 1 ]; then
-                    err "multiple pins found with the same distance from filter_function"
-                    unset pin_str
-                    ret=5
-                    break
-                fi
-            done
-        fi
+    pins_in="${pins} $(pin_detect_in_pin_functions_table "${filter_function}")"
+    ret=$?
+    if [ "${ret}" == "${PIN_TYPE_PM}" ]; then
+        function_is_port_mapped=true
+        pins="${pins_in}"
+    elif [ "${ret}" == "${PIN_FOUND}" ]; then
+        pins="${pins_in}"
     fi
 
-    if [ -z "${pin_str}" ]; then
-        if [ -z "${dedicated_pin_str}" ]; then
+    pins_in="${pins} $(pin_detect_in_signal_descriptions_table "${filter_function}")"
+    ret=$?
+    if [ "${ret}" == "${PIN_FOUND}" ]; then
+        pins="${pins} ${pins_in}"
+    fi
+
+    pins_in="${pins} $(pin_detect_in_default_mapping_table "${filter_function}")"
+    ret=$?
+    if [ "${ret}" == "${PIN_TYPE_PM}" ]; then
+        function_is_port_mapped=true
+        pins="${pins} ${pins_in}"
+    elif  [ "${ret}" == "${PIN_TYPE_PM_RISKY}" ]; then
+        unsure_pins="${pins_in}"
+        unsure_function_is_port_mapped=true    
+    fi
+  
+    if [ -z "${pins}" ] && [ -n "${unsure_pins}" ]; then
+        inf "RISKY CHOICE, please verify generated output manually"
+        pins="${unsure_pins}"
+        function_is_port_mapped="${unsure_function_is_port_mapped}"
+    fi
+
+    pins=$(echo "${pins}" | xargs | sed 's/ /\n/g' | sort -u | xargs)
+
+    if [ -z "${pins}" ]; then
+        pin_detect_dedicated "${filter_function}"
+        if [ $? == "${PIN_FOUND}" ]; then
+            echo "    // dedicated pin found, no setup needed, but need to dodge the catch-all #else below" >> "${output_dir}/${uc}_${output_suffix}.c"
+            ret=0
+        else
             warn "no dedicated, shared or port-mapped pins found for ${filter_function}"
             inf "${filter_function} pin_type -"
             echo "    #warning function ${filter_function} not found for this uC" >> "${output_dir}/${uc}_${output_suffix}.c"
             ret=8
-        else
-            inf "${filter_function} pin_type de"
-            # shellcheck disable=SC2001
-            echo "${dedicated_pin_str}" | sed 's/ \+ /\t/g'
-            echo "    // dedicated pin found, no setup needed, but need to dodge the catch-all #else below" >> "${output_dir}/${uc}_${output_suffix}.c"
-            ret=0
         fi
     else
         ${verbose} && echo "${pin_str}"
-        inf "found '${HILITE}${function_type}${function_found}${NORMAL}' as pin '${HILITE}${pins}${NORMAL}'"
+        function_found="${filter_function}"
+        inf "found '${HILITE}${function_found}${NORMAL}' as pin '${HILITE}${pins}${NORMAL}', pm=${function_is_port_mapped}"
     fi
 
     for pin in ${pins}; do
@@ -327,20 +429,18 @@ process_uc()
         # filter the row containing the function, make sure to ignore all footnotes
         if [ -n "${filter_table_function}" ]; then
             if [ "${multi_function}" == "true" ]; then
-                function_row=$(grep "-A${max_table_rows}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "^[A-Z0-9/ \._]\{25,\}${function_found}" | grep "[ ]${filter_table_function}[ ]" | grep -Ev "${function_row_ignore}" | xargs)
+                function_row=$(grep "-A${max_rows_per_page}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "^[A-Z0-9/ \._]\{25,\}${function_found}" | grep "[ ]${filter_table_function}[ ]" | grep -Ev "${function_row_ignore}" | xargs)
             else
-                function_row=$(grep "-A${max_table_rows}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | grep "[ ]${filter_table_function}[ ]" | grep -Ev "${function_row_ignore}" | xargs)
+                function_row=$(grep "-A${max_rows_per_page}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | grep "[ ]${filter_table_function}[ ]" | grep -Ev "${function_row_ignore}" | xargs)
             fi
             function_row_data=$(echo "${function_row}" | sed "s|.*${function_found}||g;s|.*${filter_table_function}||g" | xargs)
         else
             if [ "${multi_function}" == "true" ]; then
-                err '#1'
                 # xargs -0 needed due to typo containing an apostrophe in msp430fr2433.pdf ti_ticket_02
-                function_row=$(grep "-A${max_table_rows}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "^[A-Z0-9/ \._!]\{25,\}${function_found}" | grep -Ev "${function_row_ignore}" | head -n1 |xargs -0)
+                function_row=$(grep "-A${max_rows_per_page}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "^[A-Z0-9/ \._!]\{25,\}${function_found}" | grep -Ev "${function_row_ignore}" | head -n1 |xargs -0)
                 function_row_data=$(echo "${function_row}" | sed "s|.*${function_found}[A-Z0-9/\.'_]*||g" | xargs)
             else
-                err '#2'
-                function_row=$(grep "-A${max_table_rows}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | grep -Ev "${function_row_ignore}" | xargs)
+                function_row=$(grep "-A${max_rows_per_page}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "[ ]${function_found}[ ]" | grep -Ev "${function_row_ignore}" | xargs)
                 function_row_data=$(echo "${function_row}" | sed "s|.*${function_found}||g" | xargs)
             fi
         fi
@@ -352,7 +452,7 @@ process_uc()
             for (( i=0;i<3;i++ )); do
                 after_check="-A${i}"
                 before_check="-B${i}"
-                function_row_data=$(grep "-A${max_table_rows}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "[ ]\{0,10\}${pin}" | grep "Mapped secondary digital" | sed 's|0; 1|ignore|g;s|.*Table [0-9]*-[0-9]*||g;s|≤ [0-9]*|ignore|g;s|= [0-9]*|ignore|g;s|.*Mapped secondary digita[l function]\{1,10\}||;s|[()]||')
+                function_row_data=$(grep "-A${max_rows_per_page}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "[ ]\{0,10\}${pin}" | grep "Mapped secondary digital" | sed 's|0; 1|ignore|g;s|.*Table [0-9]*-[0-9]*||g;s|≤ [0-9]*|ignore|g;s|= [0-9]*|ignore|g;s|.*Mapped secondary digita[l function]\{1,10\}||;s|[()]||')
                 function_rows=$(echo "${function_row_data}" | wc -l)
                 if [ "${function_rows}" -gt 1 ]; then
                     function_row_data=$(echo "${function_row_data}" | head -n1 | xargs)
@@ -365,7 +465,7 @@ process_uc()
                     function_row_data=$(echo "${function_row_data}" | xargs)
                 fi
                 function_row_data_cnt=$(echo "${function_row_data}" | wc -w)
-                #grep "-A${max_table_rows}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "${pin}"
+                #grep "-A${max_rows_per_page}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "${pin}"
                 [ "${function_row_data_cnt}" -gt 0 ] && break;
             done
             if [ "${function_row_data_cnt}" == 0 ]; then
@@ -373,15 +473,15 @@ process_uc()
                  for (( i=0;i<6;i++ )); do
                     after_check="-A${i}"
                     before_check="-B${i}"
-                    function_row_data_tmp=$(grep "-A${max_table_rows}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "[ ]\{0,10\}${pin}")
-                    #function_row_data=$(grep "-A${max_table_rows}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "[ ]\{0,10\}${pin}" | grep -A1 "Mapped secondary digital" | sed 's|0; 1|ignore|g;s|.*Table [0-9]*-[0-9]*|             |g;s|≤ [0-9]*|ignore|g;s|= [0-9]*|ignore|g;s|.*[Mapped secondary d]igita[l function]\{1,10\}|                 |;s|[()]||' | cut -c41- | xargs)
+                    function_row_data_tmp=$(grep "-A${max_rows_per_page}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "[ ]\{0,10\}${pin}")
+                    #function_row_data=$(grep "-A${max_rows_per_page}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "[ ]\{0,10\}${pin}" | grep -A1 "Mapped secondary digital" | sed 's|0; 1|ignore|g;s|.*Table [0-9]*-[0-9]*|             |g;s|≤ [0-9]*|ignore|g;s|= [0-9]*|ignore|g;s|.*[Mapped secondary d]igita[l function]\{1,10\}|                 |;s|[()]||' | cut -c41- | xargs)
                     if echo "${function_row_data_tmp}" | grep -q 'Mapped secondary digital' ; then
                         function_row_data=$(echo "${function_row_data_tmp}" | grep -A1 "Mapped secondary digital" | sed 's|0; 1|ignore|g;s|.*Table [0-9]*-[0-9]*|             |g;s|≤ [0-9]*|ignore|g;s|= [0-9]*|ignore|g;s|.*[Mapped secondary d]igita[l function]\{1,10\}|                 |;s|[()]||' | cut -c41- | xargs)
                     elif echo "${function_row_data_tmp}" | cut -c25- | grep -q "${function_found}"; then
                         function_row_data=$(echo "${function_row_data_tmp}" | grep -A1 "${function_found}" | cut -c65- | xargs)
                     fi
                     function_row_data_cnt=$(echo "${function_row_data}" | wc -w)
-                    #grep "-A${max_table_rows}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "[ ]\{0,10\}${pin}"
+                    #grep "-A${max_rows_per_page}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "[ ]\{0,10\}${pin}"
                     [ "${function_row_data_cnt}" -gt 0 ] && break;
                 done               
             fi
@@ -392,7 +492,7 @@ process_uc()
             for (( i=0;i<6;i++ )); do
                 after_check="-A${i}"
                 before_check="-B${i}"
-                function_row_data_tmp=$(grep "-A${max_table_rows}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "[ ]\{0,10\}${pin}")
+                function_row_data_tmp=$(grep "-A${max_rows_per_page}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "[ ]\{0,10\}${pin}")
                 if echo "${function_row_data_tmp}" | cut -c25- | grep -q "${function_found}"; then
                     if [ -n "${filter_table_function}" ]; then
                         function_row_data=$(echo "${function_row_data_tmp}" | cut -c25- | grep -A1 "${function_found}" | grep -A1 "${filter_table_function}" | cut -c40- | xargs)
@@ -449,32 +549,32 @@ redirect_process()
     process_uc "${uc}" >> "${log_file}_" 2>&1
     case $? in
         1)
-            proc_err "${uc}(${filter_functions}): unknown error encountered"
+            proc_err "${uc}(${filter_function}): unknown error encountered"
             ;;
         2)
             rm -f "${log_file}_"
             ;;
         3)
-            proc_err "${uc}(${filter_functions}): datasheet is missing"
+            proc_err "${uc}(${filter_function}): datasheet is missing"
             ;;
         4)
-            proc_err "${uc}(${filter_functions}): bad column arrangement"
+            proc_err "${uc}(${filter_function}): bad column arrangement"
             cat "${log_file}_"
             ;;
         5)
-            proc_err "${uc}(${filter_functions}): table parsing error"
+            proc_err "${uc}(${filter_function}): table parsing error"
             cat "${log_file}_"
             ;;
         6)
-            proc_err "${uc}(${filter_functions}): table title not found"
+            proc_err "${uc}(${filter_function}): table title not found"
             cat "${log_file}_"
             ;;
         7)
-            proc_err "${uc}(${filter_functions}): pin mapping error"
+            proc_err "${uc}(${filter_function}): pin mapping error"
             cat "${log_file}_"
             ;;
         8)
-            proc_err "${uc}(${filter_functions}): function not found"
+            proc_err "${uc}(${filter_function}): function not found"
             ;;
     esac
 
@@ -484,13 +584,17 @@ redirect_process()
     }
 }
 
+export -f pin_detect_in_signal_descriptions_table
+export -f pin_detect_in_default_mapping_table
+export -f pin_detect_in_pin_functions_table
+export -f pin_detect_dedicated
 export -f process_uc
 export -f redirect_process
 
 verbose=false
 while (( "$#" )); do
 	if [ "$1" = "-f" ]; then
-        filter_functions="${2}"
+        filter_function="${2}"
 		shift; shift;
 	elif [ "$1" = "-tf" ]; then
         filter_table_function="${2}"
@@ -519,7 +623,7 @@ while (( "$#" )); do
     fi
 done
 
-[ -z "${filter_functions}" ] && {
+[ -z "${filter_function}" ] && {
     err "no '-f FUNCTION' was specified, exiting"
     usage
 }
@@ -534,7 +638,7 @@ mkdir -p "${output_dir}" || {
     exit 1
 }
 
-export filter_functions
+export filter_function
 export filter_table_function
 export filter_family
 export filter_target

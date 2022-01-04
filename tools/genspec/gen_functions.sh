@@ -286,12 +286,12 @@ bitwise_comb()
             #search for the same register with the same operator
             register_comb=$(sort -u "${input}" | grep "${register} &=")
             register_comb_lncnt=$(echo "${register_comb}" | wc -l)
-            if [ "${register_comb_lncnt}" == "2" ]; then
+            if [ "${register_comb_lncnt}" == "2" ] || [ "${register_comb_lncnt}" == "3" ]; then
                 #extract values
                 values=$(echo "${register_comb}" | awk '{ print $3 }' | sed 's|;||g' | sort -n | xargs)
                 negations_cnt=$(echo "${values}" | tr -d -c '~' | wc -c)
-                if [ "${negations_cnt}" == "2" ]; then
-                    new_value=$(echo "${values}" | sed 's|~||g;s|[ ]| \| |')
+                if [ "${negations_cnt}" == "${register_comb_lncnt}" ]; then
+                    new_value=$(echo "${values}" | sed 's|~||g;s|[ ]| \| |g')
                     new_line="    ${register} &= ~(${new_value});"
                     grep -q "^${new_line}$" "${output}" || 
                         echo "${new_line}" >> "${output}"
@@ -307,12 +307,12 @@ bitwise_comb()
             #search for the same register with the same operator
             register_comb=$(sort -u "${input}" | grep "${register} |=")
             register_comb_lncnt=$(echo "${register_comb}" | wc -l)
-            if [ "${register_comb_lncnt}" == "2" ]; then
+            if [ "${register_comb_lncnt}" == "2" ] || [ "${register_comb_lncnt}" == "3" ]; then
                 #extract values
                 values=$(echo "${register_comb}" | awk '{ print $3 }' | sed 's|;||g' | sort -n | xargs)
                 negations_cnt=$(echo "${values}" | tr -d -c '~' | wc -c)
                 if [ "${negations_cnt}" == "0" ]; then
-                    new_value=$(echo "${values}" | sed 's|[ ]| \| |')
+                    new_value=$(echo "${values}" | sed 's|[ ]| \| |g')
                     new_line="    ${register} |= ${new_value};"
                     grep -q "^${new_line}$" "${output}" || 
                         echo "${new_line}" >> "${output}"
