@@ -4,7 +4,7 @@
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/atlas430
 
-  generated on Tue Jan  4 14:24:58 UTC 2022
+  generated on Tue Jan  4 19:57:10 UTC 2022
 */
 
 #include <msp430.h>
@@ -39,6 +39,38 @@ void spi_ucb1_pin_init(void)
     P5SEL1 |= BIT4 | BIT5 | BIT6;
     P8SEL0 |= BIT4 | BIT5 | BIT6;
     P8SEL1 &= ~(BIT4 | BIT5 | BIT6);
+#warning multiple pins found for the UCB1CLK function, you must initialize them manually
+#warning multiple pins found for the UCB1SIMO function, you must initialize them manually
+#warning multiple pins found for the UCB1SOMI function, you must initialize them manually
+
+#elif defined (__MSP430FR5887__) || defined (__MSP430FR5888__) \
+ || defined (__MSP430FR58891__) || defined (__MSP430FR5889__) \
+ || defined (__MSP430FR5986__) || defined (__MSP430FR5987__) \
+ || defined (__MSP430FR5988__) || defined (__MSP430FR59891__) \
+ || defined (__MSP430FR5989__) || defined (__MSP430FR6877__) \
+ || defined (__MSP430FR68791__) || defined (__MSP430FR6879__) \
+ || defined (__MSP430FR6887__) || defined (__MSP430FR6888__) \
+ || defined (__MSP430FR68891__) || defined (__MSP430FR6889__) \
+ || defined (__MSP430FR69271__) || defined (__MSP430FR6927__) \
+ || defined (__MSP430FR6928__) || defined (__MSP430FR6977__) \
+ || defined (__MSP430FR69791__) || defined (__MSP430FR6979__) \
+ || defined (__MSP430FR6987__) || defined (__MSP430FR6988__) \
+ || defined (__MSP430FR69891__) || defined (__MSP430FR6989__)
+
+    P3SEL0 |= BIT0 | BIT1 | BIT2;
+    P3SEL1 &= ~(BIT0 | BIT1 | BIT2);
+    P4SEL0 &= ~BIT0;
+    P4SEL0 &= ~BIT1;
+    P4SEL0 &= ~BIT2;
+    P4SEL0 &= ~BIT5;
+    P4SEL0 &= ~BIT6;
+    P4SEL0 &= ~BIT7;
+    P4SEL1 |= BIT0;
+    P4SEL1 |= BIT1;
+    P4SEL1 |= BIT2;
+    P4SEL1 |= BIT5;
+    P4SEL1 |= BIT6;
+    P4SEL1 |= BIT7;
 #warning multiple pins found for the UCB1CLK function, you must initialize them manually
 #warning multiple pins found for the UCB1SIMO function, you must initialize them manually
 #warning multiple pins found for the UCB1SOMI function, you must initialize them manually
@@ -80,36 +112,6 @@ void spi_ucb1_pin_init(void)
     P4SEL0 &= ~BIT7;
     P4SEL1 |= BIT2;
     P4SEL1 |= BIT5;
-    P4SEL1 |= BIT6;
-    P4SEL1 |= BIT7;
-#warning multiple pins found for the UCB1CLK function, you must initialize them manually
-#warning multiple pins found for the UCB1SIMO function, you must initialize them manually
-#warning multiple pins found for the UCB1SOMI function, you must initialize them manually
-
-#elif defined (__MSP430FR5887__) || defined (__MSP430FR5888__) \
- || defined (__MSP430FR58891__) || defined (__MSP430FR5889__) \
- || defined (__MSP430FR5986__) || defined (__MSP430FR5987__) \
- || defined (__MSP430FR5988__) || defined (__MSP430FR59891__) \
- || defined (__MSP430FR5989__) || defined (__MSP430FR6877__) \
- || defined (__MSP430FR68791__) || defined (__MSP430FR6879__) \
- || defined (__MSP430FR6887__) || defined (__MSP430FR6888__) \
- || defined (__MSP430FR68891__) || defined (__MSP430FR6889__) \
- || defined (__MSP430FR69271__) || defined (__MSP430FR6927__) \
- || defined (__MSP430FR6928__) || defined (__MSP430FR6977__) \
- || defined (__MSP430FR69791__) || defined (__MSP430FR6979__) \
- || defined (__MSP430FR6987__) || defined (__MSP430FR6988__) \
- || defined (__MSP430FR69891__) || defined (__MSP430FR6989__)
-
-    P3SEL0 |= BIT0 | BIT1 | BIT2;
-    P3SEL1 &= ~(BIT0 | BIT1 | BIT2);
-    P4SEL0 &= ~BIT0;
-    P4SEL0 &= ~BIT1;
-    P4SEL0 &= ~BIT2;
-    P4SEL0 &= ~BIT6;
-    P4SEL0 &= ~BIT7;
-    P4SEL1 |= BIT0;
-    P4SEL1 |= BIT1;
-    P4SEL1 |= BIT2;
     P4SEL1 |= BIT6;
     P4SEL1 |= BIT7;
 #warning multiple pins found for the UCB1CLK function, you must initialize them manually

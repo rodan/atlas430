@@ -38,7 +38,7 @@ pin_detect_in_signal_descriptions_table()
     local table_rows
     local found_pin
 
-    table_rows=$(grep -E "-A${max_rows_per_page}" 'Table.*Signal Descriptions' "${datasheet_txt}" |  cut -c1-20 | sed 's|([0-9]*)||g;s|[ ][0-9]*[ ]||g;s|[][0-9]*$||;s|[ ]||g' | sed ':x; /\/$/ { N; s|/\n|/|; tx }')
+    table_rows=$(grep -E "-A${max_rows_per_page}" 'Table.*Signal Descriptions' "${datasheet_txt}" |  cut -c1-27 | sed 's|([0-9]*)||g;s|[ ][0-9]*[ ]||g;s|[][0-9]*$||;s|[ ]||g' | sed ':x; /\/$/ { N; s|/\n|/|; tx }')
     #err "${table_rows}"
 
     found_pin=$(echo "${table_rows}" | grep -o "P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_\-\+]*${searched_function}" | grep -o 'P[0-9J]\{1,2\}\.[0-7]' | sort -u | xargs)
