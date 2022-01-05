@@ -19,5 +19,14 @@
 #include "i2c_ucb2_pin.h"
 #include "i2c_ucb3_pin.h"
 #include "i2c_pin.h"
+#include "spi_uca0_pin.h"
+#include "spi_uca1_pin.h"
+#include "spi_uca2_pin.h"
+#include "spi_uca3_pin.h"
+#include "spi_ucb0_pin.h"
+#include "spi_ucb1_pin.h"
+#include "spi_ucb2_pin.h"
+#include "spi_ucb3_pin.h"
+#include "spi_pin.h"
 
 #endif
