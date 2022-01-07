@@ -126,7 +126,7 @@ int main(void)
     uart0_set_rx_irq_handler(uart0_rx_simple_handler);
 #endif
 
-    spid_ad7789.baseAddress = EUSCI_SPI_BASE_ADDR;
+    spid_ad7789.baseAddress = SPI_BASE_ADDR;
     spid_ad7789.cs_low = ad7789_cs_low;
     spid_ad7789.cs_high = ad7789_cs_high;
     spid_ad7789.spi_init = ad7789_spi_init;

@@ -7,7 +7,7 @@
 
 PROJ:=main
 REFLIB_ROOT:=/opt/atlas430/
-MEMORY_MODEL=LARGE
+#MEMORY_MODEL=LARGE
 
 include $(REFLIB_ROOT)/Makefile.env
 
@@ -26,9 +26,11 @@ GDB              = $(GCC_BIN_DIR)/msp430-elf-gdb
 # are used for dead code elimination, see:
 # http://gcc.gnu.org/ml/gcc-help/2003-08/msg00128.html
 
-CFLAGS           := -D__$(DEVICE)__ -mmcu=$(DEVICE) # -g -DDEPRECATED
-CFLAGS           += -Wall -Wno-switch -Wno-int-to-pointer-cast
-#CFLAGS           += -S -fverbose-asm
+CFLAGS       := -D__$(DEVICE)__ -mmcu=$(DEVICE) # -g -DDEPRECATED
+CFLAGS       += -Wall -Wno-switch -Wno-int-to-pointer-cast
+CFLAGS       += $(CFLAGS_EXTRA)
+#CFLAGS       += -Werror
+#CFLAGS      += -S -fverbose-asm
 #CFLAGS		 += -fno-force-addr -finline-limit=1 -fno-schedule-insns
 #CFLAGS		 += -fshort-enums -Wl,-Map=output.map
 LDFLAGS          := -T $(LDDIR).ld -L $(LIB_DIR) -L $(GCC_EXTRA_INC_DIR) -mmcu=$(DEVICE) $(HWMULT) -g -Wl,--gc-sections
@@ -73,7 +75,7 @@ all: mkdir_od config.h driverlib $(EXOUTPUT)
 else
 # Append specific CFLAGS/LDFLAGS
 DEBUG := $(shell grep "^\#define CONFIG_DEBUG" config.h)
-MACROS := $(shell $(REFLIB_ROOT)/tools/extract_macros.sh config.h)
+MACROS := $(shell $(REFLIB_ROOT)/tools/extract_macros.sh -t $(TARGET) -f config.h -f i2c_config.h) -D __I2C_CONFIG_H__
 CFLAGS += $(MACROS)
 ifeq ($(DEBUG),)
 CTARGET	:= RELEASE
@@ -84,7 +86,7 @@ CTARGET	:= DEBUG
 CFLAGS	+= $(CFLAGS_DBG)
 LDFLAGS	+= $(LDFLAGS_DBG)
 endif
-all: new_timestamps depend version.h config.h config_macros tags driverlib $(EXOUTPUT) size
+all: depend version.h config.h config_macros tags driverlib new_timestamps $(EXOUTPUT) size
 endif
 
 ifeq ($(MEMORY_MODEL),LARGE)
@@ -102,15 +104,15 @@ $(OBJ_DIR)/%.o: $(DRIVERLIB)/%.c
 	@echo -e " * [drv] $(@F)"
 	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/%.o: $(GLUELIB)/%.c
+$(OBJ_DIR)/%.o: $(GLUELIB)/%.c config.h
 	@echo -e " * [glue] $(@F)"
 	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/%.o: $(GLUELIB_HAL)/%.c
+$(OBJ_DIR)/%.o: $(GLUELIB_HAL)/%.c config.h
 	@echo -e " * [glue-hal] $(@F)"
 	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
-$(OBJ_DIR)/%.o: %.c
+$(OBJ_DIR)/%.o: %.c config.h
 	@echo -e " * $(@F)"
 	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 

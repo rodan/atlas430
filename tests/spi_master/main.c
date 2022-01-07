@@ -10,6 +10,7 @@
 #include <string.h>
 
 #include "proj.h"
+#include "sig.h"
 #include "driverlib.h"
 #include "glue.h"
 #include "ui.h"
@@ -33,7 +34,7 @@ void main_init(void)
     P5IES = 0x08;
 
     // Reset IRQ flags
-    P5IFG &= ~(BIT3);
+    P5IFG &= ~BIT3;
     // Enable button interrupt
     P5IE |= BIT3;
 }
@@ -51,9 +52,9 @@ void ds3234_cs_high(void)
 void ds3234_init(void)
 {
     ds3234_cs_high();
-    // UCB1MOSI, UCB1MISO, UCB1CLK
-    P5SEL0 |= (BIT0 | BIT1 | BIT2);
-    P5SEL1 &= ~(BIT0 | BIT1 | BIT2);
+    spid_ds3234.baseAddress = SPI_BASE_ADDR;
+    spid_ds3234.cs_low = ds3234_cs_low;
+    spid_ds3234.cs_high = ds3234_cs_high;
 
     EUSCI_B_SPI_initMasterParam param = {0};
     param.selectClockSource = EUSCI_B_SPI_CLOCKSOURCE_SMCLK;
@@ -67,18 +68,18 @@ void ds3234_init(void)
     EUSCI_B_SPI_enable(spid_ds3234.baseAddress);
 }
 
-static void uart0_rx_handler(uint32_t msg)
+static void uart_bcl_rx_handler(uint32_t msg)
 {
     parse_user_input();
-    uart0_set_eol();
+    uart_bcl_set_eol();
 }
 
 static void ds3234_irq_handler(uint32_t msg)
 {
     if (P5IN & BIT3) {
-        uart0_print("alarm released\r\n");
+        uart_bcl_print("alarm released\r\n");
     } else {
-        uart0_print("alarm asserted\r\n");
+        uart_bcl_print("alarm asserted\r\n");
     }
 }
 
@@ -87,9 +88,9 @@ void check_events(void)
     uint16_t msg = SYS_MSG_NULL;
 
     // uart RX
-    if (uart0_get_event() == UART0_EV_RX) {
-        msg |= SYS_MSG_UART0_RX;
-        uart0_rst_event();
+    if (uart_bcl_get_event() == UART_EV_RX) {
+        msg |= SYS_MSG_UART_BCL_RX;
+        uart_bcl_rst_event();
     }
 
     // P5.3 interrupt
@@ -107,65 +108,68 @@ int main(void)
 {
     // stop watchdog
     WDTCTL = WDTPW | WDTHOLD;
+    msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
     main_init();
+#ifdef USE_SIG
     sig0_on;
-
-    clock_port_init();
-    clock_init();
-
-    // output SMCLK on P3.4
-    P3OUT &= ~BIT4;
-    P3DIR |= BIT4;
-    P3SEL1 |= BIT4;
-
-    uart0_port_init();
-    uart0_init();
-
-#ifdef UART0_RX_USES_RINGBUF
-    uart0_set_rx_irq_handler(uart0_rx_ringbuf_handler);
-#else
-    uart0_set_rx_irq_handler(uart0_rx_simple_handler);
 #endif
 
-    spid_ds3234.baseAddress = EUSCI_SPI_BASE_ADDR;
-    spid_ds3234.cs_low = ds3234_cs_low;
-    spid_ds3234.cs_high = ds3234_cs_high;
+    clock_pin_init();
+    clock_init();
 
+#if defined __MSP430FR6989__
+    P3SEL0 |= BIT4 | BIT5;
+    P3SEL1 &= ~(BIT4 | BIT5);
+#elif defined __MSP430FR2476__
+    P1SEL0 |= BIT4 | BIT5;
+    P1SEL1 &= ~(BIT4 | BIT5); 
+#else
+    uart_bcl_pin_init();
+#endif
+    uart_bcl_init();
+#if defined UART0_RX_USES_RINGBUF || defined UART1_RX_USES_RINGBUF || \
+    defined UART2_RX_USES_RINGBUF || defined UART3_RX_USES_RINGBUF
+    uart_bcl_set_rx_irq_handler(uart_bcl_rx_ringbuf_handler);
+#else
+    uart_bcl_set_rx_irq_handler(uart_bcl_rx_simple_handler);
+#endif
+
+    spi_pin_init();
+
+#ifdef CONFIG_DS3234
     ds3234_init();
+#endif
 
-    // Disable the GPIO power-on default high-impedance mode to activate
-    // previously configured port settings
-    PM5CTL0 &= ~LOCKLPM5;
-
+#ifdef USE_SIG
     sig0_off;
     sig1_off;
     sig2_off;
     sig3_off;
-#ifdef LED_SYSTEM_STATES
-    sig4_on;
-#else
     sig4_off;
 #endif
 
     eh_init();
-    eh_register(&uart0_rx_handler, SYS_MSG_UART0_RX);
+    eh_register(&uart_bcl_rx_handler, SYS_MSG_UART_BCL_RX);
     eh_register(&ds3234_irq_handler, SYS_MSG_P53_INT);
-    display_menu();
+    _BIS_SR(GIE);
+
+    display_version();
 
     while (1) {
         // sleep
-#ifdef LED_SYSTEM_STATES
+#ifdef USE_SIG
         sig4_off;
 #endif
         _BIS_SR(LPM3_bits + GIE);
-#ifdef LED_SYSTEM_STATES
+#ifdef USE_SIG
         sig4_on;
 #endif
         __no_operation();
 //#ifdef USE_WATCHDOG
 //        WDTCTL = (WDTCTL & 0xff) | WDTPW | WDTCNTCL;
 //#endif
-        //led_switch;
+        check_events();
+        check_events();
         check_events();
     }
 }

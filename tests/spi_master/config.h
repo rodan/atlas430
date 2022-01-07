@@ -12,14 +12,16 @@
 #define USE_UART0
 #define UART0_BAUD 57600
 #define UART0_RXBUF_SZ 16
-//#define UART0_RX_USES_RINGBUF
-//#define UART0_TXBUF_SZ 32
-//#define UART0_TX_USES_IRQ
+#define UART0_RX_USES_RINGBUF
+#define UART0_TXBUF_SZ 32
+#define UART0_TX_USES_IRQ
 
-#define CONFIG_DS3234 
-#define EUSCI_SPI_BASE_ADDR EUSCI_B1_BASE
+#define SPI_USES_UCB1
+#define SPI_BASE_ADDR EUSCI_B1_BASE
 
-//#define USE_ITOA_LUT
+#define CONFIG_DS3234
+
+//#define USE_SIG
 //#define CONFIG_DEBUG
 
 #endif
