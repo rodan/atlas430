@@ -22,6 +22,7 @@ void main_init(void)
 {
     msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
 
+#if defined __MSP430FR5994__
     // 5.3 is the ~INT pin
     P5OUT = 0;
     P5DIR = 0x97;
@@ -37,16 +38,25 @@ void main_init(void)
     P5IFG &= ~BIT3;
     // Enable button interrupt
     P5IE |= BIT3;
+#endif
 }
 
 void ds3234_cs_low(void)
 {
+#if defined __MSP430FR5994__
     P3OUT &= ~BIT5;
+#elif defined __MSP430FR6989__
+    P2OUT &= ~BIT5;
+#endif
 }
 
 void ds3234_cs_high(void)
 {
+#if defined __MSP430FR5994__
     P3OUT |= BIT5;
+#elif defined __MSP430FR6989__
+    P2OUT |= BIT5;
+#endif
 }
 
 void ds3234_init(void)
@@ -108,7 +118,7 @@ int main(void)
 {
     // stop watchdog
     WDTCTL = WDTPW | WDTHOLD;
-    msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
+
     main_init();
 #ifdef USE_SIG
     sig0_on;
@@ -174,6 +184,9 @@ int main(void)
     }
 }
 
+
+#if defined __MSP430FR5994__
+
 // Port 5 interrupt service routine
 #if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
 #pragma vector=PORT5_VECTOR
@@ -194,4 +207,4 @@ void __attribute__ ((interrupt(PORT5_VECTOR))) port5_isr_handler(void)
     }
     P5IFG = 0;
 }
-
+#endif

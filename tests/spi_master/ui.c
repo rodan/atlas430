@@ -16,14 +16,14 @@ static const char menu_str[] = "\
 
 #ifdef CONFIG_DS3234
 static const char menu_DS3234[] = "\
- \e[33;1m0\e[0m  - ds3234 status\r\n\
- \e[33;1m1\e[0m  - ds3234 read rtc\r\n\
- \e[33;1m2\e[0m  - ds3234 write rtc\r\n\
- \e[33;1m3\e[0m  - ds3234 sram test\r\n\
- \e[33;1m4\e[0m  - ds3234 alarm1 test\r\n\
- \e[33;1m5\e[0m  - ds3234 alarm2 test\r\n\
- \e[33;1m6\e[0m  - ds3234 clear alarm\r\n\
- \e[33;1m7\e[0m  - ds3234 temperature read\r\n";
+ \e[33;1m0\e[0m  - DS3234 status\r\n\
+ \e[33;1m1\e[0m  - DS3234 read rtc\r\n\
+ \e[33;1m2\e[0m  - DS3234 write rtc\r\n\
+ \e[33;1m3\e[0m  - DS3234 sram test\r\n\
+ \e[33;1m4\e[0m  - DS3234 alarm1 test\r\n\
+ \e[33;1m5\e[0m  - DS3234 alarm2 test\r\n\
+ \e[33;1m6\e[0m  - DS3234 clear alarm\r\n\
+ \e[33;1m7\e[0m  - DS3234 temperature read\r\n";
 #endif
 
 void display_menu(void)
@@ -64,9 +64,29 @@ void add_some_minutes(struct ts *t, const uint8_t min)
     }
 }
 
+#define PARSER_CNT 16
+
 void parse_user_input(void)
 {
+#if defined UART0_RX_USES_RINGBUF || defined UART1_RX_USES_RINGBUF || \
+    defined UART2_RX_USES_RINGBUF || defined UART3_RX_USES_RINGBUF
+    struct ringbuf *rbr = uart_bcl_get_rx_ringbuf();
+    uint8_t rx;
+    uint8_t c = 0;
+    char input[PARSER_CNT];
+
+    memset(input, 0, PARSER_CNT);
+
+    // read the entire ringbuffer
+    while (ringbuf_get(rbr, &rx)) {
+        if (c < PARSER_CNT-1) {
+            input[c] = rx;
+        }
+        c++;
+    }
+#else
     char *input = uart_bcl_get_rx_buf();
+#endif
     char f = input[0];
     char itoa_buf[18];
     struct ts rtc;
