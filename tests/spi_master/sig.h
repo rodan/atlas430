@@ -3,13 +3,13 @@
 
 #include <msp430.h>
 
-#define sig0_on              P1OUT |= BIT2
-#define sig0_off             P1OUT &= ~BIT2
-#define sig0_switch          P1OUT ^= BIT2
+#define sig0_on              P2OUT |= BIT1
+#define sig0_off             P2OUT &= ~BIT1
+#define sig0_switch          P2OUT ^= BIT1
 
-#define sig1_on              P1OUT |= BIT4
-#define sig1_off             P1OUT &= ~BIT4
-#define sig1_switch          P1OUT ^= BIT4
+#define sig1_on              P2OUT |= BIT0
+#define sig1_off             P2OUT &= ~BIT0
+#define sig1_switch          P2OUT ^= BIT0
 
 #define sig2_on              P1OUT |= BIT5
 #define sig2_off             P1OUT &= ~BIT5

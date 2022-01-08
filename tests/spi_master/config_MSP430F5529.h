@@ -1,8 +1,6 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
-#include "i2c_config.h"
-
 #define USE_XT1
 //#define USE_XT2
 
@@ -18,8 +16,8 @@
 #define UART1_TXBUF_SZ 32
 #define UART1_TX_USES_IRQ
 
-#define SPI_USES_UCB1
-#define SPI_BASE_ADDR EUSCI_B1_BASE
+#define SPI_USES_UCB0
+#define SPI_BASE_ADDR USCI_B0_BASE
 
 #define CONFIG_DS3234
 

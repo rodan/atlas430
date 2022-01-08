@@ -15,12 +15,142 @@
 #include "glue.h"
 #include "ui.h"
 
-volatile uint8_t port5_last_event;
+static void uart_bcl_rx_handler(uint32_t msg)
+{
+    parse_user_input();
+    uart_bcl_set_eol();
+}
+
+void check_events(void)
+{
+    uint16_t msg = SYS_MSG_NULL;
+
+    // uart RX
+    if (uart_bcl_get_event() == UART_EV_RX) {
+        msg |= SYS_MSG_UART_BCL_RX;
+        uart_bcl_rst_event();
+    }
+
+#if defined __MSP430FR5994__
+    // P5.3 interrupt
+    if (port5_last_event) {
+        if (port5_last_event & BIT3) {
+            msg |= SYS_MSG_P53_INT;
+            port5_last_event ^= BIT3;
+        }
+    }
+#endif
+
+    eh_exec(msg);
+}
+
+
+#ifdef CONFIG_DS3234
 spi_descriptor spid_ds3234;
 
-void main_init(void)
+void ds3234_cs_low(void)
 {
-    msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
+
+#if defined __MSP430FR2355__
+    P4OUT &= ~BIT4;
+#elif defined __MSP430FR2433__
+    P3OUT &= ~BIT1;
+#elif defined __MSP430FR2476__
+    P4OUT &= ~BIT2;
+#elif defined __MSP430FR4133__
+    P1OUT &= ~BIT3;
+#elif defined __CC430F5137__
+    P3OUT &= ~BIT7;
+#elif defined __MSP430F5510__
+    P2OUT &= ~BIT0;
+#elif defined __MSP430F5529__
+    P2OUT &= ~BIT6;
+#elif defined __MSP430FR5969__
+    P1OUT &= ~BIT5;
+#elif defined __MSP430FR5994__
+    P3OUT &= ~BIT5;
+#elif defined __MSP430FR6989__
+    P2OUT &= ~BIT5;
+#endif
+}
+
+void ds3234_cs_high(void)
+{
+#if defined __MSP430FR2355__
+    P4OUT |= BIT4;
+#elif defined __MSP430FR2433__
+    P3OUT |= BIT1;
+#elif defined __MSP430FR2476__
+    P4OUT |= BIT2;
+#elif defined __MSP430FR4133__
+    P1OUT |= BIT3;
+#elif defined __CC430F5137__
+    P3OUT |= BIT7;
+#elif defined __MSP430F5510__
+    P2OUT |= BIT0;
+#elif defined __MSP430F5529__
+    P2OUT |= BIT6;
+#elif defined __MSP430FR5969__
+    P1OUT |= BIT5;
+#elif defined __MSP430FR5994__
+    P3OUT |= BIT5;
+#elif defined __MSP430FR6989__
+    P2OUT |= BIT5;
+#endif
+}
+
+void ds3234_init(void)
+{
+    ds3234_cs_high();
+    spid_ds3234.baseAddress = SPI_BASE_ADDR;
+    spid_ds3234.cs_low = ds3234_cs_low;
+    spid_ds3234.cs_high = ds3234_cs_high;
+
+#if defined __MSP430_HAS_EUSCI_Bx__
+    EUSCI_B_SPI_initMasterParam param = {0};
+    param.selectClockSource = EUSCI_B_SPI_CLOCKSOURCE_SMCLK;
+    param.clockSourceFrequency = SMCLK_FREQ;
+    param.desiredSpiClock = 1000000;
+    param.msbFirst= EUSCI_B_SPI_MSB_FIRST;
+    param.clockPhase= EUSCI_B_SPI_PHASE_DATA_CHANGED_ONFIRST_CAPTURED_ON_NEXT;
+    param.clockPolarity = EUSCI_B_SPI_CLOCKPOLARITY_INACTIVITY_HIGH;
+    param.spiMode = EUSCI_B_SPI_3PIN;
+    EUSCI_B_SPI_initMaster(spid_ds3234.baseAddress, &param);
+    EUSCI_B_SPI_enable(spid_ds3234.baseAddress);
+
+#elif defined __MSP430_HAS_USCI_Bx__
+    USCI_B_SPI_initMasterParam param = {0};
+    param.selectClockSource = USCI_B_SPI_CLOCKSOURCE_SMCLK;
+    param.clockSourceFrequency = SMCLK_FREQ;
+    param.desiredSpiClock = 1000000;
+    param.msbFirst= USCI_B_SPI_MSB_FIRST;
+    param.clockPhase= USCI_B_SPI_PHASE_DATA_CHANGED_ONFIRST_CAPTURED_ON_NEXT;
+    param.clockPolarity = USCI_B_SPI_CLOCKPOLARITY_INACTIVITY_HIGH;
+    USCI_B_SPI_initMaster(spid_ds3234.baseAddress, &param);
+    USCI_B_SPI_enable(spid_ds3234.baseAddress);
+#endif
+
+}
+
+#if defined __MSP430FR5994__
+static void ds3234_irq_handler(uint32_t msg)
+{
+    if (P5IN & BIT3) {
+        uart_bcl_print("alarm released\r\n");
+    } else {
+        uart_bcl_print("alarm asserted\r\n");
+    }
+}
+#endif
+
+#endif
+
+
+
+int main(void)
+{
+    // stop watchdog
+    WDTCTL = WDTPW | WDTHOLD;
 
 #if defined __MSP430FR5994__
     // 5.3 is the ~INT pin
@@ -39,87 +169,8 @@ void main_init(void)
     // Enable button interrupt
     P5IE |= BIT3;
 #endif
-}
+    msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
 
-void ds3234_cs_low(void)
-{
-#if defined __MSP430FR5994__
-    P3OUT &= ~BIT5;
-#elif defined __MSP430FR6989__
-    P2OUT &= ~BIT5;
-#endif
-}
-
-void ds3234_cs_high(void)
-{
-#if defined __MSP430FR5994__
-    P3OUT |= BIT5;
-#elif defined __MSP430FR6989__
-    P2OUT |= BIT5;
-#endif
-}
-
-void ds3234_init(void)
-{
-    ds3234_cs_high();
-    spid_ds3234.baseAddress = SPI_BASE_ADDR;
-    spid_ds3234.cs_low = ds3234_cs_low;
-    spid_ds3234.cs_high = ds3234_cs_high;
-
-    EUSCI_B_SPI_initMasterParam param = {0};
-    param.selectClockSource = EUSCI_B_SPI_CLOCKSOURCE_SMCLK;
-    param.clockSourceFrequency = 8000000;
-    param.desiredSpiClock = 1000000;
-    param.msbFirst= EUSCI_B_SPI_MSB_FIRST;
-    param.clockPhase= EUSCI_B_SPI_PHASE_DATA_CHANGED_ONFIRST_CAPTURED_ON_NEXT;
-    param.clockPolarity = EUSCI_B_SPI_CLOCKPOLARITY_INACTIVITY_HIGH;
-    param.spiMode = EUSCI_B_SPI_3PIN;
-    EUSCI_B_SPI_initMaster(spid_ds3234.baseAddress, &param);
-    EUSCI_B_SPI_enable(spid_ds3234.baseAddress);
-}
-
-static void uart_bcl_rx_handler(uint32_t msg)
-{
-    parse_user_input();
-    uart_bcl_set_eol();
-}
-
-static void ds3234_irq_handler(uint32_t msg)
-{
-    if (P5IN & BIT3) {
-        uart_bcl_print("alarm released\r\n");
-    } else {
-        uart_bcl_print("alarm asserted\r\n");
-    }
-}
-
-void check_events(void)
-{
-    uint16_t msg = SYS_MSG_NULL;
-
-    // uart RX
-    if (uart_bcl_get_event() == UART_EV_RX) {
-        msg |= SYS_MSG_UART_BCL_RX;
-        uart_bcl_rst_event();
-    }
-
-    // P5.3 interrupt
-    if (port5_last_event) {
-        if (port5_last_event & BIT3) {
-            msg |= SYS_MSG_P53_INT;
-            port5_last_event ^= BIT3;
-        }
-    }
-
-    eh_exec(msg);
-}
-
-int main(void)
-{
-    // stop watchdog
-    WDTCTL = WDTPW | WDTHOLD;
-
-    main_init();
 #ifdef USE_SIG
     sig0_on;
 #endif
@@ -160,7 +211,9 @@ int main(void)
 
     eh_init();
     eh_register(&uart_bcl_rx_handler, SYS_MSG_UART_BCL_RX);
+#if defined __MSP430FR5994__
     eh_register(&ds3234_irq_handler, SYS_MSG_P53_INT);
+#endif
     _BIS_SR(GIE);
 
     display_version();
@@ -170,7 +223,7 @@ int main(void)
 #ifdef USE_SIG
         sig4_off;
 #endif
-        _BIS_SR(LPM3_bits + GIE);
+        _BIS_SR(LPM0_bits + GIE);
 #ifdef USE_SIG
         sig4_on;
 #endif
@@ -186,6 +239,8 @@ int main(void)
 
 
 #if defined __MSP430FR5994__
+
+volatile uint8_t port5_last_event;
 
 // Port 5 interrupt service routine
 #if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)

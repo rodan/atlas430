@@ -165,12 +165,14 @@ void parse_user_input(void)
             DS3234_write_reg(&spid_ds3234, DS3234_REG_STA, reg_wr);
         }
     } else if (f == '0') {
+#if defined __MSP430FR5994__
         uart_bcl_print("INT pin: ");
         if (P5IN & BIT3) {
             uart_bcl_print("inactive");
         } else {
             uart_bcl_print("asserted");
         }
+#endif
         uart_bcl_print("\r\ncontrol reg: ");
         DS3234_read_reg(&spid_ds3234, DS3234_REG_CTRL, &reg);
         uart_bcl_print(_utoh(&itoa_buf[0], reg));
