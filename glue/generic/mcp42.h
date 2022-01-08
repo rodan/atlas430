@@ -31,15 +31,15 @@ extern "C" {
 /** set the potentiometer value to one of the channels of the chip
     @param spid     descriptor containing the SPI subsystem base address and CS signal control
     @param pot_id   the channel/pot from within the chip [0-1]
-    @param pot_val  potentiometer value [0-255]
+    @param pot_val  potentiometer tap [0-255]
 */
 void MCP42_set_pot_ch(const spi_descriptor *spid, const uint8_t pot_id,
                 const uint8_t pot_val);
 
 /** set the potentiometer values of both channels of the chip
     @param spid         descriptor containing the SPI subsystem base address and CS signal control
-    @param pot_ch0_val  potentiometer value for the first channel [0-255]
-    @param pot_ch1_val  potentiometer value for the second channel [0-255]
+    @param pot_ch0_val  potentiometer tap for the first channel [0-255]
+    @param pot_ch1_val  potentiometer tap for the second channel [0-255]
 */
 void MCP42_set_pot(const spi_descriptor *spid, const uint8_t pot_ch0_val, const uint8_t pot_ch1_val);
 

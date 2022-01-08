@@ -32,6 +32,7 @@ library of HAL functions that provide a glue layer between the upstream [Texas I
   * *Maxim DS3231* rtc IC
   * *Maxim DS3234* rtc IC
   * *Microchip MCP41xxx*, *MCP42xxx* Single/Dual Digital Potentiometer IC
+  * *Texas Instruments PGA2311* stereo audio volume control IC
   * *Analog Devices AD7789* low power 16/24bit sigma-delta ADC IC
 * Makefile-based build, tag file and document generation, code static scan
 * shell scripts for checking the build environment, flashing uCs, version incrementation, RTC initialization
