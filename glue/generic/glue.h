@@ -14,6 +14,7 @@
 #include "spi.h"
 #include "ad7789.h"
 #include "ds3234.h"
+#include "mcp42.h"
 
 #ifdef __I2C_CONFIG_H__
 #include "i2c.h"

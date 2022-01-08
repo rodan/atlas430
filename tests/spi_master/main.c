@@ -15,6 +15,10 @@
 #include "glue.h"
 #include "ui.h"
 
+#if defined __MSP430FR5994__
+volatile uint8_t port5_last_event;
+#endif
+
 static void uart_bcl_rx_handler(uint32_t msg)
 {
     parse_user_input();
@@ -239,9 +243,6 @@ int main(void)
 
 
 #if defined __MSP430FR5994__
-
-volatile uint8_t port5_last_event;
-
 // Port 5 interrupt service routine
 #if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
 #pragma vector=PORT5_VECTOR

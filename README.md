@@ -21,16 +21,18 @@ library of HAL functions that provide a glue layer between the upstream [Texas I
   * system and auxiliary clocks
   * uart with optional interrupt driven tx
   * interrupt driven i2c
+  * spi functions
   * interrupt-based event handling
   * scheduling (to be added soon)
-* drivers
+* sample drivers
   * *Honeywell High Accuracy Ceramic* (HSC) and *Standard Accuracy Ceramic* (SSC) piezoresistive silicon pressure sensors
-  * *Sensirion SHT 1x* humidity and temperature sensors
+  * *Cypress FM24xxx* i2c FRAM IC
+  * *Texas Intruments ADS1110* 16bit ADC
+  * *Texas Instruments TCA6408* IO expander 
   * *Maxim DS3231* rtc IC
   * *Maxim DS3234* rtc IC
-  * *Analog Devices AD7789* adc IC
-  * *Cypress FM24xxx* i2c FRAM IC
-  * *Texas Instruments TCA6408* IO expander 
+  * *Microchip MCP41xxx*, *MCP42xxx* Single/Dual Digital Potentiometer IC
+  * *Analog Devices AD7789* low power 16/24bit sigma-delta ADC IC
 * Makefile-based build, tag file and document generation, code static scan
 * shell scripts for checking the build environment, flashing uCs, version incrementation, RTC initialization
 * a Makefile driven collection of unit tests for the drivers above
