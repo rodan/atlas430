@@ -1,20 +1,30 @@
 /*
-  pin setup for UCA1 subsystem. 
+  pin setup for uart UCA0 subsystem. 
   this file is generated automatically based on the device datasheets
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/atlas430
 
-  generated on Wed Dec  8 10:13:45 UTC 2021
+  generated on Sun Jan  9 06:17:17 UTC 2022
 */
 
 #include <msp430.h>
 
-void uart1_pin_init(void)
+void uart_uca0_pin_init(void)
 {
 
-#ifdef USE_UART1
+#ifdef UART_USES_UCA0
 
-#if defined (__MSP430F5212__) || defined (__MSP430F5214__) \
+#if defined (__CC430F5123__) || defined (__CC430F5125__) \
+ || defined (__CC430F5133__) || defined (__CC430F5135__) \
+ || defined (__CC430F5137__) || defined (__CC430F5143__) \
+ || defined (__CC430F5145__) || defined (__CC430F5147__) \
+ || defined (__CC430F6125__) || defined (__CC430F6126__) \
+ || defined (__CC430F6127__) || defined (__CC430F6135__) \
+ || defined (__CC430F6137__) || defined (__CC430F6147__)
+
+    P1SEL |= BIT5 | BIT6;
+
+#elif defined (__MSP430F5212__) || defined (__MSP430F5214__) \
  || defined (__MSP430F5217__) || defined (__MSP430F5219__) \
  || defined (__MSP430F5222__) || defined (__MSP430F5224__) \
  || defined (__MSP430F5229__) || defined (__MSP430F5232__) \
@@ -45,24 +55,7 @@ void uart1_pin_init(void)
  || defined (__MSP430F5526__) || defined (__MSP430F5527__) \
  || defined (__MSP430F5528__) || defined (__MSP430F5529__)
 
-    P4SEL |= BIT4 | BIT5;
-
-#elif defined (__MSP430F6720__) || defined (__MSP430F6720A__) \
- || defined (__MSP430F6721__) || defined (__MSP430F6721A__) \
- || defined (__MSP430F6723__) || defined (__MSP430F6723A__) \
- || defined (__MSP430F6724__) || defined (__MSP430F6724A__) \
- || defined (__MSP430F6725__) || defined (__MSP430F6725A__) \
- || defined (__MSP430F6726__) || defined (__MSP430F6726A__) \
- || defined (__MSP430F6730__) || defined (__MSP430F6730A__) \
- || defined (__MSP430F6731__) || defined (__MSP430F6731A__) \
- || defined (__MSP430F6733__) || defined (__MSP430F6733A__) \
- || defined (__MSP430F6734__) || defined (__MSP430F6734A__) \
- || defined (__MSP430F6735__) || defined (__MSP430F6735A__) \
- || defined (__MSP430F6736__) || defined (__MSP430F6736A__) \
- || defined (__MSP430F67621__) || defined (__MSP430F67621A__) \
- || defined (__MSP430F67641__) || defined (__MSP430F67641A__)
-
-    P1SEL |= BIT4 | BIT5;
+    P3SEL |= BIT3 | BIT4;
 
 #elif defined (__MSP430BT5190__) || defined (__MSP430F5418__) \
  || defined (__MSP430F5418A__) || defined (__MSP430F5419__) \
@@ -72,21 +65,7 @@ void uart1_pin_init(void)
  || defined (__MSP430F5437A__) || defined (__MSP430F5438__) \
  || defined (__MSP430F5438A__)
 
-    P5SEL |= BIT6 | BIT7;
-
-#elif defined (__CC430F5123__) || defined (__CC430F5125__) \
- || defined (__CC430F5133__) || defined (__CC430F5135__) \
- || defined (__CC430F5137__) || defined (__CC430F5143__) \
- || defined (__CC430F5145__) || defined (__CC430F5147__) \
- || defined (__CC430F6125__) || defined (__CC430F6126__) \
- || defined (__CC430F6127__) || defined (__CC430F6135__) \
- || defined (__CC430F6137__) || defined (__CC430F6147__) \
- || defined (__MSP430F5131__) || defined (__MSP430F5132__) \
- || defined (__MSP430F5151__) || defined (__MSP430F5152__) \
- || defined (__MSP430F5171__) || defined (__MSP430F5172__)
-
-#warning function UCA1RXD not found for this uC
-#warning function UCA1TXD not found for this uC
+    P3SEL |= BIT4 | BIT5;
 
 #elif defined (__MSP430F5333__) || defined (__MSP430F5335__) \
  || defined (__MSP430F5336__) || defined (__MSP430F5338__) \
@@ -108,7 +87,31 @@ void uart1_pin_init(void)
  || defined (__MSP430FG6425__) || defined (__MSP430FG6426__) \
  || defined (__MSP430FG6625__) || defined (__MSP430FG6626__)
 
-    P8SEL |= BIT2 | BIT3;
+    P2SEL |= BIT4 | BIT5;
+
+#elif defined (__MSP430F6720__) || defined (__MSP430F6720A__) \
+ || defined (__MSP430F6721__) || defined (__MSP430F6721A__) \
+ || defined (__MSP430F6723__) || defined (__MSP430F6723A__) \
+ || defined (__MSP430F6724__) || defined (__MSP430F6724A__) \
+ || defined (__MSP430F6725__) || defined (__MSP430F6725A__) \
+ || defined (__MSP430F6726__) || defined (__MSP430F6726A__) \
+ || defined (__MSP430F6730__) || defined (__MSP430F6730A__) \
+ || defined (__MSP430F6731__) || defined (__MSP430F6731A__) \
+ || defined (__MSP430F6733__) || defined (__MSP430F6733A__) \
+ || defined (__MSP430F6734__) || defined (__MSP430F6734A__) \
+ || defined (__MSP430F6735__) || defined (__MSP430F6735A__) \
+ || defined (__MSP430F6736__) || defined (__MSP430F6736A__) \
+ || defined (__MSP430F67621__) || defined (__MSP430F67621A__) \
+ || defined (__MSP430F67641__) || defined (__MSP430F67641A__)
+
+    P1SEL |= BIT2 | BIT3;
+
+#elif defined (__MSP430F5131__) || defined (__MSP430F5132__) \
+ || defined (__MSP430F5151__) || defined (__MSP430F5152__) \
+ || defined (__MSP430F5171__) || defined (__MSP430F5172__)
+
+    P1DIR &= ~(BIT1 | BIT2);
+    P1SEL |= BIT1 | BIT2;
 
 #elif defined (__MSP430F67451__) || defined (__MSP430F67451A__) \
  || defined (__MSP430F6745__) || defined (__MSP430F6745A__) \
@@ -141,10 +144,10 @@ void uart1_pin_init(void)
  || defined (__MSP430F67791__) || defined (__MSP430F67791A__) \
  || defined (__MSP430F6779__) || defined (__MSP430F6779A__)
 
-    P3SEL0 |= BIT4 | BIT5;
+    P3SEL0 |= BIT0 | BIT1;
 
 #else
-    #warning "USE_UART1 was defined but pins not known in 'glue/MSP430F5xx_6xx/uart1_pin.c'"
+    #warning "UART_USES_UCA0 was defined but pins not known in 'glue/MSP430F5xx_6xx/uart_uca0_pin.c'"
 #endif
 #endif
 }

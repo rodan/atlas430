@@ -117,7 +117,7 @@ int main(void)
     clock_pin_init();
     clock_init();
 
-    uart0_pin_init();
+    uart_uca0_pin_init();
     uart0_init();
 
 #ifdef UART0_RX_USES_RINGBUF

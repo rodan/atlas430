@@ -8,11 +8,11 @@
 #include <inttypes.h>
 #include <string.h>
 
-#ifdef USE_UART3
+#ifdef UART_USES_UCA3
 #include "clock_selection.h"
 #include "uart_config.h"
 #include "uart3.h"
-#include "uart3_pin.h"
+#include "uart_uca3_pin.h"
 #include "lib_ringbuf.h"
 
 #ifdef USE_SIG
@@ -42,7 +42,7 @@ volatile uint8_t uart3_last_event;
 
 
 // you'll have to initialize/map uart ports in main()
-// or use uart3_pin_init() if no remapping is needed
+// or use uart_uca3_pin_init() if no remapping is needed
 
 void uart3_init(void)
 {
@@ -157,7 +157,7 @@ void uart3_initb(const uint8_t baudrate)
 // default port locations
 void uart3_port_init(void)
 {
-    uart3_pin_init();
+    uart_uca3_pin_init();
 }
 
 void uart3_set_rx_irq_handler(uint8_t (*input)(const uint8_t c))

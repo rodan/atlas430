@@ -41,7 +41,7 @@ library of HAL functions that provide a glue layer between the upstream [Texas I
 ### software requirements
 
 the entire development is done on a Gentoo Linux using makefiles, vim, the TI toolchain and gdb.
-while none of those are a requirement to making the library part of any msp430 project, it happens to be the beaten road. the library can be used in the following ways:
+while none of those are a requirement to making the library part of any msp430 project, it happens to be the beaten path. the library can be used in the following ways:
 
 #### via a special project makefile (in a linux environment)
 

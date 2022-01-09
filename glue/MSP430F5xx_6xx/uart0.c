@@ -8,11 +8,11 @@
 #include <inttypes.h>
 #include <string.h>
 
-#ifdef USE_UART0
+#ifdef UART_USES_UCA0
 #include "clock_selection.h"
 #include "uart_config.h"
 #include "uart0.h"
-#include "uart0_pin.h"
+#include "uart_uca0_pin.h"
 #include "lib_ringbuf.h"
 
 #ifdef USE_SIG
@@ -40,7 +40,7 @@ volatile uint8_t uart0_tx_busy;
 volatile uint8_t uart0_last_event;
 
 // you'll have to initialize/map uart ports in main()
-// or use uart0_pin_init() if no remapping is needed
+// or use uart_uca0_pin_init() if no remapping is needed
 
 void uart0_init(void)
 {
@@ -168,7 +168,7 @@ void uart0_initb(const uint8_t baudrate)
 
 void uart0_port_init(void)
 {
-    uart0_pin_init();
+    uart_uca0_pin_init();
 }
 
 void uart0_set_rx_irq_handler(uint8_t (*input)(const uint8_t c))

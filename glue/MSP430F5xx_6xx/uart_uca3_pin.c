@@ -1,18 +1,18 @@
 /*
-  pin setup for UCA3 subsystem. 
+  pin setup for uart UCA3 subsystem. 
   this file is generated automatically based on the device datasheets
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/atlas430
 
-  generated on Wed Dec  8 10:14:13 UTC 2021
+  generated on Sun Jan  9 06:17:58 UTC 2022
 */
 
 #include <msp430.h>
 
-void uart3_pin_init(void)
+void uart_uca3_pin_init(void)
 {
 
-#ifdef USE_UART3
+#ifdef UART_USES_UCA3
 
 #if defined (__MSP430BT5190__) || defined (__MSP430F5418__) \
  || defined (__MSP430F5418A__) || defined (__MSP430F5419__) \
@@ -138,7 +138,7 @@ void uart3_pin_init(void)
 #warning function UCA3TXD not found for this uC
 
 #else
-    #warning "USE_UART3 was defined but pins not known in 'glue/MSP430F5xx_6xx/uart3_pin.c'"
+    #warning "UART_USES_UCA3 was defined but pins not known in 'glue/MSP430F5xx_6xx/uart_uca3_pin.c'"
 #endif
 #endif
 }

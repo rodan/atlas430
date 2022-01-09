@@ -1,18 +1,18 @@
 /*
-  pin setup for UCA2 subsystem. 
+  pin setup for uart UCA2 subsystem. 
   this file is generated automatically based on the device datasheets
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/atlas430
 
-  generated on Wed Dec  8 10:14:00 UTC 2021
+  generated on Sun Jan  9 06:17:46 UTC 2022
 */
 
 #include <msp430.h>
 
-void uart2_pin_init(void)
+void uart_uca2_pin_init(void)
 {
 
-#ifdef USE_UART2
+#ifdef UART_USES_UCA2
 
 #if defined (__MSP430F5252__) || defined (__MSP430F5253__) \
  || defined (__MSP430F5254__) || defined (__MSP430F5255__) \
@@ -144,7 +144,7 @@ void uart2_pin_init(void)
 #warning function UCA2TXD not found for this uC
 
 #else
-    #warning "USE_UART2 was defined but pins not known in 'glue/MSP430F5xx_6xx/uart2_pin.c'"
+    #warning "UART_USES_UCA2 was defined but pins not known in 'glue/MSP430F5xx_6xx/uart_uca2_pin.c'"
 #endif
 #endif
 }

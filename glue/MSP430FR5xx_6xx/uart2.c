@@ -8,11 +8,11 @@
 #include <inttypes.h>
 #include <string.h>
 
-#ifdef USE_UART2
+#ifdef UART_USES_UCA2
 #include "clock_selection.h"
 #include "uart_config.h"
 #include "uart2.h"
-#include "uart2_pin.h"
+#include "uart_uca2_pin.h"
 #include "lib_ringbuf.h"
 
 #ifdef USE_SIG
@@ -42,7 +42,7 @@ volatile uint8_t uart2_last_event;
 
 
 // you'll have to initialize/map uart ports in main()
-// or use uart2_pin_init() if no remapping is needed
+// or use uart_uca2_pin_init() if no remapping is needed
 
 void uart2_init(void)
 {
@@ -157,7 +157,7 @@ void uart2_initb(const uint8_t baudrate)
 // default port locations
 void uart2_port_init(void)
 {
-    uart2_pin_init();
+    uart_uca2_pin_init();
 }
 
 void uart2_set_rx_irq_handler(uint8_t (*input)(const uint8_t c))

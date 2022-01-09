@@ -9,7 +9,7 @@
 //#define SMCLK_FREQ_8M
 //#define SMCLK_FREQ_16M
 
-#define USE_UART0
+#define UART_USES_UCA0
 #define UART0_BAUD 57600
 #define UART0_RX_USES_RINGBUF
 #define UART0_RXBUF_SZ 16

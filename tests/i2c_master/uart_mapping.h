@@ -5,8 +5,8 @@
 #define    UART_EV_RX 0x1
 #define    UART_EV_TX 0x2
 
-#ifdef USE_UART0
-#define uart_bcl_pin_init()         uart0_pin_init()
+#ifdef UART_USES_UCA0
+#define uart_bcl_pin_init()         uart_uca0_pin_init()
 #define uart_bcl_init()             uart0_init()
 #define uart_bcl_print(a)           uart0_print(a)
 #define uart_bcl_tx(a)              uart0_tx(a)
@@ -24,8 +24,8 @@
     #define uart_bcl_rx_simple_handler  uart0_rx_simple_handler
 #endif
 
-#elif USE_UART1
-#define uart_bcl_pin_init()         uart1_pin_init()
+#elif UART_USES_UCA1
+#define uart_bcl_pin_init()         uart_uca1_pin_init()
 #define uart_bcl_init()             uart1_init()
 #define uart_bcl_print(a)           uart1_print(a)
 #define uart_bcl_tx(a)              uart1_tx(a)
@@ -43,8 +43,8 @@
     #define uart_bcl_rx_simple_handler  uart1_rx_simple_handler
 #endif
 
-#elif USE_UART2
-#define uart_bcl_pin_init()         uart2_pin_init()
+#elif UART_USES_UCA2
+#define uart_bcl_pin_init()         uart_uca2_pin_init()
 #define uart_bcl_init()             uart2_init()
 #define uart_bcl_print(a)           uart2_print(a)
 #define uart_bcl_tx(a)              uart2_tx(a)
@@ -62,8 +62,8 @@
     #define uart_bcl_rx_simple_handler  uart2_rx_simple_handler
 #endif
 
-#elif USE_UART3
-#define uart_bcl_pin_init()         uart3_pin_init()
+#elif UART_USES_UCA3
+#define uart_bcl_pin_init()         uart_uca3_pin_init()
 #define uart_bcl_init()             uart3_init()
 #define uart_bcl_print(a)           uart3_print(a)
 #define uart_bcl_tx(a)              uart3_tx(a)
@@ -82,7 +82,7 @@
 #endif
 
 #else
-#error no USE_UARTx option was defined in config.h
+#error no UART_USES_UCAx option was defined in config.h
 #endif
 
 #endif

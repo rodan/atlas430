@@ -1,18 +1,18 @@
 /*
-  pin setup for UCA0 subsystem. 
+  pin setup for uart UCA0 subsystem. 
   this file is generated automatically based on the device datasheets
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/atlas430
 
-  generated on Wed Dec  8 10:12:12 UTC 2021
+  generated on Sun Jan  9 06:16:16 UTC 2022
 */
 
 #include <msp430.h>
 
-void uart0_pin_init(void)
+void uart_uca0_pin_init(void)
 {
 
-#ifdef USE_UART0
+#ifdef UART_USES_UCA0
 
 #if defined (__MSP430FR2032__) || defined (__MSP430FR2033__) \
  || defined (__MSP430FR4131__) || defined (__MSP430FR4132__) \
@@ -70,7 +70,7 @@ void uart0_pin_init(void)
 #warning multiple pins found for the UCA0TXD function, you must initialize them manually
 
 #else
-    #warning "USE_UART0 was defined but pins not known in 'glue/MSP430FR2xx_4xx/uart0_pin.c'"
+    #warning "UART_USES_UCA0 was defined but pins not known in 'glue/MSP430FR2xx_4xx/uart_uca0_pin.c'"
 #endif
 #endif
 }

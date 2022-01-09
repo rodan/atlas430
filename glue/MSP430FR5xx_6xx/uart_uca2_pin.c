@@ -1,36 +1,48 @@
 /*
-  pin setup for UCA3 subsystem. 
+  pin setup for uart UCA2 subsystem. 
   this file is generated automatically based on the device datasheets
   Author:          Petre Rodan <2b4eda@subdimension.ro>
   Available from:  https://github.com/rodan/atlas430
 
-  generated on Wed Dec  8 10:13:10 UTC 2021
+  generated on Sun Jan  9 06:16:55 UTC 2022
 */
 
 #include <msp430.h>
 
-void uart3_pin_init(void)
+void uart_uca2_pin_init(void)
 {
 
-#ifdef USE_UART3
+#ifdef UART_USES_UCA2
 
-#if defined (__MSP430FR5962__) || defined (__MSP430FR5964__) \
- || defined (__MSP430FR5992__) || defined (__MSP430FR59941__) \
- || defined (__MSP430FR5994__)
-
-    P6SEL0 |= BIT0 | BIT1;
-    P6SEL1 &= ~(BIT0 | BIT1);
-
-#elif defined (__MSP430FR5041__) || defined (__MSP430FR50431__) \
+#if defined (__MSP430FR5041__) || defined (__MSP430FR50431__) \
  || defined (__MSP430FR5043__) || defined (__MSP430FR6041__) \
  || defined (__MSP430FR60431__) || defined (__MSP430FR6043__)
 
-    P2SEL0 &= ~(BIT0 | BIT1);
-    P2SEL1 |= BIT0 | BIT1;
-    P4SEL0 |= BIT1 | BIT2;
-    P4SEL1 |= BIT1 | BIT2;
-#warning multiple pins found for the UCA3RXD function, you must initialize them manually
-#warning multiple pins found for the UCA3TXD function, you must initialize them manually
+    P5SEL0 &= ~(BIT0 | BIT1);
+    P5SEL1 |= BIT0 | BIT1;
+    PJSEL0 |= BIT2 | BIT3;
+    PJSEL1 &= ~(BIT2 | BIT3);
+#warning multiple pins found for the UCA2RXD function, you must initialize them manually
+#warning multiple pins found for the UCA2TXD function, you must initialize them manually
+
+#elif defined (__MSP430FR6005__) || defined (__MSP430FR6007__) \
+ || defined (__MSP430FR6035__) || defined (__MSP430FR60371__) \
+ || defined (__MSP430FR6037__) || defined (__MSP430FR6045__) \
+ || defined (__MSP430FR60471__) || defined (__MSP430FR6047__)
+
+    P5SEL0 &= ~(BIT0 | BIT1);
+    P5SEL1 |= BIT0 | BIT1;
+    P7SEL0 |= BIT0 | BIT1;
+    P7SEL1 &= ~(BIT0 | BIT1);
+#warning multiple pins found for the UCA2RXD function, you must initialize them manually
+#warning multiple pins found for the UCA2TXD function, you must initialize them manually
+
+#elif defined (__MSP430FR5962__) || defined (__MSP430FR5964__) \
+ || defined (__MSP430FR5992__) || defined (__MSP430FR59941__) \
+ || defined (__MSP430FR5994__)
+
+    P5SEL0 |= BIT4 | BIT5;
+    P5SEL1 &= ~(BIT4 | BIT5);
 
 #elif defined (__MSP430FR58471__) || defined (__MSP430FR5847__) \
  || defined (__MSP430FR5848__) || defined (__MSP430FR5849__) \
@@ -67,19 +79,11 @@ void uart3_pin_init(void)
  || defined (__MSP430FR6987__) || defined (__MSP430FR6988__) \
  || defined (__MSP430FR69891__) || defined (__MSP430FR6989__)
 
-#warning function UCA3RXD not found for this uC
-#warning function UCA3TXD not found for this uC
-
-#elif defined (__MSP430FR6005__) || defined (__MSP430FR6007__) \
- || defined (__MSP430FR6035__) || defined (__MSP430FR60371__) \
- || defined (__MSP430FR6037__) || defined (__MSP430FR6045__) \
- || defined (__MSP430FR60471__) || defined (__MSP430FR6047__)
-
-    P8SEL0 |= BIT2 | BIT3;
-    P8SEL1 &= ~(BIT2 | BIT3);
+#warning function UCA2RXD not found for this uC
+#warning function UCA2TXD not found for this uC
 
 #else
-    #warning "USE_UART3 was defined but pins not known in 'glue/MSP430FR5xx_6xx/uart3_pin.c'"
+    #warning "UART_USES_UCA2 was defined but pins not known in 'glue/MSP430FR5xx_6xx/uart_uca2_pin.c'"
 #endif
 #endif
 }
