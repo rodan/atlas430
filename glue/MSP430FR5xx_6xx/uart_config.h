@@ -1,15 +1,13 @@
 #ifndef __UART_CONFIG_H__
 #define __UART_CONFIG_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #define        BAUDRATE_9600  0x1
 #define       BAUDRATE_19200  0x2
 #define       BAUDRATE_38400  0x3
 #define       BAUDRATE_57600  0x4
 #define      BAUDRATE_115200  0x5
+
 
 // values based on slau367p.pdf table 30-5 Typical Crystals and Baud Rates
 
@@ -178,6 +176,11 @@ extern "C" {
     #error SMCLK_FREQ is not defined or sourced from clock.h
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void uart_config_reg(const uint16_t baseAddress, const uint8_t baudrate);
 
 #ifdef __cplusplus
 }

@@ -1,15 +1,12 @@
 #ifndef __UART_CONFIG_H__
 #define __UART_CONFIG_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define        BAUDRATE_9600  0x1
 #define       BAUDRATE_19200  0x2
 #define       BAUDRATE_38400  0x3
 #define       BAUDRATE_57600  0x4
 #define      BAUDRATE_115200  0x5
+
 
 // values based on slau208q.pdf Table 36-4 Commonly Used Baud Rates
 
@@ -20,7 +17,7 @@ extern "C" {
 
 #if SMCLK_FREQ == 1000000
 
-#define              UC_CTL1  UCSSEL__SMCLK
+#define               UC_CTL  UCSSEL__SMCLK
 
 #define         BR_9600_BAUD  104
 #define       MCTL_9600_BAUD  UCBRS_1
@@ -137,6 +134,12 @@ extern "C" {
 #else
     #error SMCLK_FREQ is not defined or sourced from clock.h
 #endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void uart_config_reg(const uint16_t baseAddress, const uint8_t baudrate);
 
 #ifdef __cplusplus
 }

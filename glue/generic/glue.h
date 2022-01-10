@@ -11,6 +11,7 @@
 #include "lib_ringbuf.h"
 #include "event_handler.h"
 
+#include "uart.h"
 #include "spi.h"
 #include "ad7789.h"
 #include "ds3234.h"
