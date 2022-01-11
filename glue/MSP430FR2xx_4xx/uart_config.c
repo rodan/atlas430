@@ -10,16 +10,13 @@
 #include "clock_selection.h"
 #include "uart_config.h"
 
-void uart_config_reg(const uint16_t baseAddress, const uint8_t baudrate)
+uint8_t uart_config_reg(const uint16_t baseAddress, const uint8_t baudrate)
 {
-    //put USCI state machine in reset
-    HWREG16(baseAddress + OFS_UCAxCTLW0) |= UCSWRST;
+    // put eUSCI state machine in reset
+    HWREG16(baseAddress + OFS_UCAxCTLW0) = UCSWRST;
 
-    // consult 'Recommended Settings for Typical Crystals and Baud Rates' in slau367o
+    // consult 'Recommended Settings for Typical Crystals and Baud Rates' in slau367p
     // for some reason any baud >= 115200 ends up with a non-working RX channel
-
-    HWREG16(baseAddress + OFS_UCAxCTLW0) &= ~UCSSEL_3;
-
     switch (baudrate) {
         case BAUDRATE_9600:
             HWREG16(baseAddress + OFS_UCAxCTLW0) |= UC_CTLW0;
@@ -46,18 +43,22 @@ void uart_config_reg(const uint16_t baseAddress, const uint8_t baudrate)
             HWREG16(baseAddress + OFS_UCAxBRW) = BRW_115200_BAUD;
             HWREG16(baseAddress + OFS_UCAxMCTLW) = MCTLW_115200_BAUD;
             break;
+        default:
+            return STATUS_FAIL;
+            break;
     }
 
-    // initialize USCI
+    // initialize eUSCI
     HWREG16(baseAddress + OFS_UCAxCTLW0) &= ~UCSWRST;
 
 #ifdef UART_TX_USES_IRQ
     // enable RX and TX interrupts
-    HWREG16(uartd->baseAddress + OFS_UCAxIE) |= UCRXIE | UCTXIE;
+    HWREG16(baseAddress + OFS_UCAxIE) |= UCRXIE | UCTXIE;
 #else
     // enable only the RX interrupt
-    HWREG16(uartd->baseAddress + OFS_UCAxIE) |= UCRXIE;
+    HWREG16(baseAddress + OFS_UCAxIE) |= UCRXIE;
 #endif
 
+    return STATUS_SUCCESS;
 }
 

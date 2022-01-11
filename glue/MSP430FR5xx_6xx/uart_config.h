@@ -180,7 +180,7 @@
 extern "C" {
 #endif
 
-void uart_config_reg(const uint16_t baseAddress, const uint8_t baudrate);
+uint8_t uart_config_reg(const uint16_t baseAddress, const uint8_t baudrate);
 
 #ifdef __cplusplus
 }

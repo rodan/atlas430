@@ -10,10 +10,11 @@
 #include "clock_selection.h"
 #include "uart_config.h"
 
-void uart_config_reg(const uint16_t baseAddress, const uint8_t baudrate)
+uint8_t uart_config_reg(const uint16_t baseAddress, const uint8_t baudrate)
 {
+
     //put USCI state machine in reset
-    HWREG8(baseAddress + OFS_UCAxCTL1) |= UCSWRST;
+    HWREG8(baseAddress + OFS_UCAxCTL1) = UCSWRST;
 
     // consult 'Recommended Settings for Typical Crystals and Baud Rates' in slau367o
     // for some reason any baud >= 115200 ends up with a non-working RX channel
@@ -44,6 +45,9 @@ void uart_config_reg(const uint16_t baseAddress, const uint8_t baudrate)
             HWREG16(baseAddress + OFS_UCAxBRW) = BR_115200_BAUD;
             HWREG8(baseAddress + OFS_UCAxMCTL) = MCTL_115200_BAUD;
             break;
+        default:
+            return STATUS_FAIL;
+            break;
     }
 
     // initialize USCI
@@ -56,5 +60,7 @@ void uart_config_reg(const uint16_t baseAddress, const uint8_t baudrate)
     // enable only the RX interrupt
     HWREG8(uartd->baseAddress + OFS_UCAxIE) |= UCRXIE;
 #endif
+
+    return STATUS_SUCCESS;
 }
 

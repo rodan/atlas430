@@ -136,7 +136,7 @@ extern "C" {
 #endif
 
 uint8_t uart_init(uart_descriptor *uartd);
-void uart_pin_init(const uart_descriptor *uartd);
+uint8_t uart_pin_init(const uart_descriptor *uartd);
 
 uint8_t uart_set_rx_irq_handler(const uart_descriptor *uartd, uint8_t (*input)(uart_descriptor *uartd, const uint8_t c));
 

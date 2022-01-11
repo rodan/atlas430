@@ -42,42 +42,70 @@ uint8_t uart_init(uart_descriptor *uartd)
 {
     uint8_t ret = STATUS_SUCCESS;
 
+    // set up optional ring buffers
 #ifdef UART_TX_USES_IRQ
     ringbuf_init(&uartd->rbtx, uartd->tx_buf, UART_TXBUF_SZ);
     uartd->tx_busy = 0;
 #endif
 
-    uart_config_reg(uartd->baseAddress, uartd->baudrate);
-
-    uartd->p = 0;
-    uartd->rx_enable = 1;
-    uartd->rx_err = 0;
-
 #ifdef UART_RX_USES_RINGBUF
     ringbuf_init(&uartd->rbrx, uartd->rx_buf, UART_RXBUF_SZ);
 #endif
 
+    // set up registers
+    uart_config_reg(uartd->baseAddress, uartd->baudrate);
+
+    // reset counters
+    uartd->p = 0;
+    uartd->rx_enable = 1;
+    uartd->rx_err = 0;
+
+    // determine USCI channel based on baseAddress
     switch (uartd->baseAddress) {
-#if defined USCI_A0_BASE 
+#if defined (USCI_A0_BASE)
         case USCI_A0_BASE:
             uartd->channel = CH_UCA0;
             uart0d = uartd;
             break;
 #endif
-#if defined USCI_A1_BASE 
+#if defined (USCI_A1_BASE)
         case USCI_A1_BASE:
             uartd->channel = CH_UCA1;
             uart1d = uartd;
             break;
 #endif
-#if defined USCI_A2_BASE 
+#if defined (USCI_A2_BASE)
         case USCI_A2_BASE:
             uartd->channel = CH_UCA2;
             uart2d = uartd;
             break;
 #endif
-#if defined USCI_A3_BASE 
+#if defined (USCI_A3_BASE)
         case USCI_A3_BASE:
+            uartd->channel = CH_UCA3;
+            uart3d = uartd;
+            break;
+#endif
+#if defined (EUSCI_A0_BASE)
+        case EUSCI_A0_BASE:
+            uartd->channel = CH_UCA0;
+            uart0d = uartd;
+            break;
+#endif
+#if defined (EUSCI_A1_BASE)
+        case EUSCI_A1_BASE:
+            uartd->channel = CH_UCA1;
+            uart1d = uartd;
+            break;
+#endif
+#if defined (EUSCI_A2_BASE)
+        case EUSCI_A2_BASE:
+            uartd->channel = CH_UCA2;
+            uart2d = uartd;
+            break;
+#endif
+#if defined (EUSCI_A3_BASE)
+        case EUSCI_A3_BASE:
             uartd->channel = CH_UCA3;
             uart3d = uartd;
             break;
@@ -90,32 +118,57 @@ uint8_t uart_init(uart_descriptor *uartd)
     return ret;
 }
 
-void uart_pin_init(const uart_descriptor *uartd)
+uint8_t uart_pin_init(const uart_descriptor *uartd)
 {
+    uint8_t ret = STATUS_SUCCESS;
+
     switch (uartd->baseAddress) {
-#if defined USCI_A0_BASE 
+#if defined (USCI_A0_BASE)
         case USCI_A0_BASE:
             uart_uca0_pin_init();
             break;
 #endif
-#if defined USCI_A1_BASE 
+#if defined (USCI_A1_BASE)
         case USCI_A1_BASE:
             uart_uca1_pin_init();
             break;
 #endif
-#if defined USCI_A2_BASE 
+#if defined (USCI_A2_BASE)
         case USCI_A2_BASE:
             uart_uca2_pin_init();
             break;
 #endif
-#if defined USCI_A3_BASE 
+#if defined (USCI_A3_BASE)
         case USCI_A3_BASE:
             uart_uca3_pin_init();
             break;
 #endif
+#if defined (EUSCI_A0_BASE)
+        case EUSCI_A0_BASE:
+            uart_uca0_pin_init();
+            break;
+#endif
+#if defined (EUSCI_A1_BASE)
+        case EUSCI_A1_BASE:
+            uart_uca1_pin_init();
+            break;
+#endif
+#if defined (EUSCI_A2_BASE)
+        case EUSCI_A2_BASE:
+            uart_uca2_pin_init();
+            break;
+#endif
+#if defined (EUSCI_A3_BASE)
+        case EUSCI_A3_BASE:
+            uart_uca3_pin_init();
+            break;
+#endif
         default:
+            ret = STATUS_FAIL;
             break;
     }
+
+    return ret;
 }
 
 uint8_t uart_set_rx_irq_handler(const uart_descriptor *uartd, uint8_t (*input)(uart_descriptor *uartd, const uint8_t c))
@@ -198,7 +251,6 @@ void uart_set_eol(uart_descriptor *uartd)
 {
     uartd->p = 0;
     uartd->rx_enable = 1;
-
 }
 #endif
 

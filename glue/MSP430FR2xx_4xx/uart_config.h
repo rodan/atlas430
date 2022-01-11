@@ -1,9 +1,6 @@
 #ifndef __UART_CONFIG_H__
 #define __UART_CONFIG_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #define        BAUDRATE_9600  0x1
 #define       BAUDRATE_19200  0x2
@@ -11,7 +8,8 @@ extern "C" {
 #define       BAUDRATE_57600  0x4
 #define      BAUDRATE_115200  0x5
 
-// values based on slau445i.pdf table 22-5 Typical Baud Rates and Errors
+
+// values based on slau367p.pdf table 30-5 Typical Crystals and Baud Rates
 
 // UCAxBRW.UCBRx - clock prescaler (16bit)
 // UCAxMCTLW - 16bit modulation control word register (16bit)
@@ -42,11 +40,6 @@ extern "C" {
 // err                        -7.36  5.6  -17.04  6.96
 #define      BRW_115200_BAUD  8
 #define    MCTLW_115200_BAUD  0xd600
-
-
-#elif SMCLK_FREQ == 2000000
-    // FIXME
-    #error UART registers missing in MSP430FR2xx_4xx/uart_config.h
 
 
 #elif SMCLK_FREQ == 4000000
@@ -175,12 +168,19 @@ extern "C" {
 
 
 #elif SMCLK_FREQ == 24000000
-
+    //FIXME
     #error UART registers missing in MSP430FR2xx_4xx/uart_config.h
+
 
 #else
     #error SMCLK_FREQ is not defined or sourced from clock.h
 #endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+uint8_t uart_config_reg(const uint16_t baseAddress, const uint8_t baudrate);
 
 #ifdef __cplusplus
 }
