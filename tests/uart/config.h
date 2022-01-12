@@ -13,7 +13,7 @@
 //#define UART_USES_UCA1
 //#define UART_USES_UCA2
 //#define UART_USES_UCA3
-//#define UART_RX_USES_RINGBUF
+#define UART_RX_USES_RINGBUF
 #define UART_RXBUF_SZ 16
 #define UART_TX_USES_IRQ
 #define UART_TXBUF_SZ 16

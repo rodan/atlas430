@@ -15,14 +15,9 @@
 #define UART_TXBUF_SZ 32
 #define UART_TX_USES_IRQ
 
-#define SPI_USES_UCB0
-#define SPI_BASE_ADDR EUSCI_B0_BASE
-
-#define CONFIG_DS3234
-
 //#define USE_WATCHDOG
 
-#define USE_SIG
+//#define USE_SIG
 //#define CONFIG_DEBUG
 
 #endif

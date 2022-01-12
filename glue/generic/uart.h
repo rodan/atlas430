@@ -55,7 +55,7 @@ typedef struct _uart_descriptor {
         #error UART UCA0 interrupt vector name unknown
     #endif
 
-    #if defined (OFS_UCA0STATW)
+    #if defined (__MSP430_HAS_EUSCI_A0__)
         #define HAL_UCA0STAT UCA0STATW
     #else
         #define HAL_UCA0STAT UCA0STAT
@@ -72,7 +72,7 @@ typedef struct _uart_descriptor {
         #error UART UCA1 interrupt vector name unknown
     #endif
 
-    #if defined (OFS_UCA1STATW)
+    #if defined (__MSP430_HAS_EUSCI_A1__)
         #define HAL_UCA1STAT UCA1STATW
     #else
         #define HAL_UCA1STAT UCA1STAT
@@ -89,7 +89,7 @@ typedef struct _uart_descriptor {
         #error UART UCA2 interrupt vector name unknown
     #endif
 
-    #if defined (OFS_UCA2STATW)
+    #if defined (__MSP430_HAS_EUSCI_A2__)
         #define HAL_UCA2STAT UCA2STATW
     #else
         #define HAL_UCA2STAT UCA2STAT
@@ -106,7 +106,7 @@ typedef struct _uart_descriptor {
         #error UART UCA3 interrupt vector name unknown
     #endif
 
-    #if defined (OFS_UCA3STATW)
+    #if defined (__MSP430_HAS_EUSCI_A3__)
         #define HAL_UCA3STAT UCA3STATW
     #else
         #define HAL_UCA3STAT UCA3STAT
