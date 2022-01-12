@@ -4,6 +4,9 @@
   Available from:  https://github.com/rodan/atlas430
 */
 
+// guard needed for firmware that does not use the UART interface at all
+#if defined (UART_RXBUF_SZ)
+
 #include <msp430.h>
 #include <inttypes.h>
 #include <string.h>
@@ -18,9 +21,9 @@
 #include "uart_uca3_pin.h"
 #include "lib_ringbuf.h"
 
-//#ifdef USE_SIG
+#ifdef USE_SIG
 #include "sig.h"
-//#endif
+#endif
 
 uint8_t (*uart_uca0_rx_irq_handler)(uart_descriptor *uartd, const uint8_t c);
 uart_descriptor *uart_uca0_d;
@@ -274,9 +277,8 @@ char *uart_get_rx_buf(const uart_descriptor *uartd)
 {
     if (uartd->p) {
         return (char *)uartd->rx_buf;
-    } else {
-        return NULL;
     }
+    return NULL;
 }
 #endif
 
@@ -405,7 +407,6 @@ void __attribute__ ((interrupt(HAL_USCI_A0_VECTOR))) USCI_A0_ISR(void)
             //UCA0TXBUF = r; // local echo
             if (uart_uca0_rx_irq_handler != NULL) {
                 if (uart_uca0_rx_irq_handler(uart_uca0_d, r)) {
-                    sig4_switch;
                     ev |= UART_EV_RX;
                     LPM3_EXIT;
                 }
@@ -628,3 +629,4 @@ void __attribute__ ((interrupt(HAL_USCI_A3_VECTOR))) USCI_A3_ISR(void)
 
 #endif
 
+#endif

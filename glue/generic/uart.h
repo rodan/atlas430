@@ -20,6 +20,10 @@
 #endif
 #endif
 
+// guard needed for firmware that does not use the UART interface at all
+#if defined (UART_RXBUF_SZ)
+
+
 typedef struct _uart_descriptor {
     uint16_t baseAddress;   ///< uart subsystem offset base register
     uint8_t baudrate;       ///< select one of the supported baudrates [BAUDRATE_9600 - BAUDRATE_115200]
@@ -161,6 +165,8 @@ void uart_set_eol(uart_descriptor *uartd);
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif
 
 #endif
