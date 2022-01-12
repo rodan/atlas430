@@ -29,7 +29,6 @@ int main(void)
     P3DIR = 0xff;               // all P3.x are output
     PJSEL0 |= BIT4 | BIT5;      // XT1
     PJSEL0 |= BIT6 | BIT7;      // XT2
-    PM5CTL0 &= ~LOCKLPM5;       // turn on gpio
 
     // setup clock
     CS_setExternalClockSource(ACLK_FREQ, SMCLK_FREQ);

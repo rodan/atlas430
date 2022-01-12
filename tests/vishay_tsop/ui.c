@@ -9,7 +9,7 @@
 #include "ir_send.h"
 
 #define STR_LEN 64
-
+extern uart_descriptor bc;
 struct ir_tome temp_command;
 
 static const char menu_str[]="\
@@ -21,16 +21,16 @@ static const char menu_str[]="\
 void display_menu(void)
 {
     display_version();
-    uart0_print(menu_str);
+    uart_print(&bc, menu_str);
 }
 
 void display_version(void)
 {
     char sconv[CONV_BASE_10_BUF_SZ];
 
-    uart0_print("tsop b");
-    uart0_print(_utoa(sconv, BUILD));
-    uart0_print("\r\n");
+    uart_print(&bc, "tsop b");
+    uart_print(&bc, _utoa(sconv, BUILD));
+    uart_print(&bc, "\r\n");
 }
 
 void qa_acquisition_end(void)
@@ -45,15 +45,15 @@ void qa_acquisition_end(void)
     ir_acquire_sm();
 
     ir_acquire_get_acquisition(&data, &size);
-    uart0_print("got ");
-    uart0_print(_utoa(itoa_buf, size));
-    uart0_print(" edges\r\n");
+    uart_print(&bc, "got ");
+    uart_print(&bc, _utoa(itoa_buf, size));
+    uart_print(&bc, " edges\r\n");
     temp_command.delta_size = size;
     temp_command.delta = data;
 
     for (i=0; i<size; i++) {
-        uart0_print(_utoa(itoa_buf, data[i]));
-        uart0_print("\r\n");
+        uart_print(&bc, _utoa(itoa_buf, data[i]));
+        uart_print(&bc, "\r\n");
     }
 
     ir_send_start(&temp_command);
@@ -64,8 +64,8 @@ void qa_acquisition_end(void)
 
 void parse_user_input(void)
 {
-#ifdef UART0_RX_USES_RINGBUF
-    struct ringbuf *rbr = uart0_get_rx_ringbuf();
+#ifdef UART_RX_USES_RINGBUF
+    struct ringbuf *rbr = uart_get_rx_ringbuf(&bc);
     uint8_t rx;
     uint8_t c = 0;
     char input[PARSER_CNT];
@@ -80,7 +80,7 @@ void parse_user_input(void)
         c++;
     }
 #else
-    char *input = uart0_get_rx_buf();
+    char *input = uart_get_rx_buf(&bc);
 #endif
     char f = input[0];
 
@@ -88,10 +88,10 @@ void parse_user_input(void)
         display_menu();
     } else if (f == 's') {
         ir_acquire_start();
-        uart0_print("go\r\n");
+        uart_print(&bc, "go\r\n");
     } else if (f == 'r') {
         ir_send_start(&temp_command);
-        uart0_print("sig sent\r\n");
+        uart_print(&bc, "sig sent\r\n");
     }
 }
 

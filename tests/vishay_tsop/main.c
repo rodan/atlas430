@@ -17,10 +17,12 @@
 #include "ir_acquire.h"
 #include "sig.h"
 
-static void uart0_rx_irq(uint32_t msg)
+uart_descriptor bc; // backchannel uart interface
+
+static void uart_rx_irq(uint32_t msg)
 {
     parse_user_input();
-    uart0_set_eol();
+    uart_set_eol(&bc);
 }
 
 static void acquisition_end(uint32_t msg)
@@ -33,9 +35,9 @@ void check_events(void)
     uint16_t msg = SYS_MSG_NULL;
 
     // uart RX
-    if (uart0_get_event() == UART0_EV_RX) {
+    if (uart_get_event(&bc) == UART_EV_RX) {
         msg |= SYS_MSG_UART0_RX;
-        uart0_rst_event();
+        uart_rst_event(&bc);
     }
 
     // timer
@@ -59,13 +61,14 @@ int main(void)
     clock_pin_init();
     clock_init();
 
-    uart_uca0_pin_init();
-    uart0_init();
-
-#ifdef UART0_RX_USES_RINGBUF
-    uart0_set_rx_irq_handler(uart0_rx_ringbuf_handler);
+    bc.baseAddress = EUSCI_A0_BASE;
+    bc.baudrate = BAUDRATE_57600;
+    uart_pin_init(&bc);
+    uart_init(&bc);
+#if defined UART_RX_USES_RINGBUF
+    uart_set_rx_irq_handler(&bc, uart_rx_ringbuf_handler);
 #else
-    uart0_set_rx_irq_handler(uart0_rx_simple_handler);
+    uart_set_rx_irq_handler(&bc, uart_rx_simple_handler);
 #endif
 
     timer_a0_init();
@@ -79,7 +82,7 @@ int main(void)
 #endif
 
     eh_init();
-    eh_register(&uart0_rx_irq, SYS_MSG_UART0_RX);
+    eh_register(&uart_rx_irq, SYS_MSG_UART0_RX);
     eh_register(&acquisition_end, SYS_MSG_TIMER0_CRR2);
     _BIS_SR(GIE);
 

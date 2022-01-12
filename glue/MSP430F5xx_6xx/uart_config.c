@@ -55,10 +55,10 @@ uint8_t uart_config_reg(const uint16_t baseAddress, const uint8_t baudrate)
 
 #ifdef UART_TX_USES_IRQ
     // enable RX and TX interrupts
-    HWREG8(uartd->baseAddress + OFS_UCAxIE) |= UCRXIE | UCTXIE;
+    HWREG8(baseAddress + OFS_UCAxIE) |= UCRXIE | UCTXIE;
 #else
     // enable only the RX interrupt
-    HWREG8(uartd->baseAddress + OFS_UCAxIE) |= UCRXIE;
+    HWREG8(baseAddress + OFS_UCAxIE) |= UCRXIE;
 #endif
 
     return STATUS_SUCCESS;

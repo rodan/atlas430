@@ -42,10 +42,22 @@ int main(void)
     clock_pin_init();
     clock_init();
 
-    //bc.baseAddress = USCI_A1_BASE;
+#if defined (__MSP430F5510__)
+    bc.baseAddress = USCI_A1_BASE;
+#elif defined (__MSP430FR5994__)
     bc.baseAddress = EUSCI_A0_BASE;
+#endif
     bc.baudrate = BAUDRATE_57600;
+
+#if defined __MSP430FR6989__
+    P3SEL0 |= BIT4 | BIT5;
+    P3SEL1 &= ~(BIT4 | BIT5);
+#elif defined __MSP430FR2476__
+    P1SEL0 |= BIT4 | BIT5;
+    P1SEL1 &= ~(BIT4 | BIT5); 
+#else
     uart_pin_init(&bc);
+#endif
     uart_init(&bc);
 #if defined UART_RX_USES_RINGBUF
     uart_set_rx_irq_handler(&bc, uart_rx_ringbuf_handler);

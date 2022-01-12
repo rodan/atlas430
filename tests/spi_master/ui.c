@@ -3,10 +3,10 @@
 #include <string.h>
 #include "glue.h"
 #include "version.h"
-#include "uart_mapping.h"
 #include "rtca_now.h"
 #include "ui.h"
 
+extern uart_descriptor bc;
 extern spi_descriptor spid_ds3234;
 static const uint8_t hello_str[6] = "hello";
 
@@ -29,9 +29,9 @@ static const char menu_DS3234[] = "\
 void display_menu(void)
 {
     display_version();
-    uart_bcl_print(menu_str);
+    uart_print(&bc, menu_str);
 #ifdef CONFIG_DS3234
-    uart_bcl_print(menu_DS3234);
+    uart_print(&bc, menu_DS3234);
 #endif
 }
 
@@ -39,9 +39,9 @@ void display_version(void)
 {
     char sconv[CONV_BASE_10_BUF_SZ];
 
-    uart_bcl_print("spi master b");
-    uart_bcl_print(_utoa(sconv, BUILD));
-    uart_bcl_print("\r\n");
+    uart_print(&bc, "spi master b");
+    uart_print(&bc, _utoa(sconv, BUILD));
+    uart_print(&bc, "\r\n");
 }
 
 /** quick and dirty function to increment the current time by a few minutes [1-59] for alarm testing
@@ -68,9 +68,8 @@ void add_some_minutes(struct ts *t, const uint8_t min)
 
 void parse_user_input(void)
 {
-#if defined UART0_RX_USES_RINGBUF || defined UART1_RX_USES_RINGBUF || \
-    defined UART2_RX_USES_RINGBUF || defined UART3_RX_USES_RINGBUF
-    struct ringbuf *rbr = uart_bcl_get_rx_ringbuf();
+#if defined UART_RX_USES_RINGBUF
+    struct ringbuf *rbr = uart_get_rx_ringbuf(&bc);
     uint8_t rx;
     uint8_t c = 0;
     char input[PARSER_CNT];
@@ -85,7 +84,7 @@ void parse_user_input(void)
         c++;
     }
 #else
-    char *input = uart_bcl_get_rx_buf();
+    char *input = uart_get_rx_buf(&bc);
 #endif
     char f = input[0];
     char itoa_buf[18];
@@ -102,18 +101,18 @@ void parse_user_input(void)
         memset(&rtc, 0, sizeof(rtc));
         DS3234_read_rtc(&spid_ds3234, &rtc);
 
-        uart_bcl_print(prepend_padding(itoa_buf, _utoa(&itoa_buf[0], rtc.hour), PAD_ZEROES, 2));
-        uart_bcl_print(":");
-        uart_bcl_print(prepend_padding(itoa_buf, _utoa(&itoa_buf[0], rtc.min), PAD_ZEROES, 2));
-        uart_bcl_print(":");
-        uart_bcl_print(prepend_padding(itoa_buf, _utoa(&itoa_buf[0], rtc.sec), PAD_ZEROES, 2));
-        uart_bcl_print(" ");
-        uart_bcl_print(_utoa(&itoa_buf[0], rtc.year));
-        uart_bcl_print("/");
-        uart_bcl_print(prepend_padding(itoa_buf, _utoa(&itoa_buf[0], rtc.mon), PAD_ZEROES, 2));
-        uart_bcl_print("/");
-        uart_bcl_print(prepend_padding(itoa_buf, _utoa(&itoa_buf[0], rtc.mday), PAD_ZEROES, 2));
-        uart_bcl_print("\r\n");
+        uart_print(&bc, prepend_padding(itoa_buf, _utoa(&itoa_buf[0], rtc.hour), PAD_ZEROES, 2));
+        uart_print(&bc, ":");
+        uart_print(&bc, prepend_padding(itoa_buf, _utoa(&itoa_buf[0], rtc.min), PAD_ZEROES, 2));
+        uart_print(&bc, ":");
+        uart_print(&bc, prepend_padding(itoa_buf, _utoa(&itoa_buf[0], rtc.sec), PAD_ZEROES, 2));
+        uart_print(&bc, " ");
+        uart_print(&bc, _utoa(&itoa_buf[0], rtc.year));
+        uart_print(&bc, "/");
+        uart_print(&bc, prepend_padding(itoa_buf, _utoa(&itoa_buf[0], rtc.mon), PAD_ZEROES, 2));
+        uart_print(&bc, "/");
+        uart_print(&bc, prepend_padding(itoa_buf, _utoa(&itoa_buf[0], rtc.mday), PAD_ZEROES, 2));
+        uart_print(&bc, "\r\n");
     } else if (f == '2') {
         memset(&rtc, 0, sizeof(rtc));
         rtc.year = COMPILE_YEAR;
@@ -166,27 +165,27 @@ void parse_user_input(void)
         }
     } else if (f == '0') {
 #if defined __MSP430FR5994__
-        uart_bcl_print("INT pin: ");
+        uart_print(&bc, "INT pin: ");
         if (P5IN & BIT3) {
-            uart_bcl_print("inactive");
+            uart_print(&bc, "inactive");
         } else {
-            uart_bcl_print("asserted");
+            uart_print(&bc, "asserted");
         }
 #endif
-        uart_bcl_print("\r\ncontrol reg: ");
+        uart_print(&bc, "\r\ncontrol reg: ");
         DS3234_read_reg(&spid_ds3234, DS3234_REG_CTRL, &reg);
-        uart_bcl_print(_utoh(&itoa_buf[0], reg));
-        uart_bcl_print("\r\nstatus reg: ");
+        uart_print(&bc, _utoh(&itoa_buf[0], reg));
+        uart_print(&bc, "\r\nstatus reg: ");
         DS3234_read_reg(&spid_ds3234, DS3234_REG_STA, &reg);
-        uart_bcl_print(_utoh(&itoa_buf[0], reg));
-        uart_bcl_print("\r\n");
+        uart_print(&bc, _utoh(&itoa_buf[0], reg));
+        uart_print(&bc, "\r\n");
     } else if (f == '7') {
         DS3234_read_temp(&spid_ds3234, &temperature);
-        uart_bcl_print(_itoa(&itoa_buf[0], temperature));
-        uart_bcl_print("\r\n");
+        uart_print(&bc, _itoa(&itoa_buf[0], temperature));
+        uart_print(&bc, "\r\n");
 #endif
 
     } else {
-        uart_bcl_print("\r\n");
+        uart_print(&bc, "\r\n");
     }
 }

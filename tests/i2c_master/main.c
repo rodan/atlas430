@@ -8,12 +8,13 @@
 #include "glue.h"
 #include "ui.h"
 #include "sig.h"
-#include "uart_mapping.h"
+
+uart_descriptor bc; // backchannel uart interface
 
 static void uart_bcl_rx_irq(uint32_t msg)
 {
     parse_user_input();
-    uart_bcl_set_eol();
+    uart_set_eol(&bc);
 }
 
 void check_events(void)
@@ -21,9 +22,9 @@ void check_events(void)
     uint16_t msg = SYS_MSG_NULL;
 
     // uart RX
-    if (uart_bcl_get_event() == UART_EV_RX) {
+    if (uart_get_event(&bc) == UART_EV_RX) {
         msg |= SYS_MSG_UART_BCL_RX;
-        uart_bcl_rst_event();
+        uart_rst_event(&bc);
     }
 
     eh_exec(msg);
@@ -74,6 +75,13 @@ int main(void)
     clock_pin_init();
     clock_init();
 
+#if defined (__MSP430F5510__)
+    bc.baseAddress = USCI_A1_BASE;
+#elif defined (__MSP430FR5994__)
+    bc.baseAddress = EUSCI_A0_BASE;
+#endif
+    bc.baudrate = BAUDRATE_57600;
+
 #if defined __MSP430FR6989__
     P3SEL0 |= BIT4 | BIT5;
     P3SEL1 &= ~(BIT4 | BIT5);
@@ -81,14 +89,13 @@ int main(void)
     P1SEL0 |= BIT4 | BIT5;
     P1SEL1 &= ~(BIT4 | BIT5); 
 #else
-    uart_bcl_pin_init();
+    uart_pin_init(&bc);
 #endif
-    uart_bcl_init();
-#if defined UART0_RX_USES_RINGBUF || defined UART1_RX_USES_RINGBUF || \
-    defined UART2_RX_USES_RINGBUF || defined UART3_RX_USES_RINGBUF
-    uart_bcl_set_rx_irq_handler(uart_bcl_rx_ringbuf_handler);
+    uart_init(&bc);
+#if defined UART_RX_USES_RINGBUF
+    uart_set_rx_irq_handler(&bc, uart_rx_ringbuf_handler);
 #else
-    uart_bcl_set_rx_irq_handler(uart_bcl_rx_simple_handler);
+    uart_set_rx_irq_handler(&bc, uart_rx_simple_handler);
 #endif
 
     i2c_init();

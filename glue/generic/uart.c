@@ -18,21 +18,21 @@
 #include "uart_uca3_pin.h"
 #include "lib_ringbuf.h"
 
-#ifdef USE_SIG
+//#ifdef USE_SIG
 #include "sig.h"
-#endif
+//#endif
 
-uint8_t (*uart0_rx_irq_handler)(uart_descriptor *uartd, const uint8_t c);
-uart_descriptor *uart0d;
+uint8_t (*uart_uca0_rx_irq_handler)(uart_descriptor *uartd, const uint8_t c);
+uart_descriptor *uart_uca0_d;
 
-uint8_t (*uart1_rx_irq_handler)(uart_descriptor *uartd, const uint8_t c);
-uart_descriptor *uart1d;
+uint8_t (*uart_uca1_rx_irq_handler)(uart_descriptor *uartd, const uint8_t c);
+uart_descriptor *uart_uca1_d;
 
-uint8_t (*uart2_rx_irq_handler)(uart_descriptor *uartd, const uint8_t c);
-uart_descriptor *uart2d;
+uint8_t (*uart_uca2_rx_irq_handler)(uart_descriptor *uartd, const uint8_t c);
+uart_descriptor *uart_uca2_d;
 
-uint8_t (*uart3_rx_irq_handler)(uart_descriptor *uartd, const uint8_t c);
-uart_descriptor *uart3d;
+uint8_t (*uart_uca3_rx_irq_handler)(uart_descriptor *uartd, const uint8_t c);
+uart_descriptor *uart_uca3_d;
 
 
 // you'll have to initialize/map uart pins in main()
@@ -65,49 +65,49 @@ uint8_t uart_init(uart_descriptor *uartd)
 #if defined (USCI_A0_BASE)
         case USCI_A0_BASE:
             uartd->channel = CH_UCA0;
-            uart0d = uartd;
+            uart_uca0_d = uartd;
             break;
 #endif
 #if defined (USCI_A1_BASE)
         case USCI_A1_BASE:
             uartd->channel = CH_UCA1;
-            uart1d = uartd;
+            uart_uca1_d = uartd;
             break;
 #endif
 #if defined (USCI_A2_BASE)
         case USCI_A2_BASE:
             uartd->channel = CH_UCA2;
-            uart2d = uartd;
+            uart_uca2_d = uartd;
             break;
 #endif
 #if defined (USCI_A3_BASE)
         case USCI_A3_BASE:
             uartd->channel = CH_UCA3;
-            uart3d = uartd;
+            uart_uca3_d = uartd;
             break;
 #endif
 #if defined (EUSCI_A0_BASE)
         case EUSCI_A0_BASE:
             uartd->channel = CH_UCA0;
-            uart0d = uartd;
+            uart_uca0_d = uartd;
             break;
 #endif
 #if defined (EUSCI_A1_BASE)
         case EUSCI_A1_BASE:
             uartd->channel = CH_UCA1;
-            uart1d = uartd;
+            uart_uca1_d = uartd;
             break;
 #endif
 #if defined (EUSCI_A2_BASE)
         case EUSCI_A2_BASE:
             uartd->channel = CH_UCA2;
-            uart2d = uartd;
+            uart_uca2_d = uartd;
             break;
 #endif
 #if defined (EUSCI_A3_BASE)
         case EUSCI_A3_BASE:
             uartd->channel = CH_UCA3;
-            uart3d = uartd;
+            uart_uca3_d = uartd;
             break;
 #endif
         default:
@@ -177,16 +177,16 @@ uint8_t uart_set_rx_irq_handler(const uart_descriptor *uartd, uint8_t (*input)(u
 
     switch (uartd->channel) {
         case CH_UCA0:
-            uart0_rx_irq_handler = input;
+            uart_uca0_rx_irq_handler = input;
             break;
         case CH_UCA1:
-            uart1_rx_irq_handler = input;
+            uart_uca1_rx_irq_handler = input;
             break;
         case CH_UCA2:
-            uart2_rx_irq_handler = input;
+            uart_uca2_rx_irq_handler = input;
             break;
         case CH_UCA3:
-            uart3_rx_irq_handler = input;
+            uart_uca3_rx_irq_handler = input;
             break;
         default:
             ret = STATUS_FAIL;
@@ -403,8 +403,9 @@ void __attribute__ ((interrupt(HAL_USCI_A0_VECTOR))) USCI_A0_ISR(void)
         } else {
             r = UCA0RXBUF;
             //UCA0TXBUF = r; // local echo
-            if (uart0_rx_irq_handler != NULL) {
-                if (uart0_rx_irq_handler(uart0d, r)) {
+            if (uart_uca0_rx_irq_handler != NULL) {
+                if (uart_uca0_rx_irq_handler(uart_uca0_d, r)) {
+                    sig4_switch;
                     ev |= UART_EV_RX;
                     LPM3_EXIT;
                 }
@@ -413,12 +414,12 @@ void __attribute__ ((interrupt(HAL_USCI_A0_VECTOR))) USCI_A0_ISR(void)
         break;
     case HAL_IV_UCTXIFG:
 #ifdef UART_TX_USES_IRQ
-        if (ringbuf_get(&uart0d->rbtx, &t)) {
-            uart0d->tx_busy = 1;
+        if (ringbuf_get(&uart_uca0_d->rbtx, &t)) {
+            uart_uca0_d->tx_busy = 1;
             UCA0TXBUF = t;
         } else {
             // nothing more to do
-            uart0d->tx_busy = 0;
+            uart_uca0_d->tx_busy = 0;
         }
         LPM3_EXIT;
 #endif
@@ -426,7 +427,7 @@ void __attribute__ ((interrupt(HAL_USCI_A0_VECTOR))) USCI_A0_ISR(void)
     default:
         break;
     }
-    uart0d->last_event |= ev;
+    uart_uca0_d->last_event |= ev;
 
 #ifdef USE_SIG
     sig3_off;
@@ -467,8 +468,8 @@ void __attribute__ ((interrupt(HAL_USCI_A1_VECTOR))) USCI_A1_ISR(void)
         } else {
             r = UCA1RXBUF;
             //UCA1TXBUF = r; // local echo
-            if (uart1_rx_irq_handler != NULL) {
-                if (uart1_rx_irq_handler(uart1d, r)) {
+            if (uart_uca1_rx_irq_handler != NULL) {
+                if (uart_uca1_rx_irq_handler(uart_uca1_d, r)) {
                     ev |= UART_EV_RX;
                     LPM3_EXIT;
                 }
@@ -477,12 +478,12 @@ void __attribute__ ((interrupt(HAL_USCI_A1_VECTOR))) USCI_A1_ISR(void)
         break;
     case HAL_IV_UCTXIFG:
 #ifdef UART_TX_USES_IRQ
-        if (ringbuf_get(&uart1d->rbtx, &t)) {
-            uart1d->tx_busy = 1;
+        if (ringbuf_get(&uart_uca1_d->rbtx, &t)) {
+            uart_uca1_d->tx_busy = 1;
             UCA1TXBUF = t;
         } else {
             // nothing more to do
-            uart1d->tx_busy = 0;
+            uart_uca1_d->tx_busy = 0;
         }
         LPM3_EXIT;
 #endif
@@ -490,7 +491,7 @@ void __attribute__ ((interrupt(HAL_USCI_A1_VECTOR))) USCI_A1_ISR(void)
     default:
         break;
     }
-    uart1d->last_event |= ev;
+    uart_uca1_d->last_event |= ev;
 
 #ifdef USE_SIG
     sig3_off;
@@ -531,8 +532,8 @@ void __attribute__ ((interrupt(HAL_USCI_A2_VECTOR))) USCI_A2_ISR(void)
         } else {
             r = UCA2RXBUF;
             //UCA2TXBUF = r; // local echo
-            if (uart2_rx_irq_handler != NULL) {
-                if (uart2_rx_irq_handler(uart2d, r)) {
+            if (uart_uca2_rx_irq_handler != NULL) {
+                if (uart_uca2_rx_irq_handler(uart_uca2_d, r)) {
                     ev |= UART_EV_RX;
                     LPM3_EXIT;
                 }
@@ -541,12 +542,12 @@ void __attribute__ ((interrupt(HAL_USCI_A2_VECTOR))) USCI_A2_ISR(void)
         break;
     case HAL_IV_UCTXIFG:
 #ifdef UART_TX_USES_IRQ
-        if (ringbuf_get(&uart2d->rbtx, &t)) {
-            uart2d->tx_busy = 1;
+        if (ringbuf_get(&uart_uca2_d->rbtx, &t)) {
+            uart_uca2_d->tx_busy = 1;
             UCA2TXBUF = t;
         } else {
             // nothing more to do
-            uart2d->tx_busy = 0;
+            uart_uca2_d->tx_busy = 0;
         }
         LPM3_EXIT;
 #endif
@@ -554,7 +555,7 @@ void __attribute__ ((interrupt(HAL_USCI_A2_VECTOR))) USCI_A2_ISR(void)
     default:
         break;
     }
-    uart2d->last_event |= ev;
+    uart_uca2_d->last_event |= ev;
 
 #ifdef USE_SIG
     sig3_off;
@@ -595,8 +596,8 @@ void __attribute__ ((interrupt(HAL_USCI_A3_VECTOR))) USCI_A3_ISR(void)
         } else {
             r = UCA3RXBUF;
             //UCA3TXBUF = r; // local echo
-            if (uart3_rx_irq_handler != NULL) {
-                if (uart3_rx_irq_handler(uart3d, r)) {
+            if (uart_uca3_rx_irq_handler != NULL) {
+                if (uart_uca3_rx_irq_handler(uart_uca3_d, r)) {
                     ev |= UART_EV_RX;
                     LPM3_EXIT;
                 }
@@ -605,12 +606,12 @@ void __attribute__ ((interrupt(HAL_USCI_A3_VECTOR))) USCI_A3_ISR(void)
         break;
     case HAL_IV_UCTXIFG:
 #ifdef UART_TX_USES_IRQ
-        if (ringbuf_get(&uart3d->rbtx, &t)) {
-            uart3d->tx_busy = 1;
+        if (ringbuf_get(&uart_uca3_d->rbtx, &t)) {
+            uart_uca3_d->tx_busy = 1;
             UCA3TXBUF = t;
         } else {
             // nothing more to do
-            uart3d->tx_busy = 0;
+            uart_uca3_d->tx_busy = 0;
         }
         LPM3_EXIT;
 #endif
@@ -618,7 +619,7 @@ void __attribute__ ((interrupt(HAL_USCI_A3_VECTOR))) USCI_A3_ISR(void)
     default:
         break;
     }
-    uart3d->last_event |= ev;
+    uart_uca3_d->last_event |= ev;
 
 #ifdef USE_SIG
     sig3_off;

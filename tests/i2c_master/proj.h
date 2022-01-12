@@ -2,7 +2,6 @@
 #define __PROJ_H__
 
 #include <msp430.h>
-#include "uart_mapping.h"
 
 #define true                1
 #define false               0
