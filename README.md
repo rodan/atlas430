@@ -81,7 +81,7 @@ LD_PRELOAD='/opt/atlas430/lib/libmsp430.so' mspdebug --allow-fw-update tilib gdb
 and then start gdb from within the project directory:
 
 ```
-make debug
+make TARGET=MSP430FXXXX debug
 ```
 
 commonly used commands from within gdb provided as example for the unit tests:
@@ -90,7 +90,7 @@ commonly used commands from within gdb provided as example for the unit tests:
 target remote localhost:2000
 monitor reset
 monitor erase
-load build/MSP430FR5994/main.elf
+load build/MSP430FXXXX/main.elf
 b
 disassemble
 nexti
