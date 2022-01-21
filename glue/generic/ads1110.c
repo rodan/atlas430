@@ -4,6 +4,7 @@
 //  available from:  https://github.com/rodan/
 //  license:         GNU GPLv3
 
+#include "warning.h"
 
 #ifdef CONFIG_ADS1110
 #ifdef __I2C_CONFIG_H__

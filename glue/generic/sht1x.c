@@ -4,6 +4,8 @@
 //  available from:  https://github.com/rodan/
 //  license:         BSD
 
+#include "warning.h"
+
 #ifdef __I2C_CONFIG_H__
 #ifdef I2C_USES_BITBANGING
 

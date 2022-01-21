@@ -16,32 +16,32 @@ extern uart_descriptor bc;
 
 static const char menu_str[]="\
  available commands:\r\n\r\n\
- \e[33;1m?\e[0m - show menu\r\n";
+ \033[33;1m?\033[0m - show menu\r\n";
 
 #ifdef TEST_CYPRESS_FM24
 static const char menu_CYPRESS_FM24[]="\
- \e[33;1mt\e[0m - CYP_FM24 memtest\r\n\
- \e[33;1mr\e[0m - CYP_FM24 tiny read test\r\n\
- \e[33;1mw\e[0m - CYP_FM24 tiny write test\r\n\
- \e[33;1mh\e[0m - CYP_FM24 hex dump of FRAM segment\r\n";
+ \033[33;1mt\033[0m - CYP_FM24 memtest\r\n\
+ \033[33;1mr\033[0m - CYP_FM24 tiny read test\r\n\
+ \033[33;1mw\033[0m - CYP_FM24 tiny write test\r\n\
+ \033[33;1mh\033[0m - CYP_FM24 hex dump of FRAM segment\r\n";
 #endif
 
 #ifdef TEST_HSC_SSC
 static const char menu_HSC_SSC[]="\
- \e[33;1m1\e[0m - HSC_SSC read sensor\r\n";
+ \033[33;1m1\033[0m - HSC_SSC read sensor\r\n";
 #endif
 
 #ifdef TEST_DS3231
 static const char menu_DS3231[]="\
- \e[33;1m2\e[0m - DS3231 read\r\n\
- \e[33;1m3\e[0m - DS3231 write\r\n\
- \e[33;1m4\e[0m - DS3231 read temp\r\n";
+ \033[33;1m2\033[0m - DS3231 read\r\n\
+ \033[33;1m3\033[0m - DS3231 write\r\n\
+ \033[33;1m4\033[0m - DS3231 read temp\r\n";
 #endif
 
 #ifdef TEST_TCA6408
 static const char menu_TCA6408[]="\
- \e[33;1m5\e[0m - TCA6308 read\r\n\
- \e[33;1m6\e[0m - TCA6408 write\r\n";
+ \033[33;1m5\033[0m - TCA6308 read\r\n\
+ \033[33;1m6\033[0m - TCA6408 write\r\n";
 #endif
 
 #ifdef TEST_CYPRESS_FM24
@@ -51,7 +51,7 @@ void display_memtest(const uint16_t usci_base_addr, const uint8_t slave_addr, co
     uint32_t rows_tested;
     char itoa_buf[CONV_BASE_10_BUF_SZ];
 
-    uart_print(&bc, " \e[36;1m*\e[0m testing ");
+    uart_print(&bc, " \033[36;1m*\033[0m testing ");
     uart_print(&bc, _utoh32(itoa_buf, start_addr));
     uart_print(&bc, " - ");
     uart_print(&bc, _utoh32(itoa_buf, stop_addr));
@@ -63,11 +63,11 @@ void display_memtest(const uint16_t usci_base_addr, const uint8_t slave_addr, co
 
     uart_print(&bc, _utoa(itoa_buf, rows_tested * 8));
     if (el == 0) { 
-        uart_print(&bc, " bytes tested \e[32;1mok\e[0m\r\n");
+        uart_print(&bc, " bytes tested \033[32;1mok\033[0m\r\n");
     } else {
-        uart_print(&bc, " bytes tested with \e[31;1m");
+        uart_print(&bc, " bytes tested with \033[31;1m");
         uart_print(&bc, _utoa(itoa_buf, el));
-        uart_print(&bc, " errors\e[0m\r\n");
+        uart_print(&bc, " errors\033[0m\r\n");
     }
 }
 

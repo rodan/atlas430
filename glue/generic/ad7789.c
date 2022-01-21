@@ -13,6 +13,8 @@
   with one differential input.
 */
 
+#include "warning.h"
+
 #ifdef CONFIG_AD7789
 
 #include <math.h>

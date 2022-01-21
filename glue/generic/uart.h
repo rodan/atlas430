@@ -37,7 +37,7 @@
 
 
 ///< struct who's pointer is passed arround during most calls present in this HAL implementation
-// do not read/write to the structure elements directly.
+// do not read/write to the structure elements directly, try to treat this struct as opaque data
 // baseAddress and baudrate are the only variables excepted from the above rule. they need to be 
 // set before calling uart_init()
 // also if you write your own RX interrupt handler callback all elements can be directly read and written
@@ -149,8 +149,6 @@ typedef struct _uart_descriptor {
 #else
     #error TX flag for UART interrupt vector unknown
 #endif
-
-// UCASTAT register
 
 #ifdef __cplusplus
 extern "C" {
@@ -268,12 +266,19 @@ uint16_t uart_print(uart_descriptor *uartd, const char *str);
 struct ringbuf *uart_get_rx_ringbuf(uart_descriptor *uartd);
 #define uart_set_eol(a)
 #else
-/** \brief get pointer to the RX buffer
+/** \brief get pointer to the RX buffer if there is at least one byte in it
 
     @param uartd structure containing the USCI parameters, various counters and the input/output buffers
     @return pointer to a null-terminated RX buffer
 */
 char *uart_get_rx_buf(const uart_descriptor *uartd);
+
+/** \brief get pointer to the RX buffer
+
+    @param uartd structure containing the USCI parameters, various counters and the input/output buffers
+    @return pointer to a null-terminated RX buffer
+*/
+char *uart_get_rx_buf_force(const uart_descriptor *uartd);
 
 /** \brief reset RX buffer counters
 
@@ -282,6 +287,13 @@ char *uart_get_rx_buf(const uart_descriptor *uartd);
     @param uartd structure containing the USCI parameters, various counters and the input/output buffers
 */
 void uart_set_eol(uart_descriptor *uartd);
+
+/** \brief get the number of bytes currently in the input buffer
+
+    @param uartd structure containing the USCI parameters, various counters and the input/output buffers
+    @return number of bytes currently in the buffer
+*/
+uint16_t uart_get_rx_buf_len(uart_descriptor *uartd);
 #endif
 
 #ifdef __cplusplus

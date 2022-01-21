@@ -19,7 +19,7 @@ extern "C" {
 	\sa eh_register()
 */
 
-// should be re-created in local proj.h
+// sample list that must be re-created inside the local proj.h
 
 //#define           SYS_EVH_NULL 0
 //#define    SYS_EVH_TIMER0_CRR1 0x1   // timer_a0_delay_noblk_ccr1

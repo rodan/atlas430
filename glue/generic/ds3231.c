@@ -17,6 +17,8 @@
   (TCXO) and crystal.
 */
 
+#include "warning.h"
+
 #ifdef CONFIG_DS3231
 
 #ifdef __I2C_CONFIG_H__

@@ -12,18 +12,18 @@ static const uint8_t hello_str[6] = "hello";
 
 static const char menu_str[] = "\
 \r\n ds3234 module test suite --- available commands:\r\n\r\n\
- \e[33;1m?\e[0m  - show menu\r\n";
+ \033[33;1m?\033[0m  - show menu\r\n";
 
 #ifdef CONFIG_DS3234
 static const char menu_DS3234[] = "\
- \e[33;1m0\e[0m  - DS3234 status\r\n\
- \e[33;1m1\e[0m  - DS3234 read rtc\r\n\
- \e[33;1m2\e[0m  - DS3234 write rtc\r\n\
- \e[33;1m3\e[0m  - DS3234 sram test\r\n\
- \e[33;1m4\e[0m  - DS3234 alarm1 test\r\n\
- \e[33;1m5\e[0m  - DS3234 alarm2 test\r\n\
- \e[33;1m6\e[0m  - DS3234 clear alarm\r\n\
- \e[33;1m7\e[0m  - DS3234 temperature read\r\n";
+ \033[33;1m0\033[0m  - DS3234 status\r\n\
+ \033[33;1m1\033[0m  - DS3234 read rtc\r\n\
+ \033[33;1m2\033[0m  - DS3234 write rtc\r\n\
+ \033[33;1m3\033[0m  - DS3234 sram test\r\n\
+ \033[33;1m4\033[0m  - DS3234 alarm1 test\r\n\
+ \033[33;1m5\033[0m  - DS3234 alarm2 test\r\n\
+ \033[33;1m6\033[0m  - DS3234 clear alarm\r\n\
+ \033[33;1m7\033[0m  - DS3234 temperature read\r\n";
 #endif
 
 void display_menu(void)

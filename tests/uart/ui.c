@@ -16,11 +16,11 @@ extern uart_descriptor bc;
 
 static const char menu_str[]="\
  available commands:\r\n\r\n\
-\e[33;1m?\e[0m  - show menu\r\n\
-\e[33;1mt\e[0m  - run selected test\r\n\
-\e[33;1ma\e[0m  - run 'lotsa text' test\r\n\
-\e[33;1md\e[0m  - convert input into decimal\r\n\
-\e[33;1mh\e[0m  - convert input into hex\r\n";
+\033[33;1m?\033[0m  - show menu\r\n\
+\033[33;1mt\033[0m  - run selected test\r\n\
+\033[33;1ma\033[0m  - run 'lotsa text' test\r\n\
+\033[33;1md\033[0m  - convert input into decimal\r\n\
+\033[33;1mh\033[0m  - convert input into hex\r\n";
 static const char err_conv_str[]="error during str_to_int32()\r\n";
 static const char received_str[]="received ";
 

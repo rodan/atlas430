@@ -5,6 +5,8 @@
 //   available from:  https://github.com/rodan/
 //   license:         BSD
 
+#include "warning.h"
+
 #ifdef CONFIG_TCA6408
 
 #ifdef __I2C_CONFIG_H__

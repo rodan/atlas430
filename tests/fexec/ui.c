@@ -10,8 +10,8 @@ extern uart_descriptor bc;
 
 static const char menu_str[]="\
  available commands:\r\n\r\n\
-\e[33;1m?\e[0m  - show menu\r\n\
-\e[33;1mt\e[0m  - test fct\r\n";
+\033[33;1m?\033[0m  - show menu\r\n\
+\033[33;1mt\033[0m  - test fct\r\n";
 
 #define STR_LEN 80
 

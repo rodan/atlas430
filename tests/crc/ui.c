@@ -17,8 +17,8 @@ static const uint8_t crc_test[] = {
 
 static const char menu_str[]="\
  available commands:\r\n\r\n\
- \e[33;1m?\e[0m  - show menu\r\n\
- \e[33;1mt\e[0m  - crc test\r\n";
+ \033[33;1m?\033[0m  - show menu\r\n\
+ \033[33;1mt\033[0m  - crc test\r\n";
 
 void display_menu(void)
 {

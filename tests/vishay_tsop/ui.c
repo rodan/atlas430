@@ -14,9 +14,9 @@ struct ir_tome temp_command;
 
 static const char menu_str[]="\
  available commands:\r\n\r\n\
- \e[33;1m?\e[0m  - show menu\r\n\
- \e[33;1ms\e[0m  - start IR acquisition\r\n\
- \e[33;1mr\e[0m  - replay signal\r\n";
+ \033[33;1m?\033[0m  - show menu\r\n\
+ \033[33;1ms\033[0m  - start IR acquisition\r\n\
+ \033[33;1mr\033[0m  - replay signal\r\n";
 
 void display_menu(void)
 {

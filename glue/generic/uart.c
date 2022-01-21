@@ -255,6 +255,12 @@ void uart_set_eol(uart_descriptor *uartd)
     uartd->p = 0;
     uartd->rx_enable = 1;
 }
+
+uint16_t uart_get_rx_buf_len(uart_descriptor *uartd)
+{
+    return uartd->p;
+}
+
 #endif
 
 uint8_t uart_get_event(const uart_descriptor *uartd)
@@ -279,6 +285,11 @@ char *uart_get_rx_buf(const uart_descriptor *uartd)
         return (char *)uartd->rx_buf;
     }
     return NULL;
+}
+
+char *uart_get_rx_buf_force(const uart_descriptor *uartd)
+{
+    return (char *)uartd->rx_buf;
 }
 #endif
 
