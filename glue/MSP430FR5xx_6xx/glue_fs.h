@@ -24,5 +24,14 @@
 #include "spi_ucb2_pin.h"
 #include "spi_ucb3_pin.h"
 #include "spi_pin.h"
+#include "spi_cs_uca0_pin.h"
+#include "spi_cs_uca1_pin.h"
+#include "spi_cs_uca2_pin.h"
+#include "spi_cs_uca3_pin.h"
+#include "spi_cs_ucb0_pin.h"
+#include "spi_cs_ucb1_pin.h"
+#include "spi_cs_ucb2_pin.h"
+#include "spi_cs_ucb3_pin.h"
+#include "spi_cs_pin.h
 
 #endif

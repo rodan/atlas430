@@ -120,7 +120,11 @@ pin_detect_in_pin_functions_table()
     local table_rows
     local found_pin
 
-    table_rows=$(grep "-A${max_rows_per_page}" 'Table.*Pin Functions' "${uc_spec_dump}" | cut -c1-30 | grep '^[ ]\{0,2\}[A-Z]' | sed 's|([0-9]*)||g;s|[ ][0-9]*[ ]||g;s|[][0-9]*$||;s|[ ]||g' | sed ':x; /\/$/ { N; s|/\n|/|; tx }' | grep "^P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_\-\+]*${searched_function}")
+    #table_rows=$(grep "-A${max_rows_per_page}" 'Table.*Pin Functions' "${uc_spec_dump}" | cut -c1-42 | grep '^[ ]\{0,2\}[A-Z]' | sed 's|([0-9]*)||g;s|[ ][0-9]*[ ]||g;s|[][0-9]*$||;s|[ ]||g' | sed ':x; /\/$/ { N; s|/\n|/|; tx }' | grep "^P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_\-\+]*${searched_function}")
+    table_rows=$(grep "-A${max_rows_per_page}" 'Table.*Pin Functions' "${uc_spec_dump}" | sed 's|[ ]\{5,\}.*||' | grep '^[ ]\{0,2\}[A-Z]' | sed 's|([0-9]*)||g;s|[ ][0-9]*[ ]||g;s|[ ]||g' | sed ':x; /\/$/ { N; s|/\n|/|; tx }' | grep "^P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_\-\+]*${searched_function}")
+
+    #warn "${table_rows}"
+    #warn ^^
 
     found_pin=$(echo "${table_rows}" | sed 's|CAP|CAp|g' | grep -o "P[0-9J]\{1,2\}\.[0-7]/[a-zA-Z0-9\./_\-\+]*${searched_function}" | grep -o 'P[0-9J]\{1,2\}\.[0-7]' | sort -u | xargs)
     pin_cnt=$(echo "${found_pin}" | wc -w)
@@ -493,13 +497,26 @@ process_uc()
                 after_check="-A${i}"
                 before_check="-B${i}"
                 function_row_data_tmp=$(grep "-A${max_rows_per_page}" "${table_title}" "${uc_spec_dump}" | sed 's|([0-9]*)||g' | grep "${after_check}" "${before_check}" "[ ]\{0,10\}${pin}")
+
+                warn "${function_row_data_tmp}"
+                warn ^^
+
                 if echo "${function_row_data_tmp}" | cut -c25- | grep -q "${function_found}"; then
                     if [ -n "${filter_table_function}" ]; then
-                        function_row_data=$(echo "${function_row_data_tmp}" | cut -c25- | grep -A1 "${function_found}" | grep -A1 "${filter_table_function}" | cut -c40- | xargs)
+                        #warn 1
+                        #function_row_data=$(echo "${function_row_data_tmp}" | cut -c25- | grep -A1 "${function_found}" | grep -A1 "${filter_table_function}" | cut -c40- | xargs)
+                        function_row_data=$(echo "${function_row_data_tmp}" | cut -c25- | grep -A1 "${function_found}" | grep -A1 "${filter_table_function}" | sed "s|.*${filter_table_function}||" | xargs)
+                        #warn _____________
+                        #defoo=$(echo "${function_row_data_tmp}" | cut -c25- | grep -A1 "${function_found}" | grep -A1 "${filter_table_function}" | sed "s|.*${filter_table_function}||" )
+                        #warn $defoo
+                        #warn ${filter_table_function}
+                        #warn ^^^^^^^^^^^^^
                     else
                         function_row_data=$(echo "${function_row_data_tmp}" | cut -c25- | grep -A1 "${function_found}" | cut -c40- | xargs )
                     fi
                 fi
+                warn "${function_row_data}"
+                warn ^^frd^^
                 function_row_data_cnt=$(echo "${function_row_data}" | wc -w)
                 [ "${function_row_data_cnt}" -gt 0 ] && break;
             done

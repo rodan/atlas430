@@ -19,6 +19,8 @@ typedef struct _spi_descriptor {
     uint16_t baseAddress;   ///< SPI subsystem offset base register
     void (*cs_low)();       ///< pointer to function that brings the CS signal low
     void (*cs_high)();      ///< pointer to function that brings the CS signal high
+    void (*cf1_assert)();   ///< pointer to function that asserts a custom function
+    void (*cf1_deassert)(); ///< pointer to function that deasserts a custom function
     void (*spi_init)();     ///< pointer to function that sets up the spi pins
     void (*spi_deinit)();   ///< pointer to function that sets the spi pins to a HIGH-Z state
     uint8_t (*dev_is_busy)(); ///< pointer to function that returns true if the device is busy, false otherwise

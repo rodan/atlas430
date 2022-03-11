@@ -93,9 +93,9 @@ gen_spi()
     bash get_specs.sh -f "${ucb_id}SIMO" -F "${family}" -s "spi_${ucb_lc}" -d "${output_dir}"
     bash get_specs.sh -f "${ucb_id}CLK" -F "${family}" -s "spi_${ucb_lc}" -d "${output_dir}"
 
-    #bash get_specs.sh -f "${ucb_id}SOMI" -T 'msp430fr5887' -s "spi_${ucb_lc}" -d "${output_dir}"
-    #bash get_specs.sh -f "${ucb_id}SIMO" -T 'msp430fr5887' -s "spi_${ucb_lc}" -d "${output_dir}"
-    #bash get_specs.sh -f "${ucb_id}CLK" -T 'msp430fr5887' -s "spi_${ucb_lc}" -d "${output_dir}"
+    #bash get_specs.sh -f "${ucb_id}SOMI" -T 'msp430fr2153' -s "spi_${ucb_lc}" -d "${output_dir}"
+    #bash get_specs.sh -f "${ucb_id}SIMO" -T 'msp430fr2153' -s "spi_${ucb_lc}" -d "${output_dir}"
+    #bash get_specs.sh -f "${ucb_id}CLK" -T 'msp430fr2153' -s "spi_${ucb_lc}" -d "${output_dir}"
     #bash get_specs.sh -f "{ucb_id}SOMI" -T 'cc430f5133' -s "spi_${ucb_lc}" -d "${output_dir}"
     #bash get_specs.sh -f "{ucb_id}SIMO" -T 'cc430f5133' -s "spi_${ucb_lc}" -d "${output_dir}"
     #bash get_specs.sh -f "{ucb_id}CLK" -T 'cc430f5133' -s "spi_${ucb_lc}" -d "${output_dir}"

@@ -16,6 +16,10 @@
 #include "ad7789.h"
 #include "ds3234.h"
 #include "mcp42.h"
+#include "eeram_48lxxx.h"
+
+#include "ir_remote.h"
+#include "noritake_vfd.h"
 
 #ifdef __I2C_CONFIG_H__
 #include "i2c.h"
