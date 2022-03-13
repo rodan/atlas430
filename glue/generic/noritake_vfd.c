@@ -1,4 +1,8 @@
 
+#include "warning.h"
+
+#ifdef CONFIG_VFD_NORITAKE
+
 #include <stdint.h>
 #include <string.h>
 #include "glue.h"
@@ -96,4 +100,4 @@ uint16_t vfd_print(vfd_descriptor *vfdd, const char *str)
     return p;
 }
 
-
+#endif

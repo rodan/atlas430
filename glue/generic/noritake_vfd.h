@@ -34,6 +34,8 @@
 #ifndef __NORITAKE_VFD_H_
 #define __NORITAKE_VFD_H_
 
+#ifdef CONFIG_VFD_NORITAKE
+
 ///< struct who's pointer is passed arround during most calls present in this HAL implementation
 // do not read/write to the structure elements directly, try to treat this struct as opaque data
 // baseAddress and baudrate are the only variables excepted from the above rule. they need to be 
@@ -66,6 +68,8 @@ void vfd_cmd_clear(vfd_descriptor *vfdd);
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif
 
 #endif
