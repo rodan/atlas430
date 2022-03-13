@@ -32,6 +32,6 @@
 #include "spi_cs_ucb1_pin.h"
 #include "spi_cs_ucb2_pin.h"
 #include "spi_cs_ucb3_pin.h"
-#include "spi_cs_pin.h
+#include "spi_cs_pin.h"
 
 #endif

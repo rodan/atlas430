@@ -122,6 +122,7 @@ the following projects are already using this library:
 project | microcontroller | short description
 ------- | --------------- | -----------------
 [sigdup](https://github.com/rodan/sigdup) | msp430fr5994 | software that takes PulseView digital signal captures as input and re-plays them
+[proto430](https://github.com/rodan/proto430) | msp430fr5994 | BoosterPack-compatible development boards used for quick prototyping and interfacing with serial devices
 [solar-charger rev4.1](https://github.com/rodan/solar-charger) | msp430f5510 | off-the-grid 1 cell lipo and 12v lead battery charger for low efficiency 15-36V photovoltaic cells
 [ucurrent_ctrl](https://github.com/rodan/ucurrent_ctrl) | msp430f5510 | power controller for Dave L. Jones's µCurrent
 
