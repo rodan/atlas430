@@ -2,7 +2,7 @@
 #include <msp430.h>
 #include <inttypes.h>
 #include "driverlib.h"
-
+#include "spi.h"
 
 #if defined (__MSP430_HAS_EUSCI_Ax__) || defined (__MSP430_HAS_EUSCI_Bx__)
 uint8_t spi_read_frame(const uint16_t baseAddress, uint8_t * pBuffer, uint16_t size)
@@ -48,11 +48,13 @@ uint8_t spi_read_frame(const uint16_t baseAddress, uint8_t * pBuffer, uint16_t s
 
         // clock the actual data transfer and receive the bytes
         while (size--) {
+            __delay_cycles(SPI_DELAY);
             // wait while not ready for TX
             while (!(EUSCI_B_SPI_getInterruptStatus(baseAddress, UCTXIFG))) {};
             // write dummy byte
             EUSCI_B_SPI_transmitData(baseAddress, 0xff);
             // wait for RX buffer (full)
+            __delay_cycles(SPI_DELAY);
             while (!(EUSCI_B_SPI_getInterruptStatus(baseAddress, UCRXIFG))) {};
             *pBuffer++ = EUSCI_B_SPI_receiveData(baseAddress);
         }
@@ -110,8 +112,10 @@ uint8_t spi_write_frame(const uint16_t baseAddress, uint8_t * pBuffer, uint16_t 
         // resulting overrun condition.
         while (size--) {
             // wait while not ready for TX
+            __delay_cycles(SPI_DELAY);
             while (!(EUSCI_B_SPI_getInterruptStatus(baseAddress, UCTXIFG))) {};
             EUSCI_B_SPI_transmitData(baseAddress, *pBuffer++);
+            //__delay_cycles(SPI_DELAY); // dragons
         }
         while (EUSCI_B_SPI_isBusy(baseAddress)) {};
 

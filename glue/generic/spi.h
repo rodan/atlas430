@@ -26,6 +26,10 @@ typedef struct _spi_descriptor {
     uint8_t (*dev_is_busy)(); ///< pointer to function that returns true if the device is busy, false otherwise
 } spi_descriptor; ///< struct that needs to be populated before the library calls are made
 
+#ifndef SPI_DELAY
+    #define SPI_DELAY 400
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -65,6 +65,13 @@ void vfd_us_cmd(vfd_descriptor *vfdd, const uint8_t group, const uint8_t cmd);
 void vfd_cmd_init(vfd_descriptor *vfdd);
 void vfd_cmd_clear(vfd_descriptor *vfdd);
 
+void vfd_invert_off(vfd_descriptor *vfdd);
+void vfd_invert_on(vfd_descriptor *vfdd);
+void vfd_cmd_xy(vfd_descriptor *vfdd, uint16_t x, uint16_t y);
+void vfd_cmd_xy1(vfd_descriptor *vfdd, uint16_t x, uint16_t y);
+
+void vfd_set_font_style(vfd_descriptor *vfdd, const uint8_t proportional, const uint8_t evenSpacing);
+void vfd_set_font_size(vfd_descriptor *vfdd, const uint8_t x, const uint8_t y, const uint8_t tall);
 
 #ifdef __cplusplus
 }
