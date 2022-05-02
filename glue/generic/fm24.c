@@ -60,15 +60,11 @@ uint32_t FM24_read(const uint16_t usci_base_addr, const uint8_t slave_addr, uint
     pkg.data_len = 2;
     pkg.options = I2C_WRITE;
 
-#ifdef I2C_USES_BITBANGING
-    rv = i2cm_transfer(&pkg);
+    i2c_transfer_start(usci_base_addr, &pkg, NULL);
 
-    if (rv != I2C_ACK) {
+    if (i2c_transfer_status() == I2C_FAILED) {
         return EXIT_FAILURE;
     }
-#else
-    i2c_transfer_start(usci_base_addr, &pkg, NULL);
-#endif
 
     // * and now do the actual read
     memset(&pkg, 0, sizeof(i2c_package_t));
@@ -77,14 +73,11 @@ uint32_t FM24_read(const uint16_t usci_base_addr, const uint8_t slave_addr, uint
     pkg.data_len = data_len;
     pkg.options = I2C_READ | I2C_LAST_NAK;
 
-#ifdef I2C_USES_BITBANGING
-    rv = i2cm_transfer(&pkg);
-    if (rv != I2C_ACK) {
+    i2c_transfer_start(usci_base_addr, &pkg, NULL);
+
+    if (i2c_transfer_status() == I2C_FAILED) {
         return EXIT_FAILURE;
     }
-#else
-    i2c_transfer_start(usci_base_addr, &pkg, NULL);
-#endif
 
     return EXIT_SUCCESS;
 }
