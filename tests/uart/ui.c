@@ -11,6 +11,7 @@
 //#define TEST_SNPRINTF
 //#define TEST_UTOH
 //#define TEST_UTOB
+#define CUSTOM_TEXT
 
 extern uart_descriptor bc;
 
@@ -23,6 +24,7 @@ static const char menu_str[]="\
 \033[33;1mh\033[0m  - convert input into hex\r\n";
 static const char err_conv_str[]="error during str_to_int32()\r\n";
 static const char received_str[]="received ";
+static const char custom_str[25]={0x55, 0x55, 0x55, 0x56, 0xA6, 0x69, 0x55, 0x99, 0xA5, 0x5A, 0x65, 0xAA, 0x5A, 0xAA, 0x95, 0x5A, 0xA9, 0x6A, 0xAA, 0x59, 0x55, 0x55, 0xAA, 0x96, 0x7E};
 
 void display_menu(void)
 {
@@ -37,6 +39,17 @@ void display_version(void)
     uart_print(&bc, "uartx b");
     uart_print(&bc, _utoa(sconv, BUILD));
     uart_print(&bc, "\r\n");
+}
+
+uint8_t reverse_bits(const uint8_t in)
+{
+    uint8_t ret = 0;
+    int i;
+    for (i = 0; i < 8; i++) {
+        if ((in & (1 << i)))
+            ret |= 1 << (7 - i);
+    }
+    return ret;
 }
 
 void display_test(void)
@@ -129,6 +142,16 @@ void display_test(void)
     uart_print(&bc, "\r\n");
     uart_print(&bc, _utob(&buf[0], 0xefef));
     uart_print(&bc, "\r\n");
+#endif
+
+#ifdef CUSTOM_TEXT
+    uint8_t i;
+    char custom_str_rev[25];
+
+    for (i=0; i<25; i++) {
+        custom_str_rev[i] = reverse_bits(custom_str[i]);
+    }
+    uart_tx_str(&bc, custom_str_rev, 25);
 #endif
 }
 

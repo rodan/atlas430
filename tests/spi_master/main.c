@@ -158,6 +158,7 @@ int main(void)
     // stop watchdog
     WDTCTL = WDTPW | WDTHOLD;
 
+    msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
 #if defined __MSP430FR5994__
     // 5.3 is the ~INT pin
     P5OUT = 0;
@@ -175,7 +176,6 @@ int main(void)
     // Enable button interrupt
     P5IE |= BIT3;
 #endif
-    msp430_hal_init(HAL_GPIO_DIR_OUTPUT | HAL_GPIO_OUT_LOW);
 
 #ifdef USE_SIG
     sig0_on;
