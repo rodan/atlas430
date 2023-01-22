@@ -10,6 +10,7 @@
 #include "lib_time.h"
 #include "lib_ringbuf.h"
 #include "event_handler.h"
+#include "sch.h"
 
 #include "uart.h"
 #include "spi.h"

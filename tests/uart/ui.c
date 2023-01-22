@@ -5,13 +5,13 @@
 #include "version.h"
 #include "ui.h"
 
-//#define TEST_TX_STR
+#define TEST_TX_STR
 //#define TEST_PRINT
 //#define TEST_ITOA
 //#define TEST_SNPRINTF
 //#define TEST_UTOH
 //#define TEST_UTOB
-#define CUSTOM_TEXT
+//#define CUSTOM_TEXT
 
 extern uart_descriptor bc;
 
@@ -24,7 +24,11 @@ static const char menu_str[]="\
 \033[33;1mh\033[0m  - convert input into hex\r\n";
 static const char err_conv_str[]="error during str_to_int32()\r\n";
 static const char received_str[]="received ";
+
+
+#ifdef CUSTOM_TEXT
 static const char custom_str[25]={0x55, 0x55, 0x55, 0x56, 0xA6, 0x69, 0x55, 0x99, 0xA5, 0x5A, 0x65, 0xAA, 0x5A, 0xAA, 0x95, 0x5A, 0xA9, 0x6A, 0xAA, 0x59, 0x55, 0x55, 0xAA, 0x96, 0x7E};
+#endif
 
 void display_menu(void)
 {

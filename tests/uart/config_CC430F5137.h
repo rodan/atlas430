@@ -15,7 +15,7 @@
 #define UART_TXBUF_SZ 32
 #define UART_TX_USES_IRQ
 
-#define USE_SIG
+//#define USE_SIG
 //#define CONFIG_DEBUG
 
 #endif
