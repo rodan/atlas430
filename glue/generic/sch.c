@@ -72,12 +72,12 @@ uint8_t sch_set_trigger_slot(sch_descriptor * schd, const uint16_t slot, const u
     schd->trigger_slot[slot] = trigger;
     if (flag == SCH_EVENT_ENABLE) {
         schd->trigger_schedule |= (1UL << slot);
+
+        if (schd->trigger_next > trigger) {
+            schd->trigger_next = trigger;
+        }
     } else {
         schd->trigger_schedule &= ~(1UL << slot);
-    }
-
-    if (schd->trigger_next > trigger) {
-        schd->trigger_next = trigger;
     }
 
     return EXIT_SUCCESS;
@@ -202,8 +202,6 @@ void __attribute__((interrupt(HAL_TIMER1A_VECTOR))) TIMER1A_ISR(void)
 {
     uint16_t iv = TA1IV;
 
-    sig1_on;
-
     if (iv == HAL_TA1IV_TACCR1) {
         // timer used by timer_a1_delay_noblk_ccr1()
         // disable interrupt
@@ -221,8 +219,6 @@ void __attribute__((interrupt(HAL_TIMER1A_VECTOR))) TIMER1A_ISR(void)
         // overflow
         TA1CTL &= ~TAIFG;
     }
-
-    sig1_off;
 }
 
 #endif
