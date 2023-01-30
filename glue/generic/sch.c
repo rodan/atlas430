@@ -5,66 +5,63 @@
 //   available from:  https://github.com/rodan/atlas430
 //   license:         BSD
 
+#if defined(SCH_USES_T0A) || defined(SCH_USES_T1A) || defined(SCH_USES_T2A) || defined(SCH_USES_T3A) || defined(SCH_USES_T0B) || defined(SCH_USES_T1B) || defined(SCH_USES_T2B) || defined(SCH_USES_T3B)
+
 #include <msp430.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include "inc/hw_memmap.h"
 #include "sch.h"
 
-#include "sig.h"
-
 static sch_descriptor schd;
 
-uint8_t sch_init(void)
+void sch_init(void)
 {
     __disable_interrupt();
-    HAL_SCH_TAxCTL = TASSEL__ACLK + MC__CONTINOUS + TACLR;
-    HAL_SCH_TAxEX0 = 0;
+    HAL_SCH_CTL = HAL_SCH_SSEL__ACLK + MC__CONTINOUS + HAL_SCH_CLR;
+    HAL_SCH_EX0 = 0;
     __enable_interrupt();
 
     // ccr1 will count up to ~10ms
-    HAL_SCH_TAxCCTL1 = 0;
-    HAL_SCH_TAxCCR1 = HAL_SCH_TAxR + SCH_TICK;
-    HAL_SCH_TAxCCTL1 = CCIE;
+    HAL_SCH_CCTL1 = 0;
+    HAL_SCH_CCR1 = HAL_SCH_R + SCH_TICK;
+    HAL_SCH_CCTL1 = CCIE;
 
     schd.systime = 0;
-    schd.trigger_schedule = 0;
+    schd.trigger_en = 0;
     schd.trigger_next = 0;
     schd.last_event = SCH_EVENT_NONE;
     schd.systime = 0;
-
-    return EXIT_SUCCESS;
 }
 
-// slot is between 0 and SCH_SLOTS_COUNT-1 inclusive
-uint8_t sch_set_trigger_slot(const uint16_t slot, const uint32_t trigger, const uint8_t flag)
+uint8_t sch_set_trigger_slot(const uint16_t slot, const uint32_t ticks, const uint8_t flag)
 {
-    if (slot > SCH_SLOTS_COUNT - 1) {
+    if (slot > SCH_SLOT_CNT - 1) {
         return EXIT_FAILURE;
     }
 
-    schd.trigger_slot[slot] = trigger;
+    schd.trigger_slot[slot] = ticks;
     if (flag == SCH_EVENT_ENABLE) {
-        schd.trigger_schedule |= (1UL << slot);
+        schd.trigger_en |= (1UL << slot);
 
-        if (schd.trigger_next > trigger) {
-            schd.trigger_next = trigger;
+        if (schd.trigger_next > ticks) {
+            schd.trigger_next = ticks;
         }
     } else {
-        schd.trigger_schedule &= ~(1UL << slot);
+        schd.trigger_en &= ~(1UL << slot);
     }
 
     return EXIT_SUCCESS;
 }
 
-uint8_t sch_get_trigger_slot(const uint16_t slot, uint32_t * trigger, uint8_t * flag)
+uint8_t sch_get_trigger_slot(const uint16_t slot, uint32_t * ticks, uint8_t * flag)
 {
-    if (slot > SCH_SLOTS_COUNT - 1) {
+    if (slot > SCH_SLOT_CNT - 1) {
         return EXIT_FAILURE;
     }
 
-    *trigger = schd.trigger_slot[slot];
-    if (schd.trigger_schedule & (1UL << slot)) {
+    *ticks = schd.trigger_slot[slot];
+    if (schd.trigger_en & (1UL << slot)) {
         *flag = 1;
     } else {
         *flag = 0;
@@ -109,17 +106,16 @@ void sch_handler(void)
     uint16_t shift;
     uint32_t schedule_trigger_next = 0;
 
-    if (schd.trigger_schedule) {
-        for (c = 0; c < SCH_SLOTS_COUNT; c++) {
+    if (schd.trigger_en) {
+        for (c = 0; c < SCH_SLOT_CNT; c++) {
             shift = 1UL << c;
-            if (schd.trigger_schedule & shift) {
+            if (schd.trigger_en & shift) {
                 // signal if event time was reached
                 if (schd.trigger_slot[c] <= schd.systime) {
-                    schd.trigger_schedule &= ~shift;
+                    schd.trigger_en &= ~shift;
                     schd.last_event_schedule |= shift;
-                } else
+                } else if (schd.trigger_slot[c] < schedule_trigger_next) {
                     // prepare the next trigger
-                if (schd.trigger_slot[c] < schedule_trigger_next) {
                     schedule_trigger_next = schd.trigger_slot[c];
                 }
             }
@@ -128,7 +124,6 @@ void sch_handler(void)
     }
 }
 
-#if defined(SCH_USES_T0A) || defined(SCH_USES_T1A) || defined(SCH_USES_T2A)
 
 #if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
 #pragma vector=HAL_SCH_TIMER_VECTOR
@@ -139,24 +134,22 @@ void __attribute__((interrupt(HAL_SCH_TIMER_VECTOR))) SCH_TIMER_ISR(void)
 #error Compiler not supported!
 #endif
 {
-    uint16_t iv = HAL_SCH_TAxIV;
+    uint16_t iv = HAL_SCH_IV;
 
-    if (iv == HAL_SCH_TAxIV_TACCR1) {
-        // timer used by timer_a1_delay_noblk_ccr1()
-        // disable interrupt
-        HAL_SCH_TAxCCTL1 &= ~CCIE;
-        HAL_SCH_TAxCCTL1 = 0;
-        HAL_SCH_TAxCCR1 = HAL_SCH_TAxR + SCH_TICK;
-        HAL_SCH_TAxCCTL1 = CCIE;
+    if (iv == HAL_SCH_IV_CCR1) {
+        HAL_SCH_CCTL1 &= ~CCIE;
+        HAL_SCH_CCTL1 = 0;
+        HAL_SCH_CCR1 = HAL_SCH_R + SCH_TICK;
+        HAL_SCH_CCTL1 = CCIE;
         schd.systime++;
 
         if (schd.trigger_next <= schd.systime) {
             schd.last_event |= SCH_EVENT_CCR1;
             _BIC_SR_IRQ(LPM3_bits);
         }
-    } else if (iv == HAL_SCH_TAxIV_TAxIFG) {
+    } else if (iv == HAL_SCH_IV_IFG) {
         // overflow
-        HAL_SCH_TAxCTL &= ~TAIFG;
+        HAL_SCH_CTL &= ~HAL_SCH_IFG;
     }
 }
 

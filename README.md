@@ -23,7 +23,7 @@ library of HAL functions that provide a glue layer between the upstream [Texas I
   * interrupt driven i2c
   * spi functions
   * interrupt-based event handling
-  * scheduling (to be added soon)
+  * scheduling
 * sample drivers
   * *Honeywell High Accuracy Ceramic* (HSC) and *Standard Accuracy Ceramic* (SSC) piezoresistive silicon pressure sensors
   * *Cypress FM24xxx* i2c FRAM IC
