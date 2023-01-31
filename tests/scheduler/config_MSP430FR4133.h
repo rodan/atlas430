@@ -15,7 +15,8 @@
 #define UART_TXBUF_SZ 32
 #define UART_TX_USES_IRQ
 
-#define SCH_USES_T1A
+#define SCH_USES_T0A
+//#define SCH_USES_T1A
 #define SCH_SLOT_CNT 2
 
 //#define USE_SIG

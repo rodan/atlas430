@@ -44,6 +44,9 @@ int main(void)
 #elif defined (__MSP430F5510__) || (__MSP430F5529__)
     P2DIR |= BIT2;
     P2SEL |= BIT2;
+#elif defined (__MSP430F5438__)
+    P11DIR |= BIT2;
+    P11SEL |= BIT2;
 #endif
 
 #ifdef USE_SIG

@@ -44,12 +44,14 @@ int main(void)
 
 #if defined (__MSP430FR2433__) || defined (__MSP430FR2476__) || defined (__MSP430FR4133__) || defined (__MSP430FR5969__) || defined (__MSP430FR5994__)
     bc.baseAddress = EUSCI_A0_BASE;
-#elif defined (__MSP430FR2355__)
+#elif defined (__MSP430FR2355__) || defined (__MSP430FR6989__)
     bc.baseAddress = EUSCI_A1_BASE;
 #elif defined (__CC430F5137__)
     bc.baseAddress = USCI_A0_BASE;
 #elif defined (__MSP430F5510__) || defined (__MSP430F5529__)
     bc.baseAddress = USCI_A1_BASE;
+#elif defined (__MSP430F5438__)
+    bc.baseAddress = USCI_A3_BASE;
 #endif
     bc.baudrate = BAUDRATE_57600;
 

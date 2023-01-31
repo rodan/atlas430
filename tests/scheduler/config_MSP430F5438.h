@@ -9,22 +9,20 @@
 #define SMCLK_FREQ_8M
 //#define SMCLK_FREQ_16M
 
-#define UART_USES_UCA1
+#define UART_USES_UCA3
 #define UART_RXBUF_SZ 16
 #define UART_RX_USES_RINGBUF
 #define UART_TXBUF_SZ 32
 #define UART_TX_USES_IRQ
 
-#define SCH_USES_T0A
+//#define SCH_USES_T0A
 //#define SCH_USES_T1A
-//#define SCH_USES_T2A
-//#define SCH_USES_T3A
-//#define SCH_USES_T0B
-#define SCH_SLOT_CNT 4
+#define SCH_USES_T0B
+#define SCH_SLOT_CNT 2
 
 //#define USE_WATCHDOG
 
 //#define USE_SIG
-#define CONFIG_DEBUG
+//#define CONFIG_DEBUG
 
 #endif
