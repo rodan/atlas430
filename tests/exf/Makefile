@@ -76,7 +76,7 @@ LDFLAGS	+= $(LDFLAGS_REL)
 all: mkdir_od config.h driverlib $(EXOUTPUT)
 else
 # Append specific CFLAGS/LDFLAGS
-DEBUG := $(shell grep "^\#define CONFIG_DEBUG" config.h)
+DEBUG := $(shell grep "^#define CONFIG_DEBUG" config.h)
 MACROS := -DDEVICE=$(DEVICE) -DFAMILY=$(FAMILY) $(shell $(REFLIB_ROOT)/tools/extract_macros.sh config.h)
 CFLAGS += $(MACROS)
 ifeq ($(DEBUG),)
@@ -153,7 +153,7 @@ $(OBJ_DIR)/$(PROJ).dep: $(SRC)
 	@touch $@
 	@makedepend $(INCLUDES) -p "$(OBJ_DIR)/" -Y -f $@ $^ &> /dev/null
 	@sed -i "s|$(OBJ_DIR)/$(GLUELIB_HAL)/|$(OBJ_DIR)/|;s|$(OBJ_DIR)/$(GLUELIB)/|$(OBJ_DIR)/|;s|$(OBJ_DIR)/$(DRIVERLIB)/|$(OBJ_DIR)/|" $(OBJ_DIR)/main.dep
-	@grep -v ^\# $(OBJ_DIR)/$(PROJ).dep | cut -d" " -f2 | sort -u | xargs > $(OBJ_DIR)/$(PROJ).hdep
+	@grep -v ^# $(OBJ_DIR)/$(PROJ).dep | cut -d" " -f2 | sort -u | xargs > $(OBJ_DIR)/$(PROJ).hdep
 	@echo "tags: `cat $(OBJ_DIR)/$(PROJ).hdep`" >> $(OBJ_DIR)/$(PROJ).dep
 	@rm -f $@.bak
 
