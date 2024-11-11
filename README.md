@@ -40,48 +40,48 @@ library of HAL functions that provide a glue layer between the upstream [Texas I
 
 ### software requirements
 
-the entire development is done on a Gentoo Linux using makefiles, vim, the TI toolchain and gdb.
+the entire development is done on both a Gentoo Linux and a FreeBSD system using makefiles, vim, the TI toolchain and gdb.
 while none of those are a requirement to making the library part of any msp430 project, it happens to be the beaten path. the library can be used in the following ways:
 
-#### via a special project makefile (in a linux environment)
+#### via a special project makefile (in a linux/bsd environment)
 
 see [this Makefile](https://github.com/rodan/sigdup/blob/master/firmware/Makefile) for the perfect example. **REFLIB_ROOT** defines the path to where this atlas430 repository has been cloned, **TARGET** represents the target microcontroller and [config.h](https://github.com/rodan/sigdup/blob/master/firmware/config.h) will be automatically expanded into compilation macros (-DFOO arguments to be sent to gcc). if **TARGET** is not hardcoded in the Makefile, then the user needs to provide it as an argument to make:
 
 ```
-make TARGET=MSP430FXXXX
+gmake TARGET=MSP430FXXXX
 ```
 
 the makefile supports the following options:
 
 ```
 # check if everything is installed and paths are correct
-make envcheck
+gmake envcheck
 
 # remove the build/DEVICE/ directory
-make TARGET=MSP430FXXXX clean
+gmake TARGET=MSP430FXXXX clean
 
 # compile the project and library
 # create dependency tree and source code tags
-make TARGET=MSP430FXXXX
+gmake TARGET=MSP430FXXXX
 
 # burn the firmware onto the target microcontroller
-make TARGET=MSP430FXXXX install
+gmake TARGET=MSP430FXXXX install
 
 # perform an optional static scan of the source code 
-make TARGET=MSP430FXXXX cppcheck    # needs dev-util/cppcheck
-make TARGET=MSP430FXXXX scan-build  # needs sys-devel/clang +static-analyzer
+gmake TARGET=MSP430FXXXX cppcheck    # needs dev-util/cppcheck
+gmake TARGET=MSP430FXXXX scan-build  # needs sys-devel/clang +static-analyzer
 ```
 
 in order to use gdb to debug the project make sure to enable the **CONFIG_DEBUG** macro in config.h and run in a terminal
 
 ```
-LD_PRELOAD='/opt/atlas430/lib/libmsp430.so' mspdebug --allow-fw-update tilib gdb
+LD_PRELOAD='~/.local/share/atlas430/lib/libmsp430.so' mspdebug --allow-fw-update tilib gdb
 ```
 
 and then start gdb from within the project directory:
 
 ```
-make TARGET=MSP430FXXXX debug
+gmake TARGET=MSP430FXXXX debug
 ```
 
 commonly used commands from within gdb provided as example for the unit tests:
@@ -105,7 +105,7 @@ all the [unit tests](https://github.com/rodan/atlas430/tree/master/tests) can be
 
 #### via *Code Composer Studio for Linux*
 
-import [this project](https://github.com/rodan/sigdup/tree/master/firmware) as an example. the atlas430 repo is expected to be symlinked or cloned into */opt/atlas430/* while the compilation macros, the memory model, compile includes are all baked into the project's xml files - one needs to tweak them via *project properties* since this scenario is not using any of the provided Makefiles or scripts. compiling and debug is done via CCS.
+import [this project](https://github.com/rodan/sigdup/tree/master/firmware) as an example. the atlas430 repo is expected to be symlinked or cloned into *~/.local/share/atlas430/* while the compilation macros, the memory model, compile includes are all baked into the project's xml files - one needs to tweak them via *project properties* since this scenario is not using any of the provided Makefiles or scripts. compiling and debug is done via CCS.
 
 #### via *Code Composer Studio for Windows*
 

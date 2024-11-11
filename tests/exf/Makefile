@@ -6,7 +6,7 @@
 #==============================================================================
 
 PROJ:=main
-REFLIB_ROOT:=/opt/atlas430/
+REFLIB_ROOT:=${HOME}/.local/share/atlas430/
 TARGET=MSP430FR5994
 MEMORY_MODEL=LARGE
 
@@ -141,25 +141,26 @@ envcheck:
 $(OBJ_DIR)/$(PROJ).cflags: cflags_update
 	@echo "$(CFLAGS)" | cmp -s - $@ || echo "$(CFLAGS)" > $@
 
-
 ifneq ($(OS),Windows_NT)
 
 version.h: $(SRC)
 	@$(REFLIB_ROOT)/tools/setver.sh
 
+depend: $(OBJ_DIR)/$(PROJ).dep
+
 $(OBJ_DIR)/$(PROJ).dep: $(SRC)
 	@echo "Generating dependencies.."
 	@mkdir -p $(OBJ_DIR)
 	@touch $@
-	@makedepend $(INCLUDES) -p "$(OBJ_DIR)/" -Y -f $@ $^ &> /dev/null
-	@sed -i "s|$(OBJ_DIR)/$(GLUELIB_HAL)/|$(OBJ_DIR)/|;s|$(OBJ_DIR)/$(GLUELIB)/|$(OBJ_DIR)/|;s|$(OBJ_DIR)/$(DRIVERLIB)/|$(OBJ_DIR)/|" $(OBJ_DIR)/main.dep
+	@makedepend $(INCLUDES) -p "$(OBJ_DIR)/" -Y -f $@ $^ 1>/dev/null 2>&1
+	@gsed -i "s|$(OBJ_DIR)/$(GLUELIB_HAL)/|$(OBJ_DIR)/|;s|$(OBJ_DIR)/$(GLUELIB)/|$(OBJ_DIR)/|;s|$(OBJ_DIR)/$(DRIVERLIB)/|$(OBJ_DIR)/|" $(OBJ_DIR)/main.dep
 	@grep -v ^# $(OBJ_DIR)/$(PROJ).dep | cut -d" " -f2 | sort -u | xargs > $(OBJ_DIR)/$(PROJ).hdep
 	@echo "tags: `cat $(OBJ_DIR)/$(PROJ).hdep`" >> $(OBJ_DIR)/$(PROJ).dep
 	@rm -f $@.bak
 
 tags: $(PROJ_SRC) $(DRIVERLIB_SRC) $(GLUELIB_SRC) $(GLUELIB_HAL_SRC) $(LOCAL_SRC) $(OBJ_DIR)/$(PROJ).dep
 	@echo "Generating tags .."
-	@exuberant-ctags --recurse=yes ./ $(DRIVERLIB) $(GLUELIB) $(GLUELIB_HAL) $(LDDIR).h $(shell cat $(OBJ_DIR)/$(PROJ).hdep)
+	@$(CTAGS) --recurse=yes ./ $(DRIVERLIB) $(GLUELIB) $(GLUELIB_HAL) $(LDDIR).h $(shell cat $(OBJ_DIR)/$(PROJ).hdep)
 
 new_timestamps:
 	@$(BASH) $(REFLIB_ROOT)/tools/update_rtca_now.sh

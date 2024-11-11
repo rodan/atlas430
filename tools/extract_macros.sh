@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/bin/sh
 
 extract_defs()
 {
-    grep '^#define' "${1}" | tr -s '[:space:]' | sed 's|\(.*\)\s//.*|\1|;s|\s*$||;s|#define |-D|g;s| |=|g' | grep -Ev '(_H_)|(=.*=)' | xargs
+    grep '^#define' "${1}" | tr -s '[:space:]' | gsed 's|\(.*\)\s//.*|\1|;s|\s*$||;s|#define |-D|g;s| |=|g' | grep -Ev '(_H_)|(=.*=)' | xargs
 }
 
-while (( "$#" )); do
+while [ $(( "$#" )) -gt 0 ]; do
     if [ "$1" = "-t" ]; then
         target="${2}"
         shift; shift;
@@ -19,7 +19,8 @@ while (( "$#" )); do
 done
 
 for file in ${file_list}; do
-    targeted_file="${file//.h/}_${target}.h"
+    f="$(echo $file | sed 's|\.h$||')"
+    targeted_file="${f}_${target}.h"
     if [ -e "${targeted_file}" ]; then
         EXTR_STR="$(extract_defs "${targeted_file}") ${EXTR_STR}"
     elif [ -e "${file}" ]; then

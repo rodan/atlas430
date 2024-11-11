@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 hex="${1}"
 
@@ -48,17 +48,18 @@ lsusb | grep -qi '15ba:0100' && prog='olimex_iso_mk2'
     exit $?
 }
 
-[ "${prog}" = "ezfet-1.2" ] && {
+[ "${prog}" = "ezfet-1.2" ] || [ "${prog}" = "msp-fet" ] && {
     echo "+ detected $prog"
+    OS=$(uname -s)
+    unset msp430_so
+    [ -e "${HOME}/.local/share/atlas430/lib/${OS}/libmsp430.so" ] && msp430_so="${HOME}/.local/share/atlas430/lib/${OS}/libmsp430.so"
+    [ -e '/usr/local/lib/libmsp430.so' ] && msp430_so='/usr/local/lib/libmsp430.so'
+    [ -z "${msp430_so}" ] && {
+        echo 'libmsp430.so not found, exiting'
+        exit 1
+    }
     set -x
-    LD_PRELOAD='/opt/atlas430/lib/libmsp430.so' mspdebug --allow-fw-update tilib "prog ${hex}"
-    exit $?
-}
-
-[ "${prog}" = "msp-fet" ] && {
-    echo "+ detected $prog"
-    set -x
-    LD_PRELOAD='/opt/atlas430/lib/libmsp430.so' mspdebug --allow-fw-update tilib "prog ${hex}"
+    LD_PRELOAD="${msp430_so}" mspdebug --allow-fw-update tilib "prog ${hex}"
     exit $?
 }
 

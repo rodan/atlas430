@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 set -e
 
@@ -21,7 +21,7 @@ err_unknown()
 get_from_header()
 {
     ITEM=''
-    ITEM=$(grep "${1}" "${input}" | sed "s|.*${1}\s*\([0-9]\{1,9\}\).*|\1|")
+    ITEM=$(grep "${1}" "${input}" | gsed "s|.*${1}\s*\([0-9]\{1,9\}\).*|\1|")
     [ -z "${ITEM}" ] && {
         echo 'unknown version'
         exit 1
@@ -38,27 +38,23 @@ majminbuild()
     echo "${maj}.${min}b${build}"
 }
 
-while (( "$#" )); do
+while [ $(( "$#" )) -gt 0 ]; do
     if [ "$1" = "-t" ]; then
         type="${2}"
         shift; shift;
     elif [ "$1" = "-i" ]; then
         input="${2}"
         shift; shift;
-    else 
+    else
         shift;
         usage
     fi
 done
 
-case $type in 
-
-    'MAJ.MINbBUILD')
-        majminbuild
-        ;;
-    *)
-        echo "unknown type, exiting"
-        exit 1;
-        ;;
-esac
+if [ "$type" = 'MAJ.MINbBUILD' ]; then
+    majminbuild
+else
+    echo "unknown type, exiting"
+    exit 1;
+fi
 
