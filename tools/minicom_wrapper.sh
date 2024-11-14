@@ -32,29 +32,29 @@ while [ "$#" != 0 ]; do
     elif [ "$1" = "-h" ]; then
         usage
         exit 0
-	else
-		filter="${1}"
-		shift;
+    else
+        filter="${1}"
+        shift;
     fi
 done
 
 detected=$(lsusb | grep -E '(Texas Instruments MSP)|(Future Technology Devices International)')
-preference=$(echo "${detected}" | grep "${filter}")
+preference=$(echo "${detected}" | grep -i "${filter}")
 preference_lc=$(echo "${preference}" | wc -l)
 
 [ -z "${preference}" ] && {
-	echo '  error: no compatible usb device has been detected, exiting'
-	exit 1
+    echo '  error: no compatible usb device has been detected, exiting'
+    exit 1
 }
 
 echo '  detected devices:'
 echo "${detected}"
 
 [ "${preference_lc}" -gt 1 ] && {
-	echo '  error: multiple devices detected, use a filter to pick only one'
+    echo '  error: multiple devices detected, use a filter to pick only one'
     echo ''
     usage
-	exit 1
+    exit 1
 }
 
 echo '  current setup:'
@@ -75,21 +75,21 @@ check_if_in_use() {
 }
 
 run_minicom_FreeBSD() {
-	ugen=$(echo "${preference}" | sed 's|.*\/dev/\(ugen[0-9]*.[0-9]*\).*|\1|')
-	echo "    ugen ${ugen}"
-	[ -z "${ugen}" ] && return 1
+    ugen=$(echo "${preference}" | sed 's|.*\/dev/\(ugen[0-9]*.[0-9]*\).*|\1|')
+    echo "    ugen ${ugen}"
+    [ -z "${ugen}" ] && return 1
 
-	interface=$(usbconfig -v -d /dev/"${ugen}" | grep -B 20 -E '(MSP Application UART)|(TTL232RG)' | grep 'Interface\ [0-9]*$' | sed 's|.*Interface\ \([0-9]*\)$|\1|')
-	echo "    interface ${interface}"
-	[ -z "${interface}" ] && return 1
+    interface=$(usbconfig -v -d /dev/"${ugen}" | grep -B 20 -E '(MSP Application UART)|(TTL232RG)' | grep 'Interface\ [0-9]*$' | sed 's|.*Interface\ \([0-9]*\)$|\1|')
+    echo "    interface ${interface}"
+    [ -z "${interface}" ] && return 1
 
-	# get device id
-	device_id=$(sysctl -a | grep "^dev\..*ugen=${ugen}" | sed 's|^\(dev\.[a-zA-Z]*\.[0-9]*\)\..*|\1|' | head -n1)
-	echo "    device_id ${device_id}"
+    # get device id
+    device_id=$(sysctl -a | grep "^dev\..*ugen=${ugen}" | sed 's|^\(dev\.[a-zA-Z]*\.[0-9]*\)\..*|\1|' | head -n1)
+    echo "    device_id ${device_id}"
 
-	ttyname=$(sysctl -n "${device_id}.ttyname")
-	echo "    ttyname ${ttyname}"
-	[ -z "${ttyname}" ] && return 1
+    ttyname=$(sysctl -n "${device_id}.ttyname")
+    echo "    ttyname ${ttyname}"
+    [ -z "${ttyname}" ] && return 1
 
     check_if_in_use "/dev/tty${ttyname}" || return 1
 
