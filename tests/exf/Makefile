@@ -136,7 +136,7 @@ $(OBJ_DIR)/$(PROJ).dep: $(SRC)
 	@echo "Generating dependencies.."
 	@mkdir -p $(OBJ_DIR)
 	@touch $@
-	@makedepend $(INCLUDES) -p "$(OBJ_DIR)/" -Y -f $@ $^ 1>/dev/null 2>&1
+	@makedepend $(INCLUDES) $(MACROS) -D__$(DEVICE)__ -p "$(OBJ_DIR)/" -Y -f $@ $^ 1>/dev/null 2>&1
 	@gsed -i "s|$(OBJ_DIR)/$(ATLAS430_SYS)/|$(OBJ_DIR)/|;s|$(OBJ_DIR)/$(ATLAS430)/|$(OBJ_DIR)/|;s|$(OBJ_DIR)/$(DRIVERLIB)/|$(OBJ_DIR)/|" $(OBJ_DIR)/main.dep
 	@grep -v ^# $(OBJ_DIR)/$(PROJ).dep | cut -d" " -f2 | sort -u | xargs > $(OBJ_DIR)/$(PROJ).hdep
 	@echo "tags: `cat $(OBJ_DIR)/$(PROJ).hdep`" >> $(OBJ_DIR)/$(PROJ).dep
