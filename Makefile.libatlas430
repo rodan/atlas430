@@ -1,0 +1,33 @@
+
+DRIVERLIB_SRC    := $(wildcard $(DRIVERLIB)/*.c)
+ATLAS430_SYS_SRC := $(wildcard $(ATLAS430_SYS)/*.c)
+ATLAS430_SRC     := $(wildcard $(ATLAS430)/*.c)
+
+# compat
+#GLUELIB_SRC      := $(wildcard $(GLUELIB)/*.c)
+#GLUELIB_HAL_SRC  := $(wildcard $(ATLAS430_SYS)/*.c)
+
+ATLAS430_OBJ_DIR  = $(OBJ_DIR)/libatlas430
+DRIVERLIB_OBJECTS = $(DRIVERLIB_SRC:$(DRIVERLIB)/%.c=$(ATLAS430_OBJ_DIR)/driverlib/%.o)
+ATLAS430_OBJECTS   = $(ATLAS430_SRC:$(ATLAS430)/%.c=$(ATLAS430_OBJ_DIR)/%.o) $(ATLAS430_SYS_SRC:$(ATLAS430_SYS)/%.c=$(ATLAS430_OBJ_DIR)/sys/%.o)
+
+$(ATLAS430_OBJ_DIR)/driverlib/%.o: $(DRIVERLIB)/%.c
+	@echo -e " * [driverlib] $(@F)"
+	@mkdir -p $(ATLAS430_OBJ_DIR)/driverlib
+	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
+
+$(ATLAS430_OBJ_DIR)/%.o: $(ATLAS430)/%.c config.h
+	@echo -e " * [drivers] $(@F)"
+	@mkdir -p $(ATLAS430_OBJ_DIR)
+	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
+
+$(ATLAS430_OBJ_DIR)/sys/%.o: $(ATLAS430_SYS)/%.c config.h
+	@echo -e " * [sys] $(@F)"
+	@mkdir -p $(ATLAS430_OBJ_DIR)/sys
+	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/libatlas430.a: $(DRIVERLIB_OBJECTS) $(ATLAS430_OBJECTS)
+	@${RM} -f $(OBJ_DIR)/libatlas430.a
+	@${AR} rs $(OBJ_DIR)/libatlas430.a $(DRIVERLIB_OBJECTS) $(ATLAS430_OBJECTS)
+
+

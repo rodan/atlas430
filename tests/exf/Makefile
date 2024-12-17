@@ -6,7 +6,7 @@
 #==============================================================================
 
 PROJ:=main
-REFLIB_ROOT:=${HOME}/.local/share/atlas430/
+REFLIB_ROOT:=../../
 TARGET=MSP430FR5994
 MEMORY_MODEL=LARGE
 
@@ -40,17 +40,12 @@ CFLAGS_REL	 += -Os -fdata-sections -ffunction-sections -fomit-frame-pointer
 LDFLAGS_REL	 += -Wl,-s
 CFLAGS_DBG	 += -O1 -ggdb
 LDFLAGS_DBG	 += 
-INCLUDES         := -I $(GCC_EXTRA_INC_DIR) -I $(GCC_INC_DIR) -I $(DRIVERLIB) -I $(GLUELIB) -I $(GLUELIB_HAL) -I $(GCC_CCS_INC_GCC_DIR) -I ./ -I .
+INCLUDES         := -I $(GCC_EXTRA_INC_DIR) -I $(GCC_INC_DIR) -I $(DRIVERLIB) -I $(ATLAS430) -I $(ATLAS430_SYS) -I $(GCC_CCS_INC_GCC_DIR) -I ./ -I .
 ######################################
-DRIVERLIB_SRC    := $(wildcard $(DRIVERLIB)/*.c)
-GLUELIB_SRC      := $(wildcard $(GLUELIB)/*.c)
-GLUELIB_HAL_SRC  := $(wildcard $(GLUELIB_HAL)/*.c)
 LOCAL_SRC        := $(wildcard *.c)
 PROJ_SRC         := $(PROJ).c
-SRC              := $(PROJ_SRC) $(DRIVERLIB_SRC) $(GLUELIB_SRC) $(GLUELIB_HAL_SRC) $(LOCAL_SRC)
+SRC              := $(PROJ_SRC) $(DRIVERLIB_SRC) $(ATLAS430_SRC) $(ATLAS430_SYS_SRC) $(LOCAL_SRC)
 
-DRIVERLIB_OBJECTS = $(DRIVERLIB_SRC:$(DRIVERLIB)/%.c=$(OBJ_DIR)/%.o)
-GLUELIB_OBJECTS   = $(GLUELIB_SRC:$(GLUELIB)/%.c=$(OBJ_DIR)/%.o) $(GLUELIB_HAL_SRC:$(GLUELIB_HAL)/%.c=$(OBJ_DIR)/%.o)
 LOCAL_OBJECTS     = $(LOCAL_SRC:%.c=$(OBJ_DIR)/%.o)
 
 EXOBJECT         := $(OBJ_DIR)/$(PROJ).o
@@ -65,7 +60,6 @@ EXOUTPUT         := $(OBJ_DIR)/$(PROJ).elf
 .PHONY: mkdir_od
 .PHONY: new_timestamps
 .PHONY: depend
-.PHONY: driverlib
 .PHONY: doc
 .PHONY: cflags_update
 .PHONY: size
@@ -73,7 +67,7 @@ EXOUTPUT         := $(OBJ_DIR)/$(PROJ).elf
 ifeq ($(OS),Windows_NT)
 CFLAGS	+= $(CFLAGS_REL)
 LDFLAGS	+= $(LDFLAGS_REL)
-all: mkdir_od config.h driverlib $(EXOUTPUT)
+all: mkdir_od config.h $(EXOUTPUT)
 else
 # Append specific CFLAGS/LDFLAGS
 DEBUG := $(shell grep "^#define CONFIG_DEBUG" config.h)
@@ -88,7 +82,7 @@ CTARGET	:= DEBUG
 CFLAGS	+= $(CFLAGS_DBG)
 LDFLAGS	+= $(LDFLAGS_DBG)
 endif
-all: depend version.h config.h config_macros tags driverlib $(EXOUTPUT) size
+all: depend version.h config.h config_macros tags $(EXOUTPUT) size
 endif
 
 ifeq ($(MEMORY_MODEL),LARGE)
@@ -102,25 +96,15 @@ config.h:
 config_macros: config.h
 	@echo "active macros: $(MACROS)"
 
-$(OBJ_DIR)/%.o: $(DRIVERLIB)/%.c
-	@echo -e " * [drv] $(@F)"
-	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
-
-$(OBJ_DIR)/%.o: $(GLUELIB)/%.c
-	@echo -e " * [glue] $(@F)"
-	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
-
-$(OBJ_DIR)/%.o: $(GLUELIB_HAL)/%.c
-	@echo -e " * [glue-hal] $(@F)"
-	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
+include $(REFLIB_ROOT)/Makefile.libatlas430
 
 $(OBJ_DIR)/%.o: %.c
 	@echo -e " * $(@F)"
 	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
-$(EXOUTPUT): $(DRIVERLIB_OBJECTS) $(GLUELIB_OBJECTS) $(LOCAL_OBJECTS) $(EXOBJECT)
+$(EXOUTPUT): $(LOCAL_OBJECTS) $(EXOBJECT) $(OBJ_DIR)/libatlas430.a
 	@echo -e "\n>> Building $@ as target $(CTARGET)"
-	@$(CC) $(LDFLAGS) $(DRIVERLIB_OBJECTS) $(GLUELIB_OBJECTS) $(LOCAL_OBJECTS) -o $@
+	@$(CC) $(LDFLAGS) $(LOCAL_OBJECTS) -L$(OBJ_DIR) -latlas430 -o $@
 
 mkdir_od:
 	@mkdir -p $(OBJ_DIR) || echo ""
@@ -153,14 +137,14 @@ $(OBJ_DIR)/$(PROJ).dep: $(SRC)
 	@mkdir -p $(OBJ_DIR)
 	@touch $@
 	@makedepend $(INCLUDES) -p "$(OBJ_DIR)/" -Y -f $@ $^ 1>/dev/null 2>&1
-	@gsed -i "s|$(OBJ_DIR)/$(GLUELIB_HAL)/|$(OBJ_DIR)/|;s|$(OBJ_DIR)/$(GLUELIB)/|$(OBJ_DIR)/|;s|$(OBJ_DIR)/$(DRIVERLIB)/|$(OBJ_DIR)/|" $(OBJ_DIR)/main.dep
+	@gsed -i "s|$(OBJ_DIR)/$(ATLAS430_SYS)/|$(OBJ_DIR)/|;s|$(OBJ_DIR)/$(ATLAS430)/|$(OBJ_DIR)/|;s|$(OBJ_DIR)/$(DRIVERLIB)/|$(OBJ_DIR)/|" $(OBJ_DIR)/main.dep
 	@grep -v ^# $(OBJ_DIR)/$(PROJ).dep | cut -d" " -f2 | sort -u | xargs > $(OBJ_DIR)/$(PROJ).hdep
 	@echo "tags: `cat $(OBJ_DIR)/$(PROJ).hdep`" >> $(OBJ_DIR)/$(PROJ).dep
 	@rm -f $@.bak
 
-tags: $(PROJ_SRC) $(DRIVERLIB_SRC) $(GLUELIB_SRC) $(GLUELIB_HAL_SRC) $(LOCAL_SRC) $(OBJ_DIR)/$(PROJ).dep
+tags: $(PROJ_SRC) $(DRIVERLIB_SRC) $(ATLAS430_SRC) $(ATLAS430_SYS_SRC) $(LOCAL_SRC) $(OBJ_DIR)/$(PROJ).dep
 	@echo "Generating tags .."
-	@$(CTAGS) --recurse=yes ./ $(DRIVERLIB) $(GLUELIB) $(GLUELIB_HAL) $(LDDIR).h $(shell cat $(OBJ_DIR)/$(PROJ).hdep)
+	@$(CTAGS) --recurse=yes ./ $(DRIVERLIB) $(ATLAS430) $(ATLAS430_SYS) $(LDDIR).h $(shell cat $(OBJ_DIR)/$(PROJ).hdep)
 
 new_timestamps:
 	@$(BASH) $(REFLIB_ROOT)/tools/update_rtca_now.sh
@@ -176,7 +160,7 @@ scan-build: clean
 
 cppcheck: clean
 	@mkdir -p build/cppcheck
-	@cppcheck -j8 --enable=warning --enable=performance --enable=information --enable=missingInclude --cppcheck-build-dir=build/cppcheck -D__GNUC__ -D__$(DEVICE)__ $(MACROS) -I $(DRIVERLIB) -I $(GLUELIB) -I $(GLUELIB_HAL) -I $(GCC_EXTRA_INC_DIR) -I ./ ./ $(SRC)
+	@cppcheck -j8 --enable=warning --enable=performance --enable=information --enable=missingInclude --cppcheck-build-dir=build/cppcheck -D__GNUC__ -D__$(DEVICE)__ $(MACROS) -I $(DRIVERLIB) -I $(ATLAS430) -I $(ATLAS430_SYS) -I $(GCC_EXTRA_INC_DIR) -I ./ ./ $(SRC)
 
 $(EXOBJECT): $(PROJ_SRC) $(OBJ_DIR)/$(PROJ).cflags
 	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@

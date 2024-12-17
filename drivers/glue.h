@@ -29,6 +29,7 @@
 #include "fm24.h"
 #include "fm24_memtest.h"
 #include "hsc_ssc.h"
+#include "hbmps.h"
 #include "tca6408.h"
 
 #ifdef I2C_USES_BITBANGING

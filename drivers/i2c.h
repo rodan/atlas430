@@ -63,20 +63,25 @@ extern "C" {
 // special start/stop seq needed by sensirion SHT sensors
 #define I2C_SHT_INIT            0x40
 
-    typedef struct {
-        uint8_t slave_addr;     ///< chip address of slave device
-        uint8_t *addr;          ///< register/command payload
-        uint16_t addr_len;      ///< number of addr bytes to use
-        uint8_t *data;          ///< pointer to data transfer buffer
-        uint16_t data_len;      ///< number of bytes to transfer
-        uint8_t options;        ///< see above the possible option flags
-    } i2c_package_t;
+typedef struct {
+    uint16_t base_addr;
+    uint8_t slave_addr;
+} dev_i2c_t;
 
-    typedef enum {
-        I2C_IDLE,               ///< bus is idle. ready for new transfer.
-        I2C_BUSY,               ///< a transfer is in progress.
-        I2C_FAILED              ///< previous transfer failed. ready for new transfer.
-    } i2c_status_t;
+typedef struct {
+    uint8_t slave_addr;     ///< chip address of slave device
+    uint8_t *addr;          ///< register/command payload
+    uint16_t addr_len;      ///< number of addr bytes to use
+    uint8_t *data;          ///< pointer to data transfer buffer
+    uint16_t data_len;      ///< number of bytes to transfer
+    uint8_t options;        ///< see above the possible option flags
+} i2c_package_t;
+
+typedef enum {
+    I2C_IDLE,               ///< bus is idle. ready for new transfer.
+    I2C_BUSY,               ///< a transfer is in progress.
+    I2C_FAILED              ///< previous transfer failed. ready for new transfer.
+} i2c_status_t;
 
 /**
  * \brief Start an I2C transfer
@@ -93,16 +98,16 @@ extern "C" {
  * \param callback      Optional pointer to a callback function to execute once the transfer completes
  *                      or fails. A NULL pointer disables the callback.
  **/
-    void i2c_transfer_start(const uint16_t base_address, const i2c_package_t * pkg,
-                            void (*callback) (i2c_status_t result));
+void i2c_transfer_start(const uint16_t base_address, const i2c_package_t * pkg,
+                        void (*callback) (i2c_status_t result));
 
 /**
  * \brief Get the status of the I2C module
  * \return status of the bus.
  **/
-    i2c_status_t i2c_transfer_status(void);
+i2c_status_t i2c_transfer_status(void);
 
-    void i2c_irq_init(uint16_t usci_base_address);
+void i2c_irq_init(uint16_t usci_base_address);
 
 #ifdef __cplusplus
 }
