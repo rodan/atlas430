@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "glue.h"
+#include "atlas430.h"
 #include "ds3231.h"
 
 #ifdef I2C_USES_BITBANGING

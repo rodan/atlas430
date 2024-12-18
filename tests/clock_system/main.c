@@ -2,7 +2,7 @@
 #include <msp430.h>
 #include "proj.h"
 #include "driverlib.h"
-#include "glue.h"
+#include "atlas430.h"
 #include "sig.h"
 
 int main(void)

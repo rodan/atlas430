@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 #include <string.h>
-#include "glue.h"
+#include "atlas430.h"
 #include "sig.h"
 
 static void command(vfd_descriptor *vfdd, uint8_t data)

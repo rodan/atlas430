@@ -5,7 +5,7 @@
 #include <msp430.h>
 #include <stdint.h>
 #include "driverlib.h"
-#include "glue.h"
+#include "atlas430.h"
 
 #define       ACLK_FREQ  32768
 #define  CLK_LFXT_DRIVE  CS_LFXT_DRIVE_0

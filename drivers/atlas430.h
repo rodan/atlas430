@@ -3,6 +3,8 @@
 
 #include <msp430.h>
 
+#include "driverlib.h"
+
 #include "glue_fs.h"
 
 #include "lib_convert.h"

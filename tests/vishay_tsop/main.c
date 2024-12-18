@@ -11,7 +11,7 @@
 
 #include "proj.h"
 #include "driverlib.h"
-#include "glue.h"
+#include "atlas430.h"
 #include "ui.h"
 #include "timer_a0.h"
 #include "ir_acquire.h"

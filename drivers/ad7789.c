@@ -19,7 +19,7 @@
 
 #include <math.h>
 #include "eusci_b_spi.h"
-#include "glue.h"
+#include "atlas430.h"
 #include "spi.h"
 #include "ad7789.h"
 

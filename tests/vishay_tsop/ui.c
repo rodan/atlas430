@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "glue.h"
+#include "atlas430.h"
 #include "version.h"
 #include "ui.h"
 #include "ir_acquire.h"

@@ -12,7 +12,7 @@
 #include "proj.h"
 #include "sig.h"
 #include "driverlib.h"
-#include "glue.h"
+#include "atlas430.h"
 #include "ui.h"
 
 #if defined __MSP430FR5994__
