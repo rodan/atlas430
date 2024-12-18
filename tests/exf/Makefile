@@ -40,11 +40,11 @@ CFLAGS_REL	 += -Os -fdata-sections -ffunction-sections -fomit-frame-pointer
 LDFLAGS_REL	 += -Wl,-s
 CFLAGS_DBG	 += -O1 -ggdb
 LDFLAGS_DBG	 += 
-INCLUDES         := -I $(GCC_EXTRA_INC_DIR) -I $(GCC_INC_DIR) -I $(DRIVERLIB) -I $(ATLAS430) -I $(ATLAS430_SYS) -I $(GCC_CCS_INC_GCC_DIR) -I ./ -I .
+INCLUDES         := -I $(GCC_EXTRA_INC_DIR) -I $(GCC_INC_DIR) -I $(DRIVERLIB) -I $(ATLAS_DRV_DIR) -I $(ATLAS_ARCH_DIR) -I $(GCC_CCS_INC_GCC_DIR) -I ./ -I .
 ######################################
 LOCAL_SRC        := $(wildcard *.c)
 PROJ_SRC         := $(PROJ).c
-SRC              := $(PROJ_SRC) $(DRIVERLIB_SRC) $(ATLAS430_SRC) $(ATLAS430_SYS_SRC) $(LOCAL_SRC)
+SRC              := $(PROJ_SRC) $(DRIVERLIB_SRC) $(ATLAS_DRV_SRC) $(ATLAS_ARCH_SRC) $(LOCAL_SRC)
 
 LOCAL_OBJECTS     = $(LOCAL_SRC:%.c=$(OBJ_DIR)/%.o)
 
@@ -137,14 +137,14 @@ $(OBJ_DIR)/$(PROJ).dep: $(SRC)
 	@mkdir -p $(OBJ_DIR)
 	@touch $@
 	@makedepend $(INCLUDES) $(MACROS) -D__$(DEVICE)__ -p "$(OBJ_DIR)/" -Y -f $@ $^ 1>/dev/null 2>&1
-	@gsed -i "s|$(OBJ_DIR)/$(ATLAS430_SYS)/|$(OBJ_DIR)/|;s|$(OBJ_DIR)/$(ATLAS430)/|$(OBJ_DIR)/|;s|$(OBJ_DIR)/$(DRIVERLIB)/|$(OBJ_DIR)/|" $(OBJ_DIR)/main.dep
+	@gsed -i "s|$(OBJ_DIR)/$(ATLAS_ARCH_DIR)/|$(OBJ_DIR)/|;s|$(OBJ_DIR)/$(ATLAS_DRV_DIR)/|$(OBJ_DIR)/|;s|$(OBJ_DIR)/$(DRIVERLIB)/|$(OBJ_DIR)/|" $(OBJ_DIR)/main.dep
 	@grep -v ^# $(OBJ_DIR)/$(PROJ).dep | cut -d" " -f2 | sort -u | xargs > $(OBJ_DIR)/$(PROJ).hdep
 	@echo "tags: `cat $(OBJ_DIR)/$(PROJ).hdep`" >> $(OBJ_DIR)/$(PROJ).dep
 	@rm -f $@.bak
 
-tags: $(PROJ_SRC) $(DRIVERLIB_SRC) $(ATLAS430_SRC) $(ATLAS430_SYS_SRC) $(LOCAL_SRC) $(OBJ_DIR)/$(PROJ).dep
+tags: $(PROJ_SRC) $(DRIVERLIB_SRC) $(ATLAS_DRV_SRC) $(ATLAS_ARCH_SRC) $(LOCAL_SRC) $(OBJ_DIR)/$(PROJ).dep
 	@echo "Generating tags .."
-	@$(CTAGS) --recurse=yes ./ $(DRIVERLIB) $(ATLAS430) $(ATLAS430_SYS) $(LDDIR).h $(shell cat $(OBJ_DIR)/$(PROJ).hdep)
+	@$(CTAGS) --recurse=yes ./ $(DRIVERLIB) $(ATLAS_DRV_DIR) $(ATLAS_ARCH_DIR) $(LDDIR).h $(shell cat $(OBJ_DIR)/$(PROJ).hdep)
 
 new_timestamps:
 	@$(BASH) $(REFLIB_ROOT)/tools/update_rtca_now.sh
@@ -160,7 +160,7 @@ scan-build: clean
 
 cppcheck: clean
 	@mkdir -p build/cppcheck
-	@cppcheck -j8 --enable=warning --enable=performance --enable=information --enable=missingInclude --cppcheck-build-dir=build/cppcheck -D__GNUC__ -D__$(DEVICE)__ $(MACROS) -I $(DRIVERLIB) -I $(ATLAS430) -I $(ATLAS430_SYS) -I $(GCC_EXTRA_INC_DIR) -I ./ ./ $(SRC)
+	@cppcheck -j8 --enable=warning --enable=performance --enable=information --enable=missingInclude --cppcheck-build-dir=build/cppcheck -D__GNUC__ -D__$(DEVICE)__ $(MACROS) -I $(DRIVERLIB) -I $(ATLAS_DRV_DIR) -I $(ATLAS_ARCH_DIR) -I $(GCC_EXTRA_INC_DIR) -I ./ ./ $(SRC)
 
 $(EXOBJECT): $(PROJ_SRC) $(OBJ_DIR)/$(PROJ).cflags
 	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
