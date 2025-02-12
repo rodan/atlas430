@@ -64,11 +64,6 @@ extern "C" {
 #define I2C_SHT_INIT            0x40
 
 typedef struct {
-    uint16_t base_addr;
-    uint8_t slave_addr;
-} dev_i2c_t;
-
-typedef struct {
     uint8_t slave_addr;     ///< chip address of slave device
     uint8_t *addr;          ///< register/command payload
     uint16_t addr_len;      ///< number of addr bytes to use

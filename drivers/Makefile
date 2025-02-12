@@ -7,7 +7,7 @@ SRC_C = $(wildcard *.c)
 SRC_H = $(wildcard *.h)
 SRC	= $(SRC_C) $(SRC_H)
 
-tags: $(SRC) 
+tags: $(SRC)
 	@echo "Generating tags .."
 	@exuberant-ctags --recurse=yes ./
 

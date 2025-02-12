@@ -7,15 +7,13 @@
 //  Honeywell High Accuracy Ceramic (HSC) and Standard Accuracy Ceramic
 //  (SSC) Series are piezoresistive silicon pressure sensors.
 
-#ifdef CONFIG_HBMPS
-
-#ifdef __I2C_CONFIG_H__
-
-#include <inttypes.h>
+#include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
+
+#include "bus.h"
 #include "hbmps.h"
-#include "i2c.h"
 
 /* you must define the slave address. you can find it based on the part number:
 
@@ -37,40 +35,33 @@
 //          3 if a diagnostic fault is triggered in the chip
 //          I2C err levels if sensor is not properly hooked up
 
-uint8_t hbmps_read(const uint16_t usci_base_addr, const uint8_t slave_addr, struct hbmps_pkt *raw)
+uint8_t hbmps_read(device_t *dev, struct hbmps_pkt *raw)
 {
-    uint8_t val[4] = { 0, 0, 0, 0 };
     uint8_t rv = 0;
+    uint8_t *val;
 
-    i2c_package_t pkg;
+    memset(dev->pkt.buff, 0, HBMPS_BUFF_SIZE);
+    bus_read(dev, HBMPS_BUFF_SIZE, 0, NULL);
 
-    pkg.slave_addr = slave_addr;
-    pkg.addr = NULL;
-    pkg.addr_len = 0;
-    pkg.data = val;
-    pkg.data_len = 4;
-    pkg.options = I2C_READ | I2C_LAST_NAK | I2C_REPEAT_SA_ON_READ;
-
-    i2c_transfer_start(usci_base_addr, &pkg, NULL);
-
+    val = dev->pkt.buff;
     raw->status = (val[0] & 0xc0) >> 6; // first 2 bits from first byte
     raw->bridge_data = ((val[0] & 0x3f) << 8) + val[1];
     raw->temperature_data = ((val[2] << 8) + (val[3] & 0xe0)) >> 5;
+
     return rv;
 }
 
-uint8_t hbmps_convert(const struct hbmps_pkt raw, uint32_t * pressure,
-                   int16_t * temperature, const uint16_t output_min,
-                   const uint16_t output_max, const float pressure_min,
-                   const float pressure_max)
+uint8_t hbmps_convert(const struct hbmps_pkt raw, int32_t * pressure,
+                   int32_t * temperature, const uint16_t output_min,
+                   const uint16_t output_max, const int32_t pressure_min,
+                   const int32_t pressure_max)
 {
-    float t, p;
-    p = (float) ((float)raw.bridge_data - (float)output_min) * ((float)pressure_max - (float) pressure_min) / ( (float)output_max - (float) output_min) + (float) pressure_min;
-    t = ((float) raw.temperature_data * 0.0977) - 50.0;
+    int64_t t, p;
+    p = (int64_t) ((uint64_t)raw.bridge_data - (int64_t)output_min) * ((int64_t)pressure_max - (int64_t) pressure_min) / ( (int64_t)output_max - (int64_t) output_min) + (int64_t) pressure_min;
+    t = ((int64_t) raw.temperature_data * 977) - 500000; // t * 10000
 
     *pressure = p;
-    *temperature = 100 * t;
+    *temperature = t/100; // return t * 100
     return 0;
 }
-#endif // __I2C_CONFIG_H__
-#endif // CONFIG_HSC_SSC
+

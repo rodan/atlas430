@@ -14,6 +14,7 @@
 #include "event_handler.h"
 #include "sch.h"
 
+#include "bus.h"
 #include "uart.h"
 #include "spi.h"
 #include "ad7789.h"
