@@ -42,6 +42,13 @@ struct hbmps_pkt {
     uint16_t temperature_data;  // 11 bit
 };
 
+typedef struct hbmps_spec {
+    uint16_t output_min;
+    uint16_t output_max;
+    int32_t pressure_min;
+    int32_t pressure_max;
+} hbmps_spec_t;
+
 #define HBMPS_BUFF_SIZE  4
 
 #ifdef __cplusplus
@@ -52,10 +59,8 @@ extern "C" {
 //uint8_t hbmps_read(const uint16_t usci_base_addr, const uint8_t slave_addr, struct hbmps_pkt *hsc_pkt);
 uint8_t hbmps_read(device_t *dev, struct hbmps_pkt *raw);
 
-uint8_t hbmps_convert(const struct hbmps_pkt hsc_pkt, int32_t * pressure,
-                   int32_t * temperature, const uint16_t output_min,
-                   const uint16_t output_max, const int32_t pressure_min,
-                   const int32_t pressure_max);
+uint8_t hbmps_convert(const struct hbmps_pkt *hsc_pkt, int32_t *pressure,
+                   int32_t *temperature, hbmps_spec_t *spec);
 
 #ifdef __cplusplus
 }

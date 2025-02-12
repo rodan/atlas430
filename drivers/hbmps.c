@@ -51,14 +51,12 @@ uint8_t hbmps_read(device_t *dev, struct hbmps_pkt *raw)
     return rv;
 }
 
-uint8_t hbmps_convert(const struct hbmps_pkt raw, int32_t * pressure,
-                   int32_t * temperature, const uint16_t output_min,
-                   const uint16_t output_max, const int32_t pressure_min,
-                   const int32_t pressure_max)
+uint8_t hbmps_convert(const struct hbmps_pkt *raw, int32_t *pressure,
+                   int32_t *temperature, hbmps_spec_t *spec)
 {
     int64_t t, p;
-    p = (int64_t) ((uint64_t)raw.bridge_data - (int64_t)output_min) * ((int64_t)pressure_max - (int64_t) pressure_min) / ( (int64_t)output_max - (int64_t) output_min) + (int64_t) pressure_min;
-    t = ((int64_t) raw.temperature_data * 977) - 500000; // t * 10000
+    p = (int64_t) ((uint64_t)raw->bridge_data - (int64_t)spec->output_min) * ((int64_t)spec->pressure_max - (int64_t) spec->pressure_min) / ( (int64_t) spec->output_max - (int64_t) spec->output_min) + (int64_t) spec->pressure_min;
+    t = ((int64_t) raw->temperature_data * 977) - 500000; // t * 10000
 
     *pressure = p;
     *temperature = t/100; // return t * 100

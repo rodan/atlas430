@@ -21,6 +21,7 @@ uint16_t bus_init_i2c_hw_master(device_t *dev, const uint16_t usci_base_addr, co
     dev->bus_desc = i2c_desc;
     dev->pkt.buff = buff;
     dev->pkt.size = buff_size;
+    dev->bus_type = BUS_TYPE_I2C_HW_MASTER;
 
     return BUS_INIT_OK;
 }
