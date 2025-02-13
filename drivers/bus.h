@@ -18,7 +18,7 @@
 #define      BUS_STATE_COMM_ERR  0x10
 
 // bus_init_*() return errors
-#define             BUS_INIT_OK  0x0
+#define                  BUS_OK  0x0
 #define        BUS_INIT_ERR_ARG  0x1
 
 typedef struct bus_pkt {

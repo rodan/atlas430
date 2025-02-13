@@ -8,7 +8,7 @@
 #include "ui.h"
 
 //#define TEST_CYPRESS_FM24
-#define TEST_HSC_SSC
+//#define TEST_HSC_SSC
 #define TEST_HBMPS
 //#define TEST_DS3231
 //#define TEST_TCA6408
