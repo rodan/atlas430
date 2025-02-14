@@ -1,23 +1,27 @@
 
 DRIVERLIB_SRC    := $(wildcard $(DRIVERLIB)/*.c)
-ATLAS_ARCH_SRC := $(wildcard $(ATLAS_ARCH_DIR)/*.c)
-ATLAS_DRV_SRC     := $(wildcard $(ATLAS_DRV_DIR)/*.c)
+ATLAS_ARCH_SRC   := $(wildcard $(ATLAS_ARCH_DIR)/*.c)
+ATLAS_DRV_SRC    := $(wildcard $(ATLAS_DRV_DIR)/*.c)
 
-ATLAS_OBJ_DIR  = $(OBJ_DIR)/libatlas430
+DRIVERLIB_H_SRC  := $(wildcard $(DRIVERLIB)/*.h)
+ATLAS_ARCH_H_SRC := $(wildcard $(ATLAS_ARCH_DIR)/*.h)
+ATLAS_DRV_H_SRC  := $(wildcard $(ATLAS_DRV_DIR)/*.h)
+
+ATLAS_OBJ_DIR     = $(OBJ_DIR)/libatlas430
 DRIVERLIB_OBJECTS = $(DRIVERLIB_SRC:$(DRIVERLIB)/%.c=$(ATLAS_OBJ_DIR)/driverlib/%.o)
-ATLAS_OBJECTS   = $(ATLAS_DRV_SRC:$(ATLAS_DRV_DIR)/%.c=$(ATLAS_OBJ_DIR)/%.o) $(ATLAS_ARCH_SRC:$(ATLAS_ARCH_DIR)/%.c=$(ATLAS_OBJ_DIR)/arch/%.o)
+ATLAS_OBJECTS     = $(ATLAS_DRV_SRC:$(ATLAS_DRV_DIR)/%.c=$(ATLAS_OBJ_DIR)/%.o) $(ATLAS_ARCH_SRC:$(ATLAS_ARCH_DIR)/%.c=$(ATLAS_OBJ_DIR)/arch/%.o)
 
-$(ATLAS_OBJ_DIR)/driverlib/%.o: $(DRIVERLIB)/%.c
+$(ATLAS_OBJ_DIR)/driverlib/%.o: $(DRIVERLIB)/%.c $(DRIVERLIB_H_SRC)
 	@echo -e " * [driverlib] $(@F)"
 	@mkdir -p $(ATLAS_OBJ_DIR)/driverlib
 	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
-$(ATLAS_OBJ_DIR)/%.o: $(ATLAS_DRV_DIR)/%.c config.h
+$(ATLAS_OBJ_DIR)/%.o: $(ATLAS_DRV_DIR)/%.c $(ATLAS_DRV_H_SRC) config.h
 	@echo -e " * [drivers] $(@F)"
 	@mkdir -p $(ATLAS_OBJ_DIR)
 	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
-$(ATLAS_OBJ_DIR)/arch/%.o: $(ATLAS_ARCH_DIR)/%.c config.h
+$(ATLAS_OBJ_DIR)/arch/%.o: $(ATLAS_ARCH_DIR)/%.c $(ATLAS_ARCH_H_SRC) config.h
 	@echo -e " * [arch] $(@F)"
 	@mkdir -p $(ATLAS_OBJ_DIR)/arch
 	@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@

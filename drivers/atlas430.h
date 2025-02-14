@@ -18,6 +18,7 @@
 #include "uart.h"
 #include "spi.h"
 #include "ad7789.h"
+#include "dsrtc.h"
 #include "ds3234.h"
 #include "mcp42.h"
 #include "eeram_48lxxx.h"

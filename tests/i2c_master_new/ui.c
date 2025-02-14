@@ -10,7 +10,7 @@
 //#define TEST_CYPRESS_FM24
 //#define TEST_HSC_SSC
 #define TEST_HBMPS
-//#define TEST_DS3231
+#define TEST_DS3231
 //#define TEST_TCA6408
 
 extern uart_descriptor bc;
@@ -191,7 +191,6 @@ void parse_user_input(void)
     device_t hbmps;
     bus_desc_i2c_hw_master_t hbmps_bus_desc;
     hbmps_spec_t hbmps_spec;
-    uint8_t hbmps_buff[HBMPS_BUFF_SIZE];
     struct hbmps_pkt hbmps_raw;
     int32_t hbmps_pressure;
     int32_t hbmps_temperature;
@@ -201,7 +200,7 @@ void parse_user_input(void)
     hbmps_spec.pressure_min = 0;
     hbmps_spec.pressure_max = 206843;
 
-    bus_init_i2c_hw_master(&hbmps, I2C_BASE_ADDR, HSC_SLAVE_ADDR, &hbmps_bus_desc, hbmps_buff, HBMPS_BUFF_SIZE);
+    bus_init_i2c_hw_master(&hbmps, I2C_BASE_ADDR, HSC_SLAVE_ADDR, &hbmps_bus_desc);
 #endif
 
 #ifdef TEST_DS3231
