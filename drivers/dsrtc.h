@@ -12,7 +12,10 @@
 **/
 
 // i2c slave address of the DS3231 chip
-#define DSRTC_I2C_ADDR            0x68
+#define           DSRTC_I2C_ADDR  0x68
+
+#define        DSRTC_TYPE_DS3231  0xcaf
+#define        DSRTC_TYPE_DS3234  0xca2
 
 //! DS3234 registers
 #define            DSRTC_REG_RTC  0x00 ///< real time clock seconds
@@ -62,6 +65,10 @@
 #define      DSRTC_A2_MHDw_MATCH  0x08 ///< alarm when minutes, hours and day of week match
 
 
+typedef struct dsrtc_priv {
+    uint16_t ic_type;
+} dsrtc_priv_t;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -73,7 +80,7 @@ extern "C" {
     @param nbytes number of bytes to be transfered
     @return non-zero on failure
 */
-uint8_t dsrtc_read(device_t *dev, const uint8_t offset, uint8_t *buf, const uint8_t nbytes);
+uint16_t dsrtc_read(device_t *dev, const uint8_t offset, uint8_t *buf, const uint8_t nbytes);
 
 /** write a number of bytes of data to the rtc IC
     @param dev    device pointer
@@ -82,7 +89,7 @@ uint8_t dsrtc_read(device_t *dev, const uint8_t offset, uint8_t *buf, const uint
     @param nbytes number of bytes to be transfered
     @return non-zero on failure
 */
-uint8_t dsrtc_write(device_t *dev, const uint8_t offset, uint8_t *buf, const uint8_t nbytes);
+uint16_t dsrtc_write(device_t *dev, const uint8_t offset, uint8_t *buf, const uint8_t nbytes);
 
 /** read one register
     @param dev   device pointer
@@ -90,7 +97,7 @@ uint8_t dsrtc_write(device_t *dev, const uint8_t offset, uint8_t *buf, const uin
     @param vat   uint8_t container for the read value
     @return non-zero on failure
 */
-uint8_t dsrtc_read_reg(device_t *dev, const uint8_t addr, uint8_t *val);
+uint16_t dsrtc_read_reg(device_t *dev, const uint8_t addr, uint8_t *val);
 
 /** write one register
     @param dev   device pointer
@@ -98,21 +105,21 @@ uint8_t dsrtc_read_reg(device_t *dev, const uint8_t addr, uint8_t *val);
     @param vat   byte that will get written
     @return non-zero on failure
 */
-uint8_t dsrtc_write_reg(device_t *dev, const uint8_t addr, const uint8_t val);
+uint16_t dsrtc_write_reg(device_t *dev, const uint8_t addr, const uint8_t val);
 
 /** read date and time from the IC
     @param dev   device pointer
     @param t     date and time struct
     @return non-zero on failure
 */
-uint8_t dsrtc_read_rtc(device_t *dev, struct ts *t);
+uint16_t dsrtc_read_rtc(device_t *dev, struct ts *t);
 
 /** write date and time to the IC
     @param dev   device pointer
     @param t     date and time struct
     @return non-zero on failure
 */
-uint8_t dsrtc_write_rtc(device_t *dev, struct ts *t);
+uint16_t dsrtc_write_rtc(device_t *dev, struct ts *t);
 
 /** read alarm A1 registers
     @param dev   device pointer
@@ -120,7 +127,7 @@ uint8_t dsrtc_write_rtc(device_t *dev, struct ts *t);
     @param flags what time element to trigger on
     @return non-zero on failure
 */
-uint8_t dsrtc_read_a1(device_t *dev, struct ts *t, uint8_t *flags);
+uint16_t dsrtc_read_a1(device_t *dev, struct ts *t, uint8_t *flags);
 
 /** write to alarm A1 registers
     @param dev   device pointer
@@ -128,7 +135,7 @@ uint8_t dsrtc_read_a1(device_t *dev, struct ts *t, uint8_t *flags);
     @param flags what time element to trigger on
     @return non-zero on failure
 */
-uint8_t dsrtc_write_a1(device_t *dev, const struct ts *t, const uint8_t flags);
+uint16_t dsrtc_write_a1(device_t *dev, const struct ts *t, const uint8_t flags);
 
 /** read alarm A2 registers
     @param dev   device pointer
@@ -136,7 +143,7 @@ uint8_t dsrtc_write_a1(device_t *dev, const struct ts *t, const uint8_t flags);
     @param flags what time element to trigger on
     @return non-zero on failure
 */
-uint8_t dsrtc_read_a2(device_t *dev, struct ts *t, uint8_t *flags);
+uint16_t dsrtc_read_a2(device_t *dev, struct ts *t, uint8_t *flags);
 
 /** write to alarm A1 registers
     @param dev   device pointer
@@ -144,28 +151,28 @@ uint8_t dsrtc_read_a2(device_t *dev, struct ts *t, uint8_t *flags);
     @param flags what time element to trigger on
     @return non-zero on failure
 */
-uint8_t dsrtc_write_a2(device_t *dev, const struct ts *t, const uint8_t flags);
+uint16_t dsrtc_write_a2(device_t *dev, const struct ts *t, const uint8_t flags);
 
 /** read and convert the aging register from the IC
     @param dev   device pointer
     @param value crystal aging register value
     @return non-zero on failure
 */
-uint8_t dsrtc_read_aging(device_t *dev, int8_t *value);
+uint16_t dsrtc_read_aging(device_t *dev, int8_t *value);
 
 /** convert and write the aging register to the IC
     @param dev   device pointer
     @param value crystal aging value
     @return non-zero on failure
 */
-uint8_t dsrtc_write_aging(device_t *dev, const int8_t value);
+uint16_t dsrtc_write_aging(device_t *dev, const int8_t value);
 
 /** read the temperature sensor from within the IC
     @param dev   device pointer
     @param value temperature in degrees C multiplied by 100 - in int16_t form
     @return non-zero on failure
 */
-uint8_t dsrtc_read_temp(device_t *dev, int16_t *value);
+uint16_t dsrtc_read_temp(device_t *dev, int16_t *value);
 
 /** read nbytes number of bytes from the SRAM of the IC (supported only by some ICs)
     @param dev    device pointer
@@ -174,7 +181,7 @@ uint8_t dsrtc_read_temp(device_t *dev, int16_t *value);
     @param nbytes number of bytes to be transfered
     @return non-zero on failure
 */
-uint8_t dsrtc_read_sram(device_t *dev, const uint8_t offset, uint8_t *buf, const uint8_t nbytes);
+uint16_t dsrtc_read_sram(device_t *dev, const uint8_t offset, uint8_t *buf, const uint8_t nbytes);
 
 /** write nbytes number of bytes to the SRAM of the IC (supported only by some ICs)
     @param dev    device pointer
@@ -183,7 +190,7 @@ uint8_t dsrtc_read_sram(device_t *dev, const uint8_t offset, uint8_t *buf, const
     @param nbytes number of bytes to be transfered
     @return non-zero on failure
 */
-uint8_t dsrtc_write_sram(device_t *dev, const uint8_t offset, uint8_t *buf, const uint8_t nbytes);
+uint16_t dsrtc_write_sram(device_t *dev, const uint8_t offset, uint8_t *buf, const uint8_t nbytes);
 
 #if 0
 uint8_t dsrtc_clear_a1f(const uint16_t usci_base_addr);

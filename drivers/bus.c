@@ -14,7 +14,7 @@ uint16_t bus_init_i2c_hw_master(device_t *dev, const uint16_t usci_base_addr, co
 {
     if (!dev || !usci_base_addr || !slave_addr || !i2c_desc) {
         dev->bus_type = 0;
-        return BUS_INIT_ERR_ARG;
+        return BUS_ERR_ARG;
     }
 
     i2c_desc->usci_base_addr = usci_base_addr;
@@ -57,6 +57,39 @@ uint16_t bus_read(device_t *dev, uint8_t *buf, const uint16_t buf_sz, const uint
 
     return BUS_OK;
 }
+
+uint16_t bus_write(device_t *dev, uint8_t *buf, const uint16_t buf_sz, const uint8_t *cmd, const uint16_t cmd_sz)
+{
+    i2c_package_t i2c;
+    bus_desc_i2c_hw_master_t *desc_i2c_hw_master_t;
+
+    if ( !dev | !buf | !buf_sz )
+        return BUS_STATE_COMM_ERR;
+
+    memset(buf, 0, buf_sz);
+
+    switch(dev->bus_type) {
+        case BUS_TYPE_I2C_HW_MASTER:
+
+            memset(&i2c, 0, sizeof(i2c_package_t));
+            desc_i2c_hw_master_t = (bus_desc_i2c_hw_master_t *) dev->bus_desc;
+            i2c.slave_addr = desc_i2c_hw_master_t->slave_addr;
+            i2c.addr = (uint8_t *) cmd;
+            i2c.addr_len = cmd_sz;
+            i2c.data = buf;
+            i2c.data_len = buf_sz;
+            i2c.options = I2C_WRITE;
+
+            i2c_transfer_start(desc_i2c_hw_master_t->usci_base_addr, &i2c, NULL);
+            break;
+        default:
+            return BUS_STATE_COMM_ERR; 
+            break;
+    }
+
+    return BUS_OK;
+}
+
 
 #if 0
 #ifdef __I2C_CONFIG_H__

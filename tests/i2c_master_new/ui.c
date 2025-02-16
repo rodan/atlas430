@@ -11,6 +11,7 @@
 //#define TEST_HSC_SSC
 #define TEST_HBMPS
 #define TEST_DS3231
+#define TEST_DSRTC
 //#define TEST_TCA6408
 
 extern uart_descriptor bc;
@@ -38,6 +39,14 @@ static const char menu_DS3231[]="\
  \033[33;1m3\033[0m - DS3231 write\r\n\
  \033[33;1m4\033[0m - DS3231 read temp\r\n";
 #endif
+
+#ifdef TEST_DSRTC
+static const char menu_DSRTC[]="\
+ \033[33;1mq\033[0m - dsrtc read\r\n";
+#endif
+// \033[33;1mw\033[0m - dsrtc write\r\n
+// \033[33;1me\033[0m - dsrtc read temp\r\n";
+//#endif
 
 #ifdef TEST_TCA6408
 static const char menu_TCA6408[]="\
@@ -133,6 +142,9 @@ void display_menu(void)
 #ifdef TEST_DS3231
     uart_print(&bc, menu_DS3231);
 #endif
+#ifdef TEST_DSRTC
+    uart_print(&bc, menu_DSRTC);
+#endif
 #ifdef TEST_TCA6408
     uart_print(&bc, menu_TCA6408);
 #endif
@@ -203,17 +215,31 @@ void parse_user_input(void)
     bus_init_i2c_hw_master(&hbmps, I2C_BASE_ADDR, HSC_SLAVE_ADDR, &hbmps_bus_desc);
 #endif
 
-#ifdef TEST_DS3231
     struct ts t;
+
+#ifdef TEST_DS3231
     float ds3231_temperature;
     int16_t ds3231_temperature_i16;
+#endif
+
+#ifdef TEST_DSRTC
+    device_t dsrtc_i2c;
+    dsrtc_priv_t dsrtc_i2c_priv;
+    bus_desc_i2c_hw_master_t dsrtc_i2c_bus_desc;
+    
+    bus_init_i2c_hw_master(&dsrtc_i2c, I2C_BASE_ADDR, DSRTC_I2C_ADDR, &dsrtc_i2c_bus_desc);
+    dsrtc_i2c_priv.ic_type = DSRTC_TYPE_DS3231;
+    dsrtc_i2c.priv = &dsrtc_i2c_priv;
+
+    //float ds3231_temperature;
+    //int16_t ds3231_temperature_i16;
 #endif
 
 #ifdef TEST_TCA6408
     uint8_t tca6408_reg;
 #endif
 
-#if defined TEST_HSC_SSC || defined TEST_HBMPS || defined TEST_DS3231 || defined TEST_TCA6408
+#if defined TEST_HSC_SSC || defined TEST_HBMPS || defined TEST_DS3231 || defined TEST_DSRTC || defined TEST_TCA6408
     char sconv[CONV_BASE_10_BUF_SZ];
 #endif
 
@@ -349,6 +375,61 @@ void parse_user_input(void)
         uart_print(&bc, ".");
         uart_print(&bc, _utoa(sconv, abs(ds3231_temperature_i16%10)));
         uart_print(&bc, "\r\n");
+#endif
+
+#ifdef TEST_DSRTC
+    } else if (f == 'q') {
+
+        dsrtc_read_rtc(&dsrtc_i2c, &t);
+
+        uart_print(&bc, _utoa(sconv, t.year));
+        uart_print(&bc, ".");
+        uart_print(&bc, prepend_padding(sconv, _utoa(sconv, t.mon), PAD_ZEROES, 2));
+        uart_print(&bc, ".");
+        uart_print(&bc, prepend_padding(sconv, _utoa(sconv, t.mday), PAD_ZEROES, 2));
+        uart_print(&bc, " ");
+        uart_print(&bc, prepend_padding(sconv, _utoa(sconv, t.hour), PAD_ZEROES, 2));
+        uart_print(&bc, ":");
+        uart_print(&bc, prepend_padding(sconv, _utoa(sconv, t.min), PAD_ZEROES, 2));
+        uart_print(&bc, ":");
+        uart_print(&bc, prepend_padding(sconv, _utoa(sconv, t.sec), PAD_ZEROES, 2));
+
+        // there is a compile time option in the library to include unixtime support
+#ifdef CONFIG_UNIXTIME
+        uart_print(&bc, "  ");
+        uart_print(&bc, _utoa(sconv, t.unixtime));
+#endif
+        uart_print(&bc, "\r\n");
+#if 0
+    } else if (f == '3') {
+        t.sec = 0;
+        t.min = COMPILE_MIN;
+        t.hour = COMPILE_HOUR;
+        t.wday = COMPILE_DOW;
+        t.mday = COMPILE_DAY;
+        t.mon = COMPILE_MON;
+        t.year = COMPILE_YEAR;
+        t.yday = 0;
+        t.isdst = 0;
+        t.year_s = 0;
+#ifdef CONFIG_UNIXTIME
+        t.unixtime = 0;
+#endif
+        DS3231_set(I2C_BASE_ADDR, t);
+    } else if (f == '4') {
+        //DS3231_get_treg();
+        DS3231_get_treg(I2C_BASE_ADDR, &ds3231_temperature);
+        ds3231_temperature *= 10.0;
+        ds3231_temperature_i16 = (int16_t) ds3231_temperature; 
+        uart_print(&bc, "temp ");
+        if (ds3231_temperature < 0) {
+            uart_print(&bc, "-");
+        }
+        uart_print(&bc, _utoa(sconv, abs(ds3231_temperature_i16/10)));
+        uart_print(&bc, ".");
+        uart_print(&bc, _utoa(sconv, abs(ds3231_temperature_i16%10)));
+        uart_print(&bc, "\r\n");
+#endif
 #endif
 
 #ifdef TEST_TCA6408

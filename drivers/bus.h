@@ -19,7 +19,7 @@
 
 // bus_init_*() return errors
 #define                  BUS_OK  0x00
-#define        BUS_INIT_ERR_ARG  0x01
+#define             BUS_ERR_ARG  0x01
 
 typedef struct bus_desc_i2c_hw_master {
     uint16_t state;
@@ -55,6 +55,16 @@ uint16_t bus_init_i2c_hw_master(device_t *dev, const uint16_t usci_base_addr, co
     @return BUS_OK on success
 */
 uint16_t bus_read(device_t *dev, uint8_t *buf, const uint16_t buf_sz, const uint8_t *cmd, const uint16_t cmd_sz);
+
+/** issue a write operation on behalf of a device driver on the bus defined in dev->bus_desc. no memory is allocated by this function.
+    @param dev     device driver pointer
+    @param buf     pre-allocated buffer where the read data is stored
+    @param buf_sz  number of bytes read from the bus
+    @param cmd     preamble command or address to send to the bus before clocking out buf. can be NULL
+    @param cmd_sz  number of bytes in the preamble. can be 0
+    @return BUS_OK on success
+*/
+uint16_t bus_write(device_t *dev, uint8_t *buf, const uint16_t buf_sz, const uint8_t *cmd, const uint16_t cmd_sz);
 
 #ifdef __cplusplus
 }
