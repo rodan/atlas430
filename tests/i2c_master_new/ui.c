@@ -186,6 +186,7 @@ void parse_user_input(void)
     char *input = uart_get_rx_buf(&bc);
 #endif
     char f = input[0];
+    uint16_t rv;
 
 #ifdef TEST_CYPRESS_FM24
     uint8_t data_r[8]; // test 8 bytes (1 row) at a time
@@ -380,7 +381,13 @@ void parse_user_input(void)
 #ifdef TEST_DSRTC
     } else if (f == 'q') {
 
-        dsrtc_read_rtc(&dsrtc_i2c, &t);
+        rv = dsrtc_read_rtc(&dsrtc_i2c, &t);
+
+        if (rv != BUS_OK) {
+            uart_print(&bc, "error ");
+            uart_print(&bc, _utoh(sconv, rv));
+            uart_print(&bc, "\n");
+        }
 
         uart_print(&bc, _utoa(sconv, t.year));
         uart_print(&bc, ".");
