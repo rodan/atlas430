@@ -64,7 +64,7 @@ uint16_t bus_read(device_t *dev, uint8_t *buf, const uint16_t buf_sz, const uint
     @param cmd_sz  number of bytes in the preamble. can be 0
     @return BUS_OK on success
 */
-uint16_t bus_write(device_t *dev, uint8_t *buf, const uint16_t buf_sz, const uint8_t *cmd, const uint16_t cmd_sz);
+uint16_t bus_write(device_t *dev, uint8_t *buf, const uint16_t buf_sz, uint8_t *cmd, const uint16_t cmd_sz);
 
 #ifdef __cplusplus
 }

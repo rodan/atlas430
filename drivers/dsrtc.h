@@ -64,6 +64,24 @@
 #define      DSRTC_A2_MHDm_MATCH  0x00 ///< alarm when minutes, hours and day of month match
 #define      DSRTC_A2_MHDw_MATCH  0x08 ///< alarm when minutes, hours and day of week match
 
+/* control register 0Eh/8Eh
+bit7 EOSC   Enable Oscillator (1 if oscillator must be stopped when on battery)
+bit6 BBSQW  Battery Backed Square Wave
+bit5 CONV   Convert temperature (1 forces a conversion NOW)
+bit4 RS2    Rate select - frequency of square wave output
+bit3 RS1    Rate select
+bit2 INTCN  Interrupt control (1 for use of the alarms and to disable square wave)
+bit1 A2IE   Alarm2 interrupt enable (1 to enable)
+bit0 A1IE   Alarm1 interrupt enable (1 to enable)
+*/
+
+/* status register
+bit7 OSF      Oscillator Stop Flag (if 1 then oscillator has stopped and date might be innacurate)
+bit3 EN32kHz  Enable 32kHz output (1 if needed)
+bit2 BSY      Busy with TCXO functions
+bit1 A2F      Alarm 2 Flag - (1 if alarm2 was triggered)
+bit0 A1F      Alarm 1 Flag - (1 if alarm1 was triggered)
+*/
 
 typedef struct dsrtc_priv {
     uint16_t ic_type;
