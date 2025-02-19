@@ -19,7 +19,8 @@ GCC_BIN_DIR     ?= $(GCC_DIR)/bin
 GCC_INC_DIR     ?= $(GCC_DIR)/msp430-elf/include
 ######################################
 CC               = $(GCC_BIN_DIR)/msp430-elf-gcc
-GDB              = $(GCC_BIN_DIR)/msp430-elf-gdb
+#GDB              = $(GCC_BIN_DIR)/msp430-elf-gdb
+GDB              = gdb
 ######################################
 
 # -fdata-sections, -ffunction-sections and -Wl,--gc-sections -Wl,-s

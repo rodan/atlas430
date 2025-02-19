@@ -76,7 +76,7 @@ gmake TARGET=MSP430FXXXX scan-build  # needs sys-devel/clang +static-analyzer
 in order to use gdb to debug the project make sure to enable the **CONFIG_DEBUG** macro in config.h and run in a terminal
 
 ```
-LD_PRELOAD='atlas430/lib/$(uname -s)/libmsp430.so' mspdebug --allow-fw-update tilib gdb
+LD_PRELOAD="atlas430/lib/$(uname -s)/libmsp430.so" mspdebug --allow-fw-update tilib gdb
 ```
 
 and then start gdb from within the project directory:

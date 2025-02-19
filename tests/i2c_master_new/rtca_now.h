@@ -4,9 +4,9 @@
 
 #define COMPILE_YEAR 2025
 #define COMPILE_MON 2
-#define COMPILE_DAY 17
-#define COMPILE_DOW 1
-#define COMPILE_HOUR 21
-#define COMPILE_MIN 25
+#define COMPILE_DAY 19
+#define COMPILE_DOW 3
+#define COMPILE_HOUR 7
+#define COMPILE_MIN 9
 
 #endif
