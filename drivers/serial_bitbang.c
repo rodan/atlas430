@@ -15,6 +15,13 @@
 
 #include "serial_bitbang.h"
 
+void i2cm_init(void)
+{
+    // set both SCL and SDA pins as inputs
+    I2C_MASTER_DIR &= ~(I2C_MASTER_SCL + I2C_MASTER_SDA);
+    I2C_MASTER_OUT &= ~(I2C_MASTER_SDA | I2C_MASTER_SCL);
+}
+
 // returns one of I2C_OK, I2C_MISSING_SCL_PULLUP and/or I2C_MISSING_SDA_PULLUP
 uint8_t i2cm_start(uint8_t options)
 {

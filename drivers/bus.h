@@ -27,6 +27,16 @@ typedef struct bus_desc_i2c_hw_master {
     uint8_t slave_addr;
 } bus_desc_i2c_hw_master_t;
 
+typedef struct bus_desc_i2c_sw_master {
+    uint16_t state;
+    uint16_t port_dir;
+    uint16_t port_out;
+    uint16_t port_in;
+    uint16_t pin_scl;
+    uint16_t pin_sda;
+    uint8_t slave_addr;
+} bus_desc_i2c_sw_master_t;
+
 typedef struct device {
     uint16_t bus_type;
     void *bus_desc; // pointer to either spi_descriptor, i2c_descriptor, etc
@@ -45,6 +55,14 @@ extern "C" {
     @return BUS_OK on success
 */
 uint16_t bus_init_i2c_hw_master(device_t *dev, const uint16_t usci_base_addr, const uint8_t slave_addr, bus_desc_i2c_hw_master_t *i2c_desc);
+
+/** initialize a device that uses a bitbanged i2c master bus. no memory is allocated by this function.
+    @param dev             device driver pointer
+    @param slave_addr      chip i2c slave address
+    @param i2c_desc        pre-allocated struct that holds usci_base_addr and slave_addr
+    @return BUS_OK on success
+*/
+uint16_t bus_init_i2c_sw_master(device_t *dev, const uint8_t slave_addr, bus_desc_i2c_sw_master_t *i2c_desc);
 
 /** issue a read operation on behalf of a device driver on the bus defined in dev->bus_desc. no memory is allocated by this function.
     @param dev     device driver pointer

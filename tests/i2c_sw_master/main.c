@@ -11,6 +11,18 @@
 
 uart_descriptor bc; // backchannel uart interface
 
+#ifdef TEST_HBMPS
+    device_t hbmps;
+    bus_desc_i2c_sw_master_t hbmps_bus_desc;
+    hbmps_spec_t hbmps_spec;
+#endif
+
+#ifdef TEST_DSRTC
+    device_t dsrtc_i2c;
+    dsrtc_priv_t dsrtc_i2c_priv;
+    bus_desc_i2c_sw_master_t dsrtc_i2c_bus_desc;
+#endif
+
 static void uart_bcl_rx_irq(uint32_t msg)
 {
     parse_user_input();
@@ -33,34 +45,38 @@ void check_events(void)
 void i2c_init(void)
 {
 
-#if defined __MSP430FR2476__
-    P1SEL0 |= BIT2 | BIT3;
-    P1SEL1 &= ~(BIT2 | BIT3);
-#else
-    i2c_pin_init();
+#if !defined __MSP430FR5994__
+    #error "this test is compatible only with MSP430FR5994"
 #endif
 
-#if I2C_USE_DEV > 3
-    // enhanced USCI capable microcontroller
-    EUSCI_B_I2C_initMasterParam param = {0};
+#ifdef TEST_HBMPS
+    hbmps_spec.output_min = 0x666;
+    hbmps_spec.output_max = 0x399a;
+    hbmps_spec.pressure_min = 0;
+    hbmps_spec.pressure_max = 206843;
 
-    param.selectClockSource = EUSCI_B_I2C_CLOCKSOURCE_SMCLK;
-    param.i2cClk = SMCLK_FREQ;
-    param.dataRate = EUSCI_B_I2C_SET_DATA_RATE_400KBPS;
-    param.byteCounterThreshold = 0;
-    param.autoSTOPGeneration = EUSCI_B_I2C_NO_AUTO_STOP;
-    EUSCI_B_I2C_initMaster(I2C_BASE_ADDR, &param);
-#elif I2C_USE_DEV < 4
-    // USCI capable microcontroller
-    USCI_B_I2C_initMasterParam param = {0};
+    hbmps_bus_desc.port_dir = P7DIR;
+    hbmps_bus_desc.port_out = P7OUT;
+    hbmps_bus_desc.port_in = P7IN;
+    hbmps_bus_desc.pin_scl = BIT1;
+    hbmps_bus_desc.pin_sda = BIT0;
 
-    param.selectClockSource = USCI_B_I2C_CLOCKSOURCE_SMCLK;
-    param.i2cClk = SMCLK_FREQ;
-    param.dataRate = USCI_B_I2C_SET_DATA_RATE_400KBPS;
-    USCI_B_I2C_initMaster(I2C_BASE_ADDR, &param);
+    bus_init_i2c_sw_master(&hbmps, HSC_SLAVE_ADDR, &hbmps_bus_desc);
 #endif
 
-    i2c_irq_init(I2C_BASE_ADDR);
+#ifdef TEST_DSRTC
+    dsrtc_i2c_bus_desc.port_dir = P7DIR;
+    dsrtc_i2c_bus_desc.port_out = P7OUT;
+    dsrtc_i2c_bus_desc.port_in = P7IN;
+    dsrtc_i2c_bus_desc.pin_scl = BIT1;
+    dsrtc_i2c_bus_desc.pin_sda = BIT0;
+
+    bus_init_i2c_sw_master(&dsrtc_i2c, DSRTC_I2C_ADDR, &dsrtc_i2c_bus_desc);
+
+    dsrtc_i2c_priv.ic_type = DSRTC_TYPE_DS3231;
+    dsrtc_i2c.priv = &dsrtc_i2c_priv;
+#endif
+
 }
 
 int main(void)

@@ -7,14 +7,16 @@
 #include "rtca_now.h"
 #include "ui.h"
 
-//#define TEST_CYPRESS_FM24
-//#define TEST_HSC_SSC
-#define TEST_HBMPS
-#define TEST_DS3231
-#define TEST_DSRTC
-//#define TEST_TCA6408
-
 extern uart_descriptor bc;
+
+#ifdef TEST_HBMPS
+    extern device_t hbmps;
+    extern hbmps_spec_t hbmps_spec;
+#endif
+
+#ifdef TEST_DSRTC
+    extern device_t dsrtc_i2c;
+#endif
 
 static const char menu_str[]="\
  available commands:\r\n\r\n\
@@ -26,18 +28,6 @@ static const char menu_CYPRESS_FM24[]="\
  \033[33;1mr\033[0m - CYP_FM24 tiny read test\r\n\
  \033[33;1mw\033[0m - CYP_FM24 tiny write test\r\n\
  \033[33;1mh\033[0m - CYP_FM24 hex dump of FRAM segment\r\n";
-#endif
-
-#ifdef TEST_HSC_SSC
-static const char menu_HSC_SSC[]="\
- \033[33;1m1\033[0m - HSC_SSC read sensor\r\n";
-#endif
-
-#ifdef TEST_DS3231
-static const char menu_DS3231[]="\
- \033[33;1m2\033[0m - DS3231 read\r\n\
- \033[33;1m3\033[0m - DS3231 write\r\n\
- \033[33;1m4\033[0m - DS3231 read temp\r\n";
 #endif
 
 #ifdef TEST_DSRTC
@@ -135,12 +125,6 @@ void display_menu(void)
 #ifdef TEST_CYPRESS_FM24
     uart_print(&bc, menu_CYPRESS_FM24);
 #endif
-#ifdef TEST_HSC_SSC
-    uart_print(&bc, menu_HSC_SSC);
-#endif
-#ifdef TEST_DS3231
-    uart_print(&bc, menu_DS3231);
-#endif
 #ifdef TEST_DSRTC
     uart_print(&bc, menu_DSRTC);
 #endif
@@ -193,50 +177,22 @@ void parse_user_input(void)
     uint8_t bar[9]="33333333";
 #endif
 
-#ifdef TEST_HSC_SSC
-    struct HSC_SSC_pkt ps;
-    uint32_t hsc_pressure;
-    int16_t hsc_temperature;
-#endif
-
 #ifdef TEST_HBMPS
-    device_t hbmps;
-    bus_desc_i2c_hw_master_t hbmps_bus_desc;
-    hbmps_spec_t hbmps_spec;
     struct hbmps_pkt hbmps_raw;
     int32_t hbmps_pressure;
     int32_t hbmps_temperature;
-
-    hbmps_spec.output_min = 0x666;
-    hbmps_spec.output_max = 0x399a;
-    hbmps_spec.pressure_min = 0;
-    hbmps_spec.pressure_max = 206843;
-
-    bus_init_i2c_hw_master(&hbmps, I2C_BASE_ADDR, HSC_SLAVE_ADDR, &hbmps_bus_desc);
-#endif
-
-    struct ts t;
-    int16_t ds3231_temperature_i16;
-
-#ifdef TEST_DS3231
-    float ds3231_temperature;
 #endif
 
 #ifdef TEST_DSRTC
-    device_t dsrtc_i2c;
-    dsrtc_priv_t dsrtc_i2c_priv;
-    bus_desc_i2c_hw_master_t dsrtc_i2c_bus_desc;
-    
-    bus_init_i2c_hw_master(&dsrtc_i2c, I2C_BASE_ADDR, DSRTC_I2C_ADDR, &dsrtc_i2c_bus_desc);
-    dsrtc_i2c_priv.ic_type = DSRTC_TYPE_DS3231;
-    dsrtc_i2c.priv = &dsrtc_i2c_priv;
+    struct ts t;
+    int16_t dsrtc_temperature;
 #endif
 
 #ifdef TEST_TCA6408
     uint8_t tca6408_reg;
 #endif
 
-#if defined TEST_HSC_SSC || defined TEST_HBMPS || defined TEST_DS3231 || defined TEST_DSRTC || defined TEST_TCA6408
+#if defined TEST_HBMPS || defined TEST_DSRTC || defined TEST_TCA6408
     char sconv[CONV_BASE_10_BUF_SZ];
 #endif
 
@@ -270,34 +226,12 @@ void parse_user_input(void)
         print_buf_fram(FM_LA - 63, 128);
 #endif
 
-#ifdef TEST_HSC_SSC
-    } else if (f == '1') {
-        HSC_SSC_read(I2C_BASE_ADDR, HSC_SLAVE_ADDR, &ps);
-        HSC_SSC_convert(ps, &hsc_pressure, &hsc_temperature, OUTPUT_MIN, OUTPUT_MAX, PRESSURE_MIN,
-                   PRESSURE_MAX);
-
-        uart_print(&bc, "status: ");
-        uart_print(&bc, _utoh(sconv, ps.status));
-        uart_print(&bc, "\r\nbridge_data: ");
-        uart_print(&bc, _utoh(sconv, ps.bridge_data));
-        uart_print(&bc, "\r\ntemperature_data: ");
-        uart_print(&bc, _utoh(sconv, ps.temperature_data));
-        uart_print(&bc, "\r\npressure: ");
-        uart_print(&bc, _utoa(sconv, hsc_pressure));
-        uart_print(&bc, "\r\ntemperature: ");
-        if ( hsc_temperature<0 ) {
-            uart_print(&bc, "-");
-        }
-        uart_print(&bc, _utoa(sconv, abs(hsc_temperature / 100)));
-        uart_print(&bc, ".");
-        uart_print(&bc, prepend_padding(sconv, _utoa(sconv, abs(hsc_temperature % 100)), PAD_ZEROES, 2));
-        uart_print(&bc, "\r\n");
-#endif
-
 #ifdef TEST_HBMPS
     } else if (f == '7') {
 
-        hbmps_read(&hbmps, &hbmps_raw);
+        rv = hbmps_read(&hbmps, &hbmps_raw);
+        if (rv != BUS_OK)
+            return;
         hbmps_convert(&hbmps_raw, &hbmps_pressure, &hbmps_temperature, &hbmps_spec);
 
         uart_print(&bc, "status: ");
@@ -318,59 +252,6 @@ void parse_user_input(void)
         uart_print(&bc, _utoa(sconv, abs(hbmps_temperature / 100)));
         uart_print(&bc, ".");
         uart_print(&bc, prepend_padding(sconv, _utoa(sconv, abs(hbmps_temperature % 100)), PAD_ZEROES, 2));
-        uart_print(&bc, "\r\n");
-#endif
-
-#ifdef TEST_DS3231
-    } else if (f == '2') {
-
-        DS3231_get(I2C_BASE_ADDR, &t);
-
-        uart_print(&bc, _utoa(sconv, t.year));
-        uart_print(&bc, ".");
-        uart_print(&bc, prepend_padding(sconv, _utoa(sconv, t.mon), PAD_ZEROES, 2));
-        uart_print(&bc, ".");
-        uart_print(&bc, prepend_padding(sconv, _utoa(sconv, t.mday), PAD_ZEROES, 2));
-        uart_print(&bc, " ");
-        uart_print(&bc, prepend_padding(sconv, _utoa(sconv, t.hour), PAD_ZEROES, 2));
-        uart_print(&bc, ":");
-        uart_print(&bc, prepend_padding(sconv, _utoa(sconv, t.min), PAD_ZEROES, 2));
-        uart_print(&bc, ":");
-        uart_print(&bc, prepend_padding(sconv, _utoa(sconv, t.sec), PAD_ZEROES, 2));
-
-        // there is a compile time option in the library to include unixtime support
-#ifdef CONFIG_UNIXTIME
-        uart_print(&bc, "  ");
-        uart_print(&bc, _utoa(sconv, t.unixtime));
-#endif
-        uart_print(&bc, "\r\n");
-    } else if (f == '3') {
-        t.sec = 0;
-        t.min = COMPILE_MIN;
-        t.hour = COMPILE_HOUR;
-        t.wday = COMPILE_DOW;
-        t.mday = COMPILE_DAY;
-        t.mon = COMPILE_MON;
-        t.year = COMPILE_YEAR;
-        t.yday = 0;
-        t.isdst = 0;
-        t.year_s = 0;
-#ifdef CONFIG_UNIXTIME
-        t.unixtime = 0;
-#endif
-        DS3231_set(I2C_BASE_ADDR, t);
-    } else if (f == '4') {
-        //DS3231_get_treg();
-        DS3231_get_treg(I2C_BASE_ADDR, &ds3231_temperature);
-        ds3231_temperature *= 10.0;
-        ds3231_temperature_i16 = (int16_t) ds3231_temperature; 
-        uart_print(&bc, "temp ");
-        if (ds3231_temperature < 0) {
-            uart_print(&bc, "-");
-        }
-        uart_print(&bc, _utoa(sconv, abs(ds3231_temperature_i16/10)));
-        uart_print(&bc, ".");
-        uart_print(&bc, _utoa(sconv, abs(ds3231_temperature_i16%10)));
         uart_print(&bc, "\r\n");
 #endif
 
@@ -424,14 +305,9 @@ void parse_user_input(void)
             uart_print(&bc, "\n");
         }
     } else if (f == 'e') {
-        dsrtc_read_temp(&dsrtc_i2c, &ds3231_temperature_i16);
-        //ds3231_temperature *= 10.0;
-        //ds3231_temperature_i16 = (int16_t) ds3231_temperature; 
+        dsrtc_read_temp(&dsrtc_i2c, &dsrtc_temperature);
         uart_print(&bc, "temp ");
-        //if (ds3231_temperature < 0) {
-        //    uart_print(&bc, "-");
-        //}
-        uart_print(&bc, _utoh(sconv, ds3231_temperature_i16));
+        uart_print(&bc, _utoh(sconv, dsrtc_temperature));
         uart_print(&bc, "\r\n");
 #endif
 

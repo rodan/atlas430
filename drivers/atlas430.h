@@ -36,10 +36,10 @@
 #include "hbmps.h"
 #include "tca6408.h"
 
-#ifdef I2C_USES_BITBANGING
+//#ifdef I2C_USES_BITBANGING
 #include "serial_bitbang.h"
-#include "sht1x.h"
-#endif
+//#include "sht1x.h"
+//#endif
 #endif
 
 #endif
