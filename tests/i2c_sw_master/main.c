@@ -55,9 +55,9 @@ void i2c_init(void)
     hbmps_spec.pressure_min = 0;
     hbmps_spec.pressure_max = 206843;
 
-    hbmps_bus_desc.port_dir = P7DIR;
-    hbmps_bus_desc.port_out = P7OUT;
-    hbmps_bus_desc.port_in = P7IN;
+    hbmps_bus_desc.port_dir = HWREGADDR8(P7DIR);
+    hbmps_bus_desc.port_out = HWREGADDR8(P7OUT);
+    hbmps_bus_desc.port_in = HWREGADDR8(P7IN);
     hbmps_bus_desc.pin_scl = BIT1;
     hbmps_bus_desc.pin_sda = BIT0;
 

@@ -70,7 +70,7 @@ uint16_t dsrtc_read_rtc(device_t *dev, struct ts *t)
     uint8_t buf[7];
     uint8_t i;
 
-    if ((rv = dsrtc_read(dev, DS3234_REG_RTC, buf, 7)) != 0) {
+    if ((rv = dsrtc_read(dev, DSRTC_REG_RTC, buf, 7)) != 0) {
         return rv;
     }
 
@@ -229,7 +229,7 @@ uint16_t dsrtc_write_a2(device_t *dev, const struct ts *t, const uint8_t flags)
     uint8_t c=2;
     uint16_t rv;
 
-    if (flags & DS3234_A2_MHDw_MATCH) {
+    if (flags & DSRTC_A2_MHDw_MATCH) {
         txbuf[2] = dec_to_bcd(t->wday) | 0x40;
     }
 

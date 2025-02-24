@@ -45,7 +45,7 @@ static const char menu_TCA6408[]="\
 
 #ifdef TEST_HBMPS
 static const char menu_HBMPS[]="\
- \033[33;1m7\033[0m - HBMPS read sensor\r\n";
+ \033[33;1m7\033[0m - hbmps read sensor\r\n";
 #endif
 
 #ifdef TEST_CYPRESS_FM24
@@ -141,7 +141,7 @@ void display_version(void)
 {
     char sconv[CONV_BASE_10_BUF_SZ];
 
-    uart_print(&bc, "i2c master b");
+    uart_print(&bc, "i2c hw master b");
     uart_print(&bc, _utoa(sconv, BUILD));
     uart_print(&bc, "\r\n");
 }

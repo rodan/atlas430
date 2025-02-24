@@ -25,9 +25,17 @@
 #ifndef __LIB_CONVERT_H__
 #define __LIB_CONVERT_H__
 
+#include <stdint.h>
+
 #define  CONV_BASE_2_BUF_SZ  19 ///< buffer size needed for converting number into string in binary representation
 #define CONV_BASE_10_BUF_SZ  12 ///< buffer size needed for converting number into string in decimal representation (-2147483648 + ending 0 is 12 bytes long)
 #define CONV_BASE_16_BUF_SZ  12 ///< buffer size needed for converting number into string in hexadecimal representation
+
+#define HWREGADDR8(x) \
+    ((uintptr_t)(volatile uint8_t *) &x)
+
+#define HWREGADDR16(x) \
+    ((uintptr_t)(volatile uint16_t *) &x)
 
 #ifndef EXIT_FAILURE
 #define EXIT_FAILURE 1 ///< define EXIT_FAILURE just in case stdlib.h is not included

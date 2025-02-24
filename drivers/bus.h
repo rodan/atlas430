@@ -1,6 +1,8 @@
 #ifndef __BUS_H_
 #define __BUS_H_
 
+#include <stdint.h>
+
 // bus.type
 #define  BUS_TYPE_I2C_HW_MASTER  0x1
 #define  BUS_TYPE_I2C_SW_MASTER  0x2
@@ -29,9 +31,9 @@ typedef struct bus_desc_i2c_hw_master {
 
 typedef struct bus_desc_i2c_sw_master {
     uint16_t state;
-    uint16_t port_dir;
-    uint16_t port_out;
-    uint16_t port_in;
+    uintptr_t port_dir;
+    uintptr_t port_out;
+    uintptr_t port_in;
     uint16_t pin_scl;
     uint16_t pin_sda;
     uint8_t slave_addr;

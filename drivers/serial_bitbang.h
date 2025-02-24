@@ -1,6 +1,7 @@
 #ifndef __SERIAL_BITBANG_
 #define __SERIAL_BITBANG_
 
+#include "bus.h"
 #include "i2c.h"
 #include "i2c_config.h"
 
@@ -14,10 +15,12 @@
 #define I2C_MASTER_SDA BIT3
 */
 
+/*
 #define sda_high    I2C_MASTER_DIR &= ~I2C_MASTER_SDA
 #define sda_low     I2C_MASTER_DIR |= I2C_MASTER_SDA
 #define scl_high    I2C_MASTER_DIR &= ~I2C_MASTER_SCL
 #define scl_low     I2C_MASTER_DIR |= I2C_MASTER_SCL
+*/
 
 // i2cm_start, i2cm_tx error levels
 #define I2C_OK                  0x0
@@ -33,8 +36,9 @@
 extern "C" {
 #endif
 
-uint8_t i2cm_transfer(const i2c_package_t * pkg);
-void i2cm_init(void);
+void sbb_i2cm_init(bus_desc_i2c_sw_master_t *i2c_bus_desc);
+
+uint8_t sbb_i2cm_transfer(bus_desc_i2c_sw_master_t *i2c_bus_desc, const i2c_package_t *pkg);
 
 #ifdef __cplusplus
 }

@@ -35,15 +35,8 @@
 #define CONFIG_DEBUG
 
 //#define TEST_CYPRESS_FM24
-//#define TEST_HBMPS
-#define TEST_DSRTC
+#define TEST_HBMPS
+//#define TEST_DSRTC
 //#define TEST_TCA6408
-
-#define I2C_MASTER_DIR P7DIR
-#define I2C_MASTER_OUT P7OUT
-#define I2C_MASTER_IN  P7IN
-#define I2C_MASTER_SCL BIT1
-#define I2C_MASTER_SDA BIT0
-
 
 #endif

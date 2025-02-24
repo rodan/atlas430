@@ -19,7 +19,7 @@
 #include "spi.h"
 #include "ad7789.h"
 #include "dsrtc.h"
-#include "ds3234.h"
+//#include "ds3234.h"
 #include "mcp42.h"
 #include "eeram_48lxxx.h"
 
@@ -29,9 +29,9 @@
 #ifdef __I2C_CONFIG_H__
 #include "i2c.h"
 #include "ads1110.h"
-#include "ds3231.h"
-#include "fm24.h"
-#include "fm24_memtest.h"
+//#include "ds3231.h"
+//#include "fm24.h"
+//#include "fm24_memtest.h"
 #include "hsc_ssc.h"
 #include "hbmps.h"
 #include "tca6408.h"
