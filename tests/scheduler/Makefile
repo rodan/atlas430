@@ -80,12 +80,12 @@ ifeq ($(DEBUG),)
 CTARGET	:= RELEASE
 CFLAGS	+= $(CFLAGS_REL)
 LDFLAGS	+= $(LDFLAGS_REL)
-DUMPMSG	:= ">> debug symbols not defined. enable CONFIG_DEBUG in config.h for a much more detailed disassembly output."
+DUMPMSG	:= " debug symbols not defined. enable CONFIG_DEBUG in config.h for a much more detailed disassembly output."
 else
 CTARGET	:= DEBUG
 CFLAGS	+= $(CFLAGS_DBG)
 LDFLAGS	+= $(LDFLAGS_DBG)
-DUMPMSG	:= ">> objdump disassembled"
+DUMPMSG	:= " objdump disassembled"
 endif
 all: depend version.h config.h config_macros tags $(EXOUTPUT) size
 endif

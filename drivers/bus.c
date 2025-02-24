@@ -77,7 +77,6 @@ uint16_t bus_transfer(device_t *dev, uint8_t *buf, const uint16_t buf_sz, const 
             i2c_pkg.options = options;
 
             i2c_transfer_start(desc_i2c_hw_master_t->usci_base_addr, &i2c_pkg, NULL);
-            rv = i2c_transfer_status();
             break;
 #ifdef I2C_USES_BITBANGING
         case BUS_TYPE_I2C_SW_MASTER:
