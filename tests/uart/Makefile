@@ -19,7 +19,8 @@ GCC_BIN_DIR     ?= $(GCC_DIR)/bin
 GCC_INC_DIR     ?= $(GCC_DIR)/msp430-elf/include
 ######################################
 CC               = $(GCC_BIN_DIR)/msp430-elf-gcc
-GDB              = $(GCC_BIN_DIR)/msp430-elf-gdb
+GDB              = gdb
+OBJDUMP          = $(GCC_BIN_DIR)/msp430-elf-objdump
 ######################################
 
 # -fdata-sections, -ffunction-sections and -Wl,--gc-sections -Wl,-s
@@ -61,6 +62,9 @@ EXOUTPUT         := $(OBJ_DIR)/$(PROJ).elf
 .PHONY: doc
 .PHONY: cflags_update
 .PHONY: size
+.PHONY: objdump
+.PHONY: debug_listen
+.PHONY: debug
 
 ifeq ($(OS),Windows_NT)
 CFLAGS	+= $(CFLAGS_REL)
@@ -71,14 +75,17 @@ else
 DEBUG := $(shell grep "^#define CONFIG_DEBUG" config.h)
 MACROS := $(shell $(REFLIB_ROOT)/tools/extract_macros.sh -t $(TARGET) -f config.h)
 CFLAGS += $(MACROS)
+UNAME := $(shell uname -s)
 ifeq ($(DEBUG),)
 CTARGET	:= RELEASE
 CFLAGS	+= $(CFLAGS_REL)
 LDFLAGS	+= $(LDFLAGS_REL)
+DUMPMSG	:= ">> debug symbols not defined. enable CONFIG_DEBUG in config.h for a much more detailed disassembly output."
 else
 CTARGET	:= DEBUG
 CFLAGS	+= $(CFLAGS_DBG)
 LDFLAGS	+= $(LDFLAGS_DBG)
+DUMPMSG	:= ">> objdump disassembled"
 endif
 all: depend version.h config.h config_macros tags $(EXOUTPUT) size
 endif
@@ -108,7 +115,7 @@ mkdir_od:
 	@mkdir -p $(OBJ_DIR) || echo ""
 
 clean:
-	$(RM) $(OBJ_DIR)/*.o $(OBJ_DIR)/$(PROJ).{elf,cflags,dep,hdep}
+	$(RM) $(OBJ_DIR)/*.o $(OBJ_DIR)/$(PROJ).{elf,cflags,dep,hdep,dump,gdbx}
 	$(RM) -r $(OBJ_DIR)
 	$(RM) tags
 
@@ -150,8 +157,21 @@ new_timestamps:
 size: $(OBJ_DIR)/$(PROJ).elf
 	@size $(OBJ_DIR)/$(PROJ).elf
 
-debug: all
-	$(GDB) $(OBJ_DIR)/$(PROJ).elf
+objdump: $(OBJ_DIR)/$(PROJ).elf
+	@$(OBJDUMP) -S --disassemble $(OBJ_DIR)/$(PROJ).elf > $(OBJ_DIR)/$(PROJ).dump
+	@echo "$(DUMPMSG)"
+
+debug_listen: $(OBJ_DIR)/$(PROJ).elf
+	LD_PRELOAD="$(REFLIB_ROOT)/lib/$(UNAME)/libmsp430.so" mspdebug --allow-fw-update tilib gdb
+
+debug: $(OBJ_DIR)/$(PROJ).elf
+	@echo 'target remote localhost:2000' > $(OBJ_DIR)/$(PROJ).gdbx
+	@echo 'monitor reset' >> $(OBJ_DIR)/$(PROJ).gdbx
+	@echo 'monitor erase' >> $(OBJ_DIR)/$(PROJ).gdbx
+	@echo 'b main' >> $(OBJ_DIR)/$(PROJ).gdbx
+	@echo 'tui enable' >> $(OBJ_DIR)/$(PROJ).gdbx
+	@echo "load $(OBJ_DIR)/$(PROJ).elf" >> $(OBJ_DIR)/$(PROJ).gdbx
+	$(GDB) -x $(OBJ_DIR)/$(PROJ).gdbx $(OBJ_DIR)/$(PROJ).elf
 
 scan-build: clean
 	@scan-build --use-cc=$(CC) --analyzer-target=msp430-elf --exclude ./driverlib/MSP430FR5xx_6xx make PARSER=scan-build

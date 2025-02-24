@@ -19,8 +19,8 @@ GCC_BIN_DIR     ?= $(GCC_DIR)/bin
 GCC_INC_DIR     ?= $(GCC_DIR)/msp430-elf/include
 ######################################
 CC               = $(GCC_BIN_DIR)/msp430-elf-gcc
-#GDB              = $(GCC_BIN_DIR)/msp430-elf-gdb
-GDB              = gdb
+GDB              = $(GCC_BIN_DIR)/msp430-elf-gdb
+OBJDUMP          = $(GCC_BIN_DIR)/msp430-elf-objdump
 ######################################
 
 # -fdata-sections, -ffunction-sections and -Wl,--gc-sections -Wl,-s
@@ -62,6 +62,7 @@ EXOUTPUT         := $(OBJ_DIR)/$(PROJ).elf
 .PHONY: doc
 .PHONY: cflags_update
 .PHONY: size
+.PHONY: objdump
 
 ifeq ($(OS),Windows_NT)
 CFLAGS	+= $(CFLAGS_REL)
@@ -76,10 +77,12 @@ ifeq ($(DEBUG),)
 CTARGET	:= RELEASE
 CFLAGS	+= $(CFLAGS_REL)
 LDFLAGS	+= $(LDFLAGS_REL)
+DUMPMSG	:= ">> debug symbols not defined. enable CONFIG_DEBUG in config.h for a much more detailed disassembly output."
 else
 CTARGET	:= DEBUG
 CFLAGS	+= $(CFLAGS_DBG)
 LDFLAGS	+= $(LDFLAGS_DBG)
+DUMPMSG	:= ">> objdump disassembled"
 endif
 all: depend version.h config.h config_macros tags new_timestamps $(EXOUTPUT) size
 endif
@@ -109,7 +112,7 @@ mkdir_od:
 	@mkdir -p $(OBJ_DIR) || echo ""
 
 clean:
-	$(RM) $(OBJ_DIR)/*.o $(OBJ_DIR)/$(PROJ).{elf,cflags,dep,hdep}
+	$(RM) $(OBJ_DIR)/*.o $(OBJ_DIR)/$(PROJ).{elf,cflags,dep,hdep,dump}
 	$(RM) -r $(OBJ_DIR)
 	$(RM) tags
 
@@ -150,6 +153,10 @@ new_timestamps:
 
 size: $(OBJ_DIR)/$(PROJ).elf
 	@size $(OBJ_DIR)/$(PROJ).elf
+
+objdump: $(OBJ_DIR)/$(PROJ).elf
+	@$(OBJDUMP) -S --disassemble $(OBJ_DIR)/$(PROJ).elf > $(OBJ_DIR)/$(PROJ).dump
+	@echo "$(DUMPMSG)"
 
 debug: all
 	$(GDB) $(OBJ_DIR)/$(PROJ).elf
