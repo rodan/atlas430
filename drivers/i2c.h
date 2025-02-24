@@ -75,8 +75,25 @@ typedef struct {
 typedef enum {
     I2C_IDLE,               ///< bus is idle. ready for new transfer.
     I2C_BUSY,               ///< a transfer is in progress.
+    I2C_PULLUP_MISSING,     ///< at least one external pullup resistor is missing
     I2C_FAILED              ///< previous transfer failed. ready for new transfer.
 } i2c_status_t;
+
+typedef enum {
+    SM_SEND_ADDR,
+    SM_WRITE_DATA,
+    SM_SEND_RESTART,
+    SM_READ_DATA,
+    SM_DONE
+} i2c_state_t;
+
+typedef struct {
+    i2c_package_t *pkg;
+    uint16_t idx;
+    void (*callback) (i2c_status_t result);
+    i2c_status_t status;
+    i2c_state_t next_state;
+} i2c_transaction_t;
 
 /**
  * \brief Start an I2C transfer

@@ -65,9 +65,9 @@ void i2c_init(void)
 #endif
 
 #ifdef TEST_DSRTC
-    dsrtc_i2c_bus_desc.port_dir = P7DIR;
-    dsrtc_i2c_bus_desc.port_out = P7OUT;
-    dsrtc_i2c_bus_desc.port_in = P7IN;
+    dsrtc_i2c_bus_desc.port_dir = HWREGADDR8(P7DIR);
+    dsrtc_i2c_bus_desc.port_out = HWREGADDR8(P7OUT);
+    dsrtc_i2c_bus_desc.port_in = HWREGADDR8(P7IN);
     dsrtc_i2c_bus_desc.pin_scl = BIT1;
     dsrtc_i2c_bus_desc.pin_sda = BIT0;
 

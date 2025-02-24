@@ -2,6 +2,7 @@
 #define __BUS_H_
 
 #include <stdint.h>
+#include "i2c.h"
 
 // bus.type
 #define  BUS_TYPE_I2C_HW_MASTER  0x1
@@ -66,25 +67,16 @@ uint16_t bus_init_i2c_hw_master(device_t *dev, const uint16_t usci_base_addr, co
 */
 uint16_t bus_init_i2c_sw_master(device_t *dev, const uint8_t slave_addr, bus_desc_i2c_sw_master_t *i2c_desc);
 
-/** issue a read operation on behalf of a device driver on the bus defined in dev->bus_desc. no memory is allocated by this function.
+/** issue a read or write i2c transaction on the bus defined in dev->bus_desc. no memory is allocated by this function.
     @param dev     device driver pointer
     @param buf     pre-allocated buffer where the read data is stored
     @param buf_sz  number of bytes read from the bus
     @param cmd     preamble command or address to send to the bus before clocking out buf. can be NULL
     @param cmd_sz  number of bytes in the preamble. can be 0
+    @param options see i2c.h for details
     @return BUS_OK on success
 */
-uint16_t bus_read(device_t *dev, uint8_t *buf, const uint16_t buf_sz, const uint8_t *cmd, const uint16_t cmd_sz);
-
-/** issue a write operation on behalf of a device driver on the bus defined in dev->bus_desc. no memory is allocated by this function.
-    @param dev     device driver pointer
-    @param buf     pre-allocated buffer where the read data is stored
-    @param buf_sz  number of bytes read from the bus
-    @param cmd     preamble command or address to send to the bus before clocking out buf. can be NULL
-    @param cmd_sz  number of bytes in the preamble. can be 0
-    @return BUS_OK on success
-*/
-uint16_t bus_write(device_t *dev, uint8_t *buf, const uint16_t buf_sz, uint8_t *cmd, const uint16_t cmd_sz);
+uint16_t bus_transfer(device_t *dev, uint8_t *buf, const uint16_t buf_sz, const uint8_t *cmd, const uint16_t cmd_sz, const uint8_t options);
 
 #ifdef __cplusplus
 }

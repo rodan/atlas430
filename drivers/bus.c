@@ -49,7 +49,7 @@ uint16_t bus_init_i2c_sw_master(device_t *dev, const uint8_t slave_addr, bus_des
 }
 #endif
 
-uint16_t bus_read(device_t *dev, uint8_t *buf, const uint16_t buf_sz, const uint8_t *cmd, const uint16_t cmd_sz)
+uint16_t bus_transfer(device_t *dev, uint8_t *buf, const uint16_t buf_sz, const uint8_t *cmd, const uint16_t cmd_sz, const uint8_t options)
 {
     i2c_package_t i2c_pkg;
     bus_desc_i2c_hw_master_t *desc_i2c_hw_master_t;
@@ -61,8 +61,9 @@ uint16_t bus_read(device_t *dev, uint8_t *buf, const uint16_t buf_sz, const uint
     if ( !dev | !buf | !buf_sz )
         return BUS_STATE_COMM_ERR;
 
-    memset(buf, 0, buf_sz);
     memset(&i2c_pkg, 0, sizeof(i2c_package_t));
+    if (!(options & I2C_WRITE))
+        memset(buf, 0, buf_sz);
 
     switch(dev->bus_type) {
         case BUS_TYPE_I2C_HW_MASTER:
@@ -73,9 +74,10 @@ uint16_t bus_read(device_t *dev, uint8_t *buf, const uint16_t buf_sz, const uint
             i2c_pkg.addr_len = cmd_sz;
             i2c_pkg.data = buf;
             i2c_pkg.data_len = buf_sz;
-            i2c_pkg.options = I2C_READ;
+            i2c_pkg.options = options;
 
             i2c_transfer_start(desc_i2c_hw_master_t->usci_base_addr, &i2c_pkg, NULL);
+            rv = i2c_transfer_status();
             break;
 #ifdef I2C_USES_BITBANGING
         case BUS_TYPE_I2C_SW_MASTER:
@@ -86,7 +88,7 @@ uint16_t bus_read(device_t *dev, uint8_t *buf, const uint16_t buf_sz, const uint
             i2c_pkg.addr_len = cmd_sz;
             i2c_pkg.data = buf;
             i2c_pkg.data_len = buf_sz;
-            i2c_pkg.options = I2C_READ | I2C_LAST_NAK | I2C_REPEAT_SA_ON_READ;
+            i2c_pkg.options = options; // I2C_READ | I2C_LAST_NAK | I2C_REPEAT_SA_ON_READ;
 
             rv = sbb_i2cm_transfer(desc_i2c_sw_master_t, &i2c_pkg);
             if (rv != I2C_ACK) {
@@ -101,65 +103,3 @@ uint16_t bus_read(device_t *dev, uint8_t *buf, const uint16_t buf_sz, const uint
 
     return BUS_OK;
 }
-
-uint16_t bus_write(device_t *dev, uint8_t *buf, const uint16_t buf_sz, uint8_t *cmd, const uint16_t cmd_sz)
-{
-    i2c_package_t i2c_pkg;
-    bus_desc_i2c_hw_master_t *desc_i2c_hw_master_t;
-#ifdef I2C_USES_BITBANGING
-    uint16_t rv;
-    bus_desc_i2c_sw_master_t *desc_i2c_sw_master_t;
-#endif
-
-    if ( !dev | !buf | !buf_sz )
-        return BUS_STATE_COMM_ERR;
-
-    memset(&i2c_pkg, 0, sizeof(i2c_package_t));
-
-    switch(dev->bus_type) {
-        case BUS_TYPE_I2C_HW_MASTER:
-            desc_i2c_hw_master_t = (bus_desc_i2c_hw_master_t *) dev->bus_desc;
-            i2c_pkg.slave_addr = desc_i2c_hw_master_t->slave_addr;
-            i2c_pkg.addr = cmd;
-            i2c_pkg.addr_len = cmd_sz;
-            i2c_pkg.data = buf;
-            i2c_pkg.data_len = buf_sz;
-            i2c_pkg.options = I2C_WRITE;
-
-            i2c_transfer_start(desc_i2c_hw_master_t->usci_base_addr, &i2c_pkg, NULL);
-            break;
-#ifdef I2C_USES_BITBANGING
-        case BUS_TYPE_I2C_SW_MASTER:
-            desc_i2c_sw_master_t = (bus_desc_i2c_sw_master_t *) dev->bus_desc;
-            i2c_pkg.slave_addr = desc_i2c_sw_master_t->slave_addr;
-            i2c_pkg.addr = cmd;
-            i2c_pkg.addr_len = cmd_sz;
-            i2c_pkg.data = buf;
-            i2c_pkg.data_len = buf_sz;
-            i2c_pkg.options = I2C_WRITE;
-
-            rv = sbb_i2cm_transfer(desc_i2c_sw_master_t, &i2c_pkg);
-            if (rv != I2C_ACK) {
-                return rv;
-            }
-            break;
-#endif
-        default:
-            return BUS_STATE_COMM_ERR; 
-            break;
-    }
-
-    return BUS_OK;
-}
-
-
-#if 0
-#ifdef __I2C_CONFIG_H__
-
-#ifdef I2C_USES_BITBANGING
-#include "serial_bitbang.h"
-#else
-#include "i2c.h"
-#endif
-#endif
-#endif

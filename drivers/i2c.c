@@ -33,22 +33,7 @@
 #include "i2c.h"
 #include "i2c_internal.h"
 
-typedef enum {
-    SM_SEND_ADDR,
-    SM_WRITE_DATA,
-    SM_SEND_RESTART,
-    SM_READ_DATA,
-    SM_DONE
-} i2c_state_t;
-
-volatile static struct {
-    i2c_package_t *pkg;
-    uint16_t idx;
-    void (*callback) (i2c_status_t result);
-    i2c_status_t status;
-    i2c_state_t next_state;
-} transfer;
-
+volatile i2c_transaction_t transfer;
 
 void i2c_irq_init(const uint16_t usci_base_addr)
 {

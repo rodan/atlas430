@@ -34,7 +34,7 @@ uint16_t dsrtc_read(device_t *dev, const uint8_t offset, uint8_t *buf, const uin
 
     cmd[0] = offset;
     memset(buf, 0, nbytes);
-    rv = bus_read(dev, buf, nbytes, cmd, 1);
+    rv = bus_transfer(dev, buf, nbytes, cmd, 1, I2C_READ | I2C_LAST_NAK | I2C_REPEAT_SA_ON_READ);
     return rv;
 }
 
@@ -42,7 +42,7 @@ uint16_t dsrtc_write(device_t *dev, const uint8_t offset, uint8_t *buf, const ui
 {
     uint16_t rv;
 
-    rv = bus_write(dev, buf, nbytes, NULL, 0);
+    rv = bus_transfer(dev, buf, nbytes, NULL, 0, I2C_WRITE);
     return rv;
 }
 
@@ -51,7 +51,7 @@ uint16_t dsrtc_read_reg(device_t *dev, const uint8_t addr, uint8_t *val)
     uint16_t rv;
     uint8_t buf[1] = { addr };
 
-    rv = bus_read(dev, val, 1, buf, 1);
+    rv = bus_transfer(dev, val, 1, buf, 1, I2C_READ | I2C_LAST_NAK | I2C_REPEAT_SA_ON_READ);
     return rv;
 }
 
@@ -60,7 +60,7 @@ uint16_t dsrtc_write_reg(device_t *dev, const uint8_t addr, const uint8_t val)
     uint16_t rv;
     uint8_t buf[2] = { addr, val };
 
-    rv = bus_write(dev, buf, 2, NULL, 0);
+    rv = bus_transfer(dev, buf, 2, NULL, 0, I2C_WRITE);
     return rv;
 }
 
