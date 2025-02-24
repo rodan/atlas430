@@ -77,6 +77,8 @@ in order to use gdb to debug the project make sure to enable the **CONFIG_DEBUG*
 
 ```
 LD_PRELOAD="atlas430/lib/$(uname -s)/libmsp430.so" mspdebug --allow-fw-update tilib gdb
+# or simply
+gmake debug_listen
 ```
 
 and then start gdb from within the project directory:
