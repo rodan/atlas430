@@ -12,15 +12,20 @@
 uart_descriptor bc; // backchannel uart interface
 
 #ifdef TEST_HBMPS
-    device_t hbmps;
+    device_t dev_hbmps;
     bus_desc_i2c_hw_master_t hbmps_bus_desc;
     hbmps_spec_t hbmps_spec;
 #endif
 
 #ifdef TEST_DSRTC
-    device_t dsrtc_i2c;
-    dsrtc_priv_t dsrtc_i2c_priv;
-    bus_desc_i2c_hw_master_t dsrtc_i2c_bus_desc;
+    device_t dev_dsrtc;
+    dsrtc_priv_t dsrtc_priv;
+    bus_desc_i2c_hw_master_t dsrtc_bus_desc;
+#endif
+
+#ifdef TEST_CYPRESS_FM24
+    device_t dev_fm24;
+    bus_desc_i2c_hw_master_t fm24_bus_desc;
 #endif
 
 static void uart_bcl_rx_irq(uint32_t msg)
@@ -80,14 +85,18 @@ void i2c_init(void)
     hbmps_spec.pressure_min = 0;
     hbmps_spec.pressure_max = 206843;
 
-    bus_init_i2c_hw_master(&hbmps, I2C_BASE_ADDR, HSC_SLAVE_ADDR, &hbmps_bus_desc);
+    bus_init_i2c_hw_master(&dev_hbmps, I2C_BASE_ADDR, HSC_SLAVE_ADDR, &hbmps_bus_desc);
 #endif
 
 #ifdef TEST_DSRTC
-    bus_init_i2c_hw_master(&dsrtc_i2c, I2C_BASE_ADDR, DSRTC_I2C_ADDR, &dsrtc_i2c_bus_desc);
+    bus_init_i2c_hw_master(&dev_dsrtc, I2C_BASE_ADDR, DSRTC_I2C_ADDR, &dsrtc_bus_desc);
 
-    dsrtc_i2c_priv.ic_type = DSRTC_TYPE_DS3231;
-    dsrtc_i2c.priv = &dsrtc_i2c_priv;
+    dsrtc_priv.ic_type = DSRTC_TYPE_DS3231;
+    dev_dsrtc.priv = &dsrtc_priv;
+#endif
+
+#ifdef TEST_CYPRESS_FM24
+    bus_init_i2c_hw_master(&dev_fm24, I2C_BASE_ADDR, FM24_SLAVE_ADDR, &fm24_bus_desc);
 #endif
 
 }

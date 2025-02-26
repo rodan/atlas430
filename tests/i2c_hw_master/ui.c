@@ -10,12 +10,16 @@
 extern uart_descriptor bc;
 
 #ifdef TEST_HBMPS
-    extern device_t hbmps;
+    extern device_t dev_hbmps;
     extern hbmps_spec_t hbmps_spec;
 #endif
 
 #ifdef TEST_DSRTC
-    extern device_t dsrtc_i2c;
+    extern device_t dev_dsrtc;
+#endif
+
+#ifdef TEST_CYPRESS_FM24
+    extern device_t dev_fm24;
 #endif
 
 static const char menu_str[]="\
@@ -33,8 +37,8 @@ static const char menu_CYPRESS_FM24[]="\
 #ifdef TEST_DSRTC
 static const char menu_DSRTC[]="\
  \033[33;1mq\033[0m - dsrtc read\r\n\
- \033[33;1mw\033[0m - dsrtc write\r\n\
- \033[33;1me\033[0m - dsrtc read temp\r\n";
+ \033[33;1mQ\033[0m - dsrtc write\r\n\
+ \033[33;1ma\033[0m - dsrtc read temp\r\n";
 #endif
 
 #ifdef TEST_TCA6408
@@ -45,11 +49,11 @@ static const char menu_TCA6408[]="\
 
 #ifdef TEST_HBMPS
 static const char menu_HBMPS[]="\
- \033[33;1m7\033[0m - hbmps read sensor\r\n";
+ \033[33;1mp\033[0m - hbmps read sensor\r\n";
 #endif
 
 #ifdef TEST_CYPRESS_FM24
-void display_memtest(const uint16_t usci_base_addr, const uint8_t slave_addr, const uint32_t start_addr, const uint32_t stop_addr, FM24_test_t test)
+void display_memtest(device_t *dev, const uint32_t start_addr, const uint32_t stop_addr, FM24_test_t test)
 {
     uint32_t el;
     uint32_t rows_tested;
@@ -63,7 +67,7 @@ void display_memtest(const uint16_t usci_base_addr, const uint8_t slave_addr, co
     uart_print(&bc, _utoa(itoa_buf, test));
     uart_print(&bc, "    ");
 
-    el = FM24_memtest(usci_base_addr, slave_addr, start_addr, stop_addr, test, &rows_tested);
+    el = fm24_memtest(dev, start_addr, stop_addr, test, &rows_tested);
 
     uart_print(&bc, _utoa(itoa_buf, rows_tested * 8));
     if (el == 0) { 
@@ -95,7 +99,7 @@ void print_buf_fram(const uint32_t address, const uint32_t size)
         uart_print(&bc, _utoh32(itoa_buf, bytes_printed));
         uart_print(&bc, ": ");
 
-        FM24_read(I2C_BASE_ADDR, FM24_SLAVE_ADDR, row, address + bytes_printed, bytes_to_be_printed);
+        fm24_read(&dev_fm24, address + bytes_printed, row, bytes_to_be_printed);
         read_ptr = &row[0];
 
         for (i = 0; i < bytes_to_be_printed; i++) {
@@ -144,6 +148,14 @@ void display_version(void)
     uart_print(&bc, "i2c hw master b");
     uart_print(&bc, _utoa(sconv, BUILD));
     uart_print(&bc, "\r\n");
+}
+
+void display_err(const uint16_t rv)
+{
+    char sconv[CONV_BASE_10_BUF_SZ];
+    uart_print(&bc, "\033[31;01merror\033[0m ");
+    uart_print(&bc, _utoh(sconv, rv));
+    uart_print(&bc, "\n");
 }
 
 #define PARSER_CNT 16
@@ -201,13 +213,22 @@ void parse_user_input(void)
 
 #ifdef TEST_CYPRESS_FM24
     } else if (f == 'w') {
-        //FM24_write(I2C_BASE_ADDR, FM24_SLAVE_ADDR, foo, FM_LA-20, 8);
-        FM24_write(I2C_BASE_ADDR, FM24_SLAVE_ADDR, bar, 0, 8);
+        //fm24_write(&dev_fm24, FM_LA-20, foo, 8);
+        rv = fm24_write(&dev_fm24, 0, bar, 8);
+        if (rv != BUS_OK) {
+            display_err(rv);
+            return;
+        }
+
     //} else if (f == 'b') {
-        //FM24_write(I2C_BASE_ADDR, FM24_SLAVE_ADDR, bar, 0x90, 8);
+        //fm24_write(&dev_fm24, 0x90, bar, 8);
     } else if (f == 'r') {
-        //FM24_read(I2C_BASE_ADDR, FM24_SLAVE_ADDR, data_r, FM_LA-20, 8);
-        FM24_read(I2C_BASE_ADDR, FM24_SLAVE_ADDR, data_r, 0, 8);
+        //fm24_read(&dev_fm24, FM_LA-20, data_r, 8);
+        rv = fm24_read(&dev_fm24, 0, data_r, 8);
+        if (rv != BUS_OK) {
+            display_err(rv);
+            return;
+        }
     } else if (f == 't') {
         //display_memtest(I2C_BASE_ADDR, 0xffe0, FM_LA, TEST_00);
         //display_memtest(I2C_BASE_ADDR, 0xffe0, FM_LA, TEST_00);
@@ -216,22 +237,25 @@ void parse_user_input(void)
         //display_memtest(I2C_BASE_ADDR, 0x60, 0x80, TEST_AA);
         //display_memtest(I2C_BASE_ADDR, 0x90, 0x98, TEST_00);
 
-        display_memtest(I2C_BASE_ADDR, FM24_SLAVE_ADDR, 0, FM_LA, TEST_FF);
-        display_memtest(I2C_BASE_ADDR, FM24_SLAVE_ADDR, 0, FM_LA, TEST_00);
-        display_memtest(I2C_BASE_ADDR, FM24_SLAVE_ADDR, 0, FM_LA, TEST_CNT);
-        display_memtest(I2C_BASE_ADDR, FM24_SLAVE_ADDR, 0, FM_LA, TEST_AA);
+        display_memtest(&dev_fm24, 0, FM_LA, TEST_FF);
+        display_memtest(&dev_fm24, 0, FM_LA, TEST_00);
+        display_memtest(&dev_fm24, 0, FM_LA, TEST_CNT);
+        display_memtest(&dev_fm24, 0, FM_LA, TEST_AA);
         uart_print(&bc, " * roll over test\r\n");
-        display_memtest(I2C_BASE_ADDR, FM24_SLAVE_ADDR, FM_LA - 3, FM_LA + 5, TEST_CNT);
+        display_memtest(&dev_fm24, FM_LA - 3, FM_LA + 5, TEST_CNT);
     } else if (f == 'h') {
         print_buf_fram(FM_LA - 63, 128);
 #endif
 
 #ifdef TEST_HBMPS
-    } else if (f == '7') {
+    } else if (f == 'p') {
 
-        rv = hbmps_read(&hbmps, &hbmps_raw);
-        if (rv != BUS_OK)
+        rv = hbmps_read(&dev_hbmps, &hbmps_raw);
+        if (rv != BUS_OK) {
+            display_err(rv);
             return;
+        }
+
         hbmps_convert(&hbmps_raw, &hbmps_pressure, &hbmps_temperature, &hbmps_spec);
 
         uart_print(&bc, "status: ");
@@ -258,12 +282,10 @@ void parse_user_input(void)
 #ifdef TEST_DSRTC
     } else if (f == 'q') {
 
-        rv = dsrtc_read_rtc(&dsrtc_i2c, &t);
-
+        rv = dsrtc_read_rtc(&dev_dsrtc, &t);
         if (rv != BUS_OK) {
-            uart_print(&bc, "error ");
-            uart_print(&bc, _utoh(sconv, rv));
-            uart_print(&bc, "\n");
+            display_err(rv);
+            return;
         }
 
         uart_print(&bc, _utoa(sconv, t.year));
@@ -284,7 +306,7 @@ void parse_user_input(void)
         uart_print(&bc, _utoa(sconv, t.unixtime));
 #endif
         uart_print(&bc, "\r\n");
-    } else if (f == 'w') {
+    } else if (f == 'Q') {
         t.sec = 0;
         t.min = COMPILE_MIN;
         t.hour = COMPILE_HOUR;
@@ -298,14 +320,18 @@ void parse_user_input(void)
 #ifdef CONFIG_UNIXTIME
         t.unixtime = 0;
 #endif
-        rv = dsrtc_write_rtc(&dsrtc_i2c, &t);
+        rv = dsrtc_write_rtc(&dev_dsrtc, &t);
         if (rv != BUS_OK) {
-            uart_print(&bc, "error ");
-            uart_print(&bc, _utoh(sconv, rv));
-            uart_print(&bc, "\n");
+            display_err(rv);
+            return;
         }
-    } else if (f == 'e') {
-        dsrtc_read_temp(&dsrtc_i2c, &dsrtc_temperature);
+    } else if (f == 'a') {
+        rv = dsrtc_read_temp(&dev_dsrtc, &dsrtc_temperature);
+        if (rv != BUS_OK) {
+            display_err(rv);
+            return;
+        }
+
         uart_print(&bc, "temp ");
         uart_print(&bc, _utoh(sconv, dsrtc_temperature));
         uart_print(&bc, "\r\n");

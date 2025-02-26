@@ -21,7 +21,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "atlas430.h"
 #include "bus.h"
@@ -33,7 +32,6 @@ uint16_t dsrtc_read(device_t *dev, const uint8_t offset, uint8_t *buf, const uin
     uint8_t cmd[1];
 
     cmd[0] = offset;
-    memset(buf, 0, nbytes);
     rv = bus_transfer(dev, buf, nbytes, cmd, 1, I2C_READ | I2C_LAST_NAK | I2C_REPEAT_SA_ON_READ);
     return rv;
 }

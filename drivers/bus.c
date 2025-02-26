@@ -23,8 +23,8 @@ uint16_t bus_init_i2c_hw_master(device_t *dev, const uint16_t usci_base_addr, co
     }
 
     i2c_desc->usci_base_addr = usci_base_addr;
-    i2c_desc->slave_addr = slave_addr;
-    i2c_desc->state = BUS_STATE_INITIALIZED;
+    dev->slave_addr = slave_addr;
+    dev->state = BUS_STATE_INITIALIZED;
     dev->bus_desc = i2c_desc;
     dev->bus_type = BUS_TYPE_I2C_HW_MASTER;
 
@@ -39,9 +39,9 @@ uint16_t bus_init_i2c_sw_master(device_t *dev, const uint8_t slave_addr, bus_des
         return BUS_ERR_ARG;
     }
 
-    i2c_desc->slave_addr = slave_addr;
+    dev->slave_addr = slave_addr;
     sbb_i2cm_init(i2c_desc);
-    i2c_desc->state = BUS_STATE_INITIALIZED;
+    dev->state = BUS_STATE_INITIALIZED;
     dev->bus_desc = i2c_desc;
     dev->bus_type = BUS_TYPE_I2C_SW_MASTER;
 
@@ -69,7 +69,11 @@ uint16_t bus_transfer(device_t *dev, uint8_t *buf, const uint16_t buf_sz, const 
         case BUS_TYPE_I2C_HW_MASTER:
 
             desc_i2c_hw_master_t = (bus_desc_i2c_hw_master_t *) dev->bus_desc;
-            i2c_pkg.slave_addr = desc_i2c_hw_master_t->slave_addr;
+            if (options & I2C_USE_CUSTOM_ADDR) {
+                i2c_pkg.slave_addr = dev->custom_slave_addr;
+            } else {
+                i2c_pkg.slave_addr = dev->slave_addr;
+            }
             i2c_pkg.addr = (uint8_t *) cmd;
             i2c_pkg.addr_len = cmd_sz;
             i2c_pkg.data = buf;
@@ -82,7 +86,11 @@ uint16_t bus_transfer(device_t *dev, uint8_t *buf, const uint16_t buf_sz, const 
         case BUS_TYPE_I2C_SW_MASTER:
 
             desc_i2c_sw_master_t = (bus_desc_i2c_sw_master_t *) dev->bus_desc;
-            i2c_pkg.slave_addr = desc_i2c_sw_master_t->slave_addr;
+            if (options & I2C_USE_CUSTOM_ADDR) {
+                i2c_pkg.slave_addr = dev->custom_slave_addr;
+            } else {
+                i2c_pkg.slave_addr = dev->slave_addr;
+            }
             i2c_pkg.addr = (uint8_t *) cmd;
             i2c_pkg.addr_len = cmd_sz;
             i2c_pkg.data = buf;

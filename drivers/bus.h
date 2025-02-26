@@ -24,26 +24,28 @@
 #define                  BUS_OK  0x00
 #define             BUS_ERR_ARG  0x01
 
+#define         BUS_PRIV_BUF_SZ  0x01 ///< used to inject custom data into packets like for I2C_USE_CUSTOM_ADDR 
+
 typedef struct bus_desc_i2c_hw_master {
-    uint16_t state;
     uint16_t usci_base_addr;
-    uint8_t slave_addr;
 } bus_desc_i2c_hw_master_t;
 
 typedef struct bus_desc_i2c_sw_master {
-    uint16_t state;
     uintptr_t port_dir;
     uintptr_t port_out;
     uintptr_t port_in;
     uint16_t pin_scl;
     uint16_t pin_sda;
-    uint8_t slave_addr;
 } bus_desc_i2c_sw_master_t;
 
 typedef struct device {
     uint16_t bus_type;
+    uint8_t priv_buf[BUS_PRIV_BUF_SZ];
     void *bus_desc; // pointer to either spi_descriptor, i2c_descriptor, etc
     void *priv;
+    uint8_t slave_addr;
+    uint8_t custom_slave_addr;
+    uint16_t state;
 } device_t;
 
 #ifdef __cplusplus

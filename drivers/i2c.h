@@ -59,13 +59,14 @@ extern "C" {
 #define I2C_LAST_NAK            0x8
 #define I2C_NO_ADDR_SHIFT       0x10
 #define I2C_REPEAT_SA_ON_READ   0x20
+#define I2C_USE_CUSTOM_ADDR     0x40
 
 // special start/stop seq needed by sensirion SHT sensors
 #define I2C_SHT_INIT            0x40
 
 typedef struct {
     uint8_t slave_addr;     ///< chip address of slave device
-    uint8_t *addr;          ///< register/command payload
+    uint8_t *addr;          ///< register/command/pre_data payload
     uint16_t addr_len;      ///< number of addr bytes to use
     uint8_t *data;          ///< pointer to data transfer buffer
     uint16_t data_len;      ///< number of bytes to transfer
