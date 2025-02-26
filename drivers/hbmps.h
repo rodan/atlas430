@@ -210,9 +210,21 @@ typedef struct hbmps_spec {
 extern "C" {
 #endif
 
-uint16_t hbmps_read(device_t *dev, struct hbmps_pkt *raw);
+/** read all 4 registers of a Honeywell pressure sensor IC
+    @param dev     device pointer
+    @param raw_pkt pre-allocated struct that holds the readout data
+    @return non-zero on failure
+*/
+uint16_t hbmps_read(device_t *dev, struct hbmps_pkt *raw_pkt);
 
-uint16_t hbmps_convert(const struct hbmps_pkt *hsc_pkt, int32_t *pressure,
+/** calculate the pressure and temperature contained 
+    @param raw_pkt      pre-allocated struct that holds the readout data
+    @param pressure     pre-allocated integer that will contain the calculated pressure (measured in pascals)
+    @param temperature  pre-allocated integer that will contain the calculated temperature (measured in degrees C, multiplied by 100)
+    @param spec         pointer to struct containing the specifications of the current sensor - based on part number nomenclature
+    @return non-zero on failure
+*/
+uint16_t hbmps_convert(const struct hbmps_pkt *raw_pkt, int32_t *pressure,
                    int32_t *temperature, const hbmps_spec_t *spec);
 
 #ifdef __cplusplus

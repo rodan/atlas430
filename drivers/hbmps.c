@@ -10,7 +10,6 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "bus.h"
 #include "hbmps.h"
@@ -26,7 +25,6 @@ uint16_t hbmps_read(device_t *dev, struct hbmps_pkt *raw)
     uint16_t rv;
     uint8_t buff[HBMPS_BUFF_SIZE];
 
-    memset(buff, 0, HBMPS_BUFF_SIZE);
     rv = bus_transfer(dev, buff, HBMPS_BUFF_SIZE, NULL, 0, I2C_READ | I2C_LAST_NAK | I2C_REPEAT_SA_ON_READ);
     if ( rv != BUS_OK) {
         return rv;

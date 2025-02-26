@@ -35,10 +35,6 @@
 #ifndef __ADS1110_H__
 #define __ADS1110_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <inttypes.h>
 
 // you must define the slave address.
@@ -69,16 +65,43 @@ extern "C" {
 #define ADS1110_STATE_CONVERT  0x1
 
 struct ads1110_t {
-    int16_t conv_raw;   // adc raw output
-    int16_t conv;       // int voltage value *10^4
-    uint8_t config;     // adc configuration register
-    uint8_t state;      // state machine parameter
+    int16_t conv_raw;   ///< adc raw output
+    int16_t conv;       ///< int voltage value *10^4
+    uint8_t config;     ///< adc configuration register
+    uint8_t state;      ///< state machine parameter
 };
 
-uint8_t ADS1110_read(const uint16_t usci_base_addr, const uint8_t slave_addr, struct ads1110_t *adc);
-void ADS1110_convert(struct ads1110_t *adc);
-uint8_t ADS1110_config(const uint16_t usci_base_addr, const uint8_t slave_addr, const uint8_t val);
-uint8_t ADS1110_init(const uint16_t usci_base_addr, const uint8_t slave_address, const uint8_t config_reg);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/** initialize chip and set config register
+    @param dev     device pointer
+    @param config_reg  value to which the config register will be set
+    @return non-zero on failure
+*/
+uint16_t ads1110_init(device_t *dev, const uint8_t config_reg);
+
+/** set config register
+    @param dev     device pointer
+    @param config_reg  value to which the config register will be set
+    @return non-zero on failure
+*/
+uint16_t ads1110_config(device_t *dev, const uint8_t config_reg);
+
+/** read conversion
+    @param dev    device pointer
+    @param adc    pre-allocated struct that holds the readout data
+    @return non-zero on failure
+*/
+uint16_t ads1110_read(device_t *dev, struct ads1110_t *adc);
+
+/** convert the raw readout data to a value that takes into account the IC gain
+    @param dev    device pointer
+    @param adc    pre-allocated struct that holds both the readout data and the calculated conversion
+    @return non-zero on failure
+*/
+void ads1110_convert(struct ads1110_t *adc);
 
 #ifdef __cplusplus
 }

@@ -1,5 +1,5 @@
 
-REFLIB_ROOT = ../../
+REFLIB_ROOT = ../
 IGNORE_TARGET = true
 include $(REFLIB_ROOT)Makefile.env
 
@@ -9,7 +9,7 @@ SRC	= $(SRC_C) $(SRC_H)
 
 tags: $(SRC)
 	@echo "Generating tags .."
-	@exuberant-ctags --recurse=yes ./
+	@$(CTAGS) --recurse=yes ./
 
 clean:
 	@rm -f tags
