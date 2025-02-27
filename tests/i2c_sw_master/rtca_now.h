@@ -6,7 +6,7 @@
 #define COMPILE_MON 2
 #define COMPILE_DAY 27
 #define COMPILE_DOW 4
-#define COMPILE_HOUR 7
-#define COMPILE_MIN 12
+#define COMPILE_HOUR 8
+#define COMPILE_MIN 14
 
 #endif

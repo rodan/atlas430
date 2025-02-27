@@ -26,10 +26,12 @@
 
 #define         BUS_PRIV_BUF_SZ  0x01 ///< used to inject custom data into packets like for I2C_USE_CUSTOM_ADDR 
 
+// struct that describes a hardware implementation of an i2c bus
 typedef struct bus_desc_i2c_hw_master {
     uint16_t usci_base_addr;
 } bus_desc_i2c_hw_master_t;
 
+// struct that describes a software (bitbanging) implementation of an i2c bus
 typedef struct bus_desc_i2c_sw_master {
     uintptr_t port_dir;
     uintptr_t port_out;
@@ -41,11 +43,12 @@ typedef struct bus_desc_i2c_sw_master {
 typedef struct device {
     uint16_t bus_type;
     uint8_t priv_buf[BUS_PRIV_BUF_SZ];
-    void *bus_desc; // pointer to either spi_descriptor, i2c_descriptor, etc
-    void *priv;
-    uint8_t slave_addr;
-    uint8_t custom_slave_addr;
-    uint16_t state;
+    void *bus_desc; ///< pointer to either spi_descriptor, i2c_descriptor, etc
+    void *priv;     ///< private struct used only by the driver code
+    void *spec;     ///< struct defining chip specifications
+    uint8_t slave_addr;  ///< i2c slave address for the chip
+    uint8_t custom_slave_addr; ///< i2c slave address used by special chip features
+    uint16_t state; ///< currently unused
 } device_t;
 
 #ifdef __cplusplus

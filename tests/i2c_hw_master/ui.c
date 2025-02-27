@@ -11,7 +11,6 @@ extern uart_descriptor bc;
 
 #ifdef TEST_HBMPS
     extern device_t dev_hbmps;
-    extern hbmps_spec_t hbmps_spec;
 #endif
 
 #ifdef TEST_DSRTC
@@ -187,6 +186,11 @@ void parse_user_input(void)
     uint8_t data_r[8]; // test 8 bytes (1 row) at a time
     //uint8_t foo[9]="hello wo";
     uint8_t bar[9]="33333333";
+
+    fm24_spec_t *fm24_spec;
+    if (!dev_fm24.spec)
+        return;
+    fm24_spec = dev_fm24.spec;
 #endif
 
 #ifdef TEST_HBMPS
@@ -213,7 +217,7 @@ void parse_user_input(void)
 
 #ifdef TEST_CYPRESS_FM24
     } else if (f == 'w') {
-        //fm24_write(&dev_fm24, FM_LA-20, foo, 8);
+        // fm24_write(&dev_fm24, fm24_spec->mem_sz-20, foo, 8);
         rv = fm24_write(&dev_fm24, 0, bar, 8);
         if (rv != BUS_OK) {
             display_err(rv);
@@ -223,28 +227,21 @@ void parse_user_input(void)
     //} else if (f == 'b') {
         //fm24_write(&dev_fm24, 0x90, bar, 8);
     } else if (f == 'r') {
-        //fm24_read(&dev_fm24, FM_LA-20, data_r, 8);
+        //rv = fm24_read(&dev_fm24, fm24_spec->mem_sz-20, data_r, 8);
         rv = fm24_read(&dev_fm24, 0, data_r, 8);
         if (rv != BUS_OK) {
             display_err(rv);
             return;
         }
     } else if (f == 't') {
-        //display_memtest(I2C_BASE_ADDR, 0xffe0, FM_LA, TEST_00);
-        //display_memtest(I2C_BASE_ADDR, 0xffe0, FM_LA, TEST_00);
-        //display_memtest(I2C_BASE_ADDR, 0x10, 0xb0, TEST_AA);
-        //display_memtest(I2C_BASE_ADDR, 0x40, 0x60, TEST_FF);
-        //display_memtest(I2C_BASE_ADDR, 0x60, 0x80, TEST_AA);
-        //display_memtest(I2C_BASE_ADDR, 0x90, 0x98, TEST_00);
-
-        display_memtest(&dev_fm24, 0, FM_LA, TEST_FF);
-        display_memtest(&dev_fm24, 0, FM_LA, TEST_00);
-        display_memtest(&dev_fm24, 0, FM_LA, TEST_CNT);
-        display_memtest(&dev_fm24, 0, FM_LA, TEST_AA);
+        display_memtest(&dev_fm24, 0, fm24_spec->mem_sz, TEST_FF);
+        display_memtest(&dev_fm24, 0, fm24_spec->mem_sz, TEST_00);
+        display_memtest(&dev_fm24, 0, fm24_spec->mem_sz, TEST_CNT);
+        display_memtest(&dev_fm24, 0, fm24_spec->mem_sz, TEST_AA);
         uart_print(&bc, " * roll over test\r\n");
-        display_memtest(&dev_fm24, FM_LA - 3, FM_LA + 5, TEST_CNT);
+        display_memtest(&dev_fm24, fm24_spec->mem_sz - 3, fm24_spec->mem_sz + 5, TEST_CNT);
     } else if (f == 'h') {
-        print_buf_fram(FM_LA - 63, 128);
+        print_buf_fram(fm24_spec->mem_sz - 63, 128);
 #endif
 
 #ifdef TEST_HBMPS
@@ -256,7 +253,7 @@ void parse_user_input(void)
             return;
         }
 
-        hbmps_convert(&hbmps_raw, &hbmps_pressure, &hbmps_temperature, &hbmps_spec);
+        hbmps_convert(&hbmps_raw, &hbmps_pressure, &hbmps_temperature, dev_hbmps.spec);
 
         uart_print(&bc, "status: ");
         uart_print(&bc, _utoh(sconv, hbmps_raw.status));

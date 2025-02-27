@@ -16,10 +16,12 @@
 #include "bus.h"
 #include "fm24.h"
 
+#if 0
 static struct mem_mgmt_t m;
 
 #ifdef FM24_HAS_SLEEP_MODE
 static uint8_t fm24_status;
+#endif
 #endif
 
 uint16_t fm24_read(device_t *dev, const uint32_t offset, uint8_t *buf, const uint32_t nbytes)
@@ -27,12 +29,18 @@ uint16_t fm24_read(device_t *dev, const uint32_t offset, uint8_t *buf, const uin
     uint16_t rv;
     uint32_t c_addr;
     uint8_t pre_data[2];
+    fm24_spec_t *spec;
+
+    if (!dev->spec)
+        return 1;
+
+    spec = dev->spec;
 
     // * first seek to the required address
     // in case a seek beyond the end of device is requested
     // we roll to the beginning since this memory is circular in nature
-    if (offset > FM_LA) {
-        c_addr = offset % FM_LA - 1;
+    if (offset > spec->mem_sz) {
+        c_addr = offset % spec->mem_sz - 1;
     } else {
         c_addr = offset;
     }
@@ -60,15 +68,20 @@ uint16_t fm24_write(device_t *dev, const uint32_t offset, uint8_t *buf, const ui
     uint16_t rv;
     uint32_t c_addr;
     uint8_t pre_data[2];
+    fm24_spec_t *spec;
+
+    if (!dev->spec)
+        return 1;
+
+    spec = dev->spec;
 
     // in case a seek beyond the end of device is requested
     // we roll to the beginning since this memory is circular in nature
-    if (offset > FM_LA) {
-        c_addr = offset % FM_LA - 1;
+    if (offset > spec->mem_sz) {
+        c_addr = offset % spec->mem_sz - 1;
     } else {
         c_addr = offset;
     }
-    m.e = offset;
 
     pre_data[0] = (c_addr & 0xff00) >> 8;
     pre_data[1] = c_addr & 0xff;
@@ -79,12 +92,15 @@ uint16_t fm24_write(device_t *dev, const uint32_t offset, uint8_t *buf, const ui
         return rv;
     }
 
+#if 0
+    m.e = offset;
     m.e += nbytes;
     if (m.e > FM_LA) {
         m.e = m.e % FM_LA - 1;
     }
 #ifdef FM24_HAS_SLEEP_MODE
     fm24_status |= FM24_AWAKE;
+#endif
 #endif
 
     return 0;
@@ -108,6 +124,7 @@ uint16_t fm24_sleep(device_t *dev)
 }
 #endif
 
+#if 0
 uint16_t fm24_data_len(const uint32_t first, const uint32_t last)
 {
     uint32_t rv = 0;
@@ -120,6 +137,7 @@ uint16_t fm24_data_len(const uint32_t first, const uint32_t last)
 
     return rv;
 }
+#endif
 
 #endif // __I2C_CONFIG_H__
 #endif // CONFIG_CYPRESS_FM24

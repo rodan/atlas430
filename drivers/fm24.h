@@ -43,8 +43,16 @@
 #define FM24_RSVD    0xF8       // reserved slave address
 #define FM24_SLEEP   0x86       // sleep command
 
+// chip specification struct
+// Cypress FM24V10   mem_sz = 0x1FFFFl
+// Cypress FM24CL64B mem_sz = 0x1FFFl
+typedef struct fm24_spec {
+    uint32_t mem_sz;            // last reachable address
+} fm24_spec_t;
+
 // FM24V10 has 131072 addressable bytes, so uint16_t is not enough
 
+#if 0
 #if defined(CONFIG_FM24V10)
 
 //#define FM24_HAS_SLEEP_MODE
@@ -73,6 +81,8 @@
 #endif
 
 #define FM24_AWAKE  0x1
+#endif
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -109,6 +119,7 @@ uint16_t fm24_write(device_t *dev, const uint32_t offset, uint8_t *buf, const ui
  **/
 uint16_t fm24_sleep(device_t *dev);
 
+#if 0
 // helpers
 struct mem_mgmt_t {
     uint32_t e;                 // first empty address
@@ -116,7 +127,8 @@ struct mem_mgmt_t {
     uint8_t seg_num;            // number of allocated segments
 };
 
-uint16_t fm24_data_len(const uint32_t first, const uint32_t last);
+//uint16_t fm24_data_len(const uint32_t first, const uint32_t last);
+#endif
 
 #ifdef __cplusplus
 }

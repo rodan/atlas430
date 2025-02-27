@@ -19,10 +19,5 @@
 // see hsc_ssc.h for a description of these values
 // these defaults are valid for the HSCMRNN030PA2A3 chip
 #define         HSC_SLAVE_ADDR  0x28
-#define             OUTPUT_MIN  0x666
-#define             OUTPUT_MAX  0x399a
-#define           PRESSURE_MIN  0          // min is 0 for sensors that give absolute values
-#define           PRESSURE_MAX  206843     // 30psi (and we want results in pascals)
-
 
 #endif

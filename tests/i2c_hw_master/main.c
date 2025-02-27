@@ -25,6 +25,7 @@ uart_descriptor bc; // backchannel uart interface
 
 #ifdef TEST_CYPRESS_FM24
     device_t dev_fm24;
+    fm24_spec_t fm24_spec;
     bus_desc_i2c_hw_master_t fm24_bus_desc;
 #endif
 
@@ -85,6 +86,7 @@ void i2c_init(void)
     hbmps_spec.pressure_min = 0;
     hbmps_spec.pressure_max = 206843;
 
+    dev_hbmps.spec = &hbmps_spec;
     bus_init_i2c_hw_master(&dev_hbmps, I2C_BASE_ADDR, HSC_SLAVE_ADDR, &hbmps_bus_desc);
 #endif
 
@@ -96,6 +98,8 @@ void i2c_init(void)
 #endif
 
 #ifdef TEST_CYPRESS_FM24
+    fm24_spec.mem_sz = 0x1FFFl;
+    dev_fm24.spec = &fm24_spec;
     bus_init_i2c_hw_master(&dev_fm24, I2C_BASE_ADDR, FM24_SLAVE_ADDR, &fm24_bus_desc);
 #endif
 
