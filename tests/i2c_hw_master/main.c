@@ -89,7 +89,7 @@ void i2c_init(void)
 #endif
 
 #ifdef TEST_DSRTC
-    bus_init_i2c_hw_master(&dev_dsrtc, I2C_BASE_ADDR, DSRTC_I2C_ADDR, &dsrtc_bus_desc);
+    bus_init_i2c_hw_master(&dev_dsrtc, I2C_BASE_ADDR, DSRTC_SLAVE_ADDR, &dsrtc_bus_desc);
 
     dsrtc_priv.ic_type = DSRTC_TYPE_DS3231;
     dev_dsrtc.priv = &dsrtc_priv;

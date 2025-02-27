@@ -12,15 +12,20 @@
 uart_descriptor bc; // backchannel uart interface
 
 #ifdef TEST_HBMPS
-    device_t hbmps;
+    device_t dev_hbmps;
     bus_desc_i2c_sw_master_t hbmps_bus_desc;
     hbmps_spec_t hbmps_spec;
 #endif
 
 #ifdef TEST_DSRTC
-    device_t dsrtc_i2c;
-    dsrtc_priv_t dsrtc_i2c_priv;
-    bus_desc_i2c_sw_master_t dsrtc_i2c_bus_desc;
+    device_t dev_dsrtc;
+    dsrtc_priv_t dsrtc_priv;
+    bus_desc_i2c_sw_master_t dsrtc_bus_desc;
+#endif
+
+#ifdef TEST_CYPRESS_FM24
+    device_t dev_fm24;
+    bus_desc_i2c_sw_master_t fm24_bus_desc;
 #endif
 
 static void uart_bcl_rx_irq(uint32_t msg)
@@ -61,20 +66,30 @@ void i2c_init(void)
     hbmps_bus_desc.pin_scl = BIT1;
     hbmps_bus_desc.pin_sda = BIT0;
 
-    bus_init_i2c_sw_master(&hbmps, HSC_SLAVE_ADDR, &hbmps_bus_desc);
+    bus_init_i2c_sw_master(&dev_hbmps, HSC_SLAVE_ADDR, &hbmps_bus_desc);
 #endif
 
 #ifdef TEST_DSRTC
-    dsrtc_i2c_bus_desc.port_dir = HWREGADDR8(P7DIR);
-    dsrtc_i2c_bus_desc.port_out = HWREGADDR8(P7OUT);
-    dsrtc_i2c_bus_desc.port_in = HWREGADDR8(P7IN);
-    dsrtc_i2c_bus_desc.pin_scl = BIT1;
-    dsrtc_i2c_bus_desc.pin_sda = BIT0;
+    dsrtc_bus_desc.port_dir = HWREGADDR8(P7DIR);
+    dsrtc_bus_desc.port_out = HWREGADDR8(P7OUT);
+    dsrtc_bus_desc.port_in = HWREGADDR8(P7IN);
+    dsrtc_bus_desc.pin_scl = BIT1;
+    dsrtc_bus_desc.pin_sda = BIT0;
 
-    bus_init_i2c_sw_master(&dsrtc_i2c, DSRTC_I2C_ADDR, &dsrtc_i2c_bus_desc);
+    bus_init_i2c_sw_master(&dev_dsrtc, DSRTC_SLAVE_ADDR, &dsrtc_bus_desc);
 
-    dsrtc_i2c_priv.ic_type = DSRTC_TYPE_DS3231;
-    dsrtc_i2c.priv = &dsrtc_i2c_priv;
+    dsrtc_priv.ic_type = DSRTC_TYPE_DS3231;
+    dev_dsrtc.priv = &dsrtc_priv;
+#endif
+
+#ifdef TEST_CYPRESS_FM24
+    fm24_bus_desc.port_dir = HWREGADDR8(P7DIR);
+    fm24_bus_desc.port_out = HWREGADDR8(P7OUT);
+    fm24_bus_desc.port_in = HWREGADDR8(P7IN);
+    fm24_bus_desc.pin_scl = BIT1;
+    fm24_bus_desc.pin_sda = BIT0;
+
+    bus_init_i2c_sw_master(&dev_fm24, FM24_SLAVE_ADDR, &fm24_bus_desc);
 #endif
 
 }

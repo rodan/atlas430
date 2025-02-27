@@ -34,8 +34,8 @@
 #define USE_SIG
 #define CONFIG_DEBUG
 
-//#define TEST_CYPRESS_FM24
-#define TEST_HBMPS
+#define TEST_CYPRESS_FM24
+//#define TEST_HBMPS
 //#define TEST_DSRTC
 //#define TEST_TCA6408
 

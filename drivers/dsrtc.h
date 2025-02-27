@@ -12,7 +12,7 @@
 **/
 
 // i2c slave address of the DS3231 chip
-#define           DSRTC_I2C_ADDR  0x68
+#define         DSRTC_SLAVE_ADDR  0x68
 
 #define        DSRTC_TYPE_DS3231  0xcaf
 #define        DSRTC_TYPE_DS3234  0xca2

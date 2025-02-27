@@ -98,7 +98,7 @@ uint16_t fm24_sleep(device_t *dev)
     uint8_t buf[1] = { FM24_SLEEP };
 
     dev->custom_slave_addr = FM24_RSVD;
-    rv = bus_transfer(dev, buf, 1, pre_data, 1, I2C_NO_ADDR_SHIFT | I2C_WRITE);
+    rv = bus_transfer(dev, buf, 1, pre_data, 1, I2C_NO_ADDR_SHIFT | I2C_WRITE | I2C_USE_CUSTOM_ADDR);
     if (rv != BUS_OK) {
         return rv;
     }
